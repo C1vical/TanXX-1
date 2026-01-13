@@ -18,11 +18,9 @@ public class Tank extends Sprite {
 
     float decay = 4f;
 
-    public Tank(float worldX, float worldY, float size, float angle, float speed, Texture texture, Color color, Color stroke) {
-        super(worldX, worldY, size, angle, speed, texture, color, stroke);
-        centerX = worldX + size / 2f;
-        centerY = worldY + size / 2f;
-        recoil = size * 1.8f;
+    public Tank(float centerX, float centerY, float size, float angle, float speed, Texture texture, Color color, Color stroke) {
+        super(centerX, centerY, size, angle, speed, texture, color, stroke);
+        recoil = size * 0.8f;
     }
 
     public void update() {
@@ -42,32 +40,31 @@ public class Tank extends Sprite {
         velocityX = moveX * speed + recoilX;
         velocityY = moveY * speed + recoilY;
 
-        worldX += (velocityX + bounceX) * GameScreen.dt;
-        worldY += (-velocityY + bounceY) * GameScreen.dt;
-
         recoilX -= recoilX * decay * GameScreen.dt;
         recoilY -= recoilY * decay * GameScreen.dt;
         bounceX -= bounceX * decay * GameScreen.dt;
         bounceY -= bounceY * decay * GameScreen.dt;
 
+        centerX += (velocityX + bounceX) * GameScreen.dt;
+        centerY += (-velocityY + bounceY) * GameScreen.dt;
 
-        if (worldX < -size / 2f && velocityX < 0) {
-            worldX = -size / 2f;
+        if (centerX < 0 && velocityX < 0) {
+            centerX = 0;
             bounceX = -velocityX * bounceStrength;
         }
 
-        if (worldX > GameScreen.worldW - size / 2f && velocityX > 0) {
-            worldX = GameScreen.worldW - size / 2f;
+        if (centerX > GameScreen.worldW  && velocityX > 0) {
+            centerX = GameScreen.worldW;
             bounceX = -velocityX * bounceStrength;
         }
 
-        if (worldY < -size / 2f && velocityY > 0) {
-            worldY = -size / 2f;
+        if (centerY < 0 && velocityY > 0) {
+            centerY = 0;
             bounceY = velocityY * bounceStrength;
         }
 
-        if (worldY > GameScreen.worldH - size / 2f && velocityY < 0) {
-            worldY = GameScreen.worldH - size / 2f;
+        if (centerY > GameScreen.worldH && velocityY < 0) {
+            centerY = GameScreen.worldH;
             bounceY = velocityY * bounceStrength;
         }
 
@@ -75,14 +72,9 @@ public class Tank extends Sprite {
         if (Math.abs(bounceY) < 0.5f) bounceY = 0f;
         if (Math.abs(recoilX) < 0.5f) recoilX = 0f;
         if (Math.abs(recoilY) < 0.5f) recoilY = 0f;
-
-        centerX = worldX + size / 2f;
-        centerY = worldY + size / 2f;
     }
 
     public void draw() {
-        centerX = worldX + size / 2f;
-        centerY = worldY + size / 2f;
         DrawCircleV(new Vector2().x(centerX).y(centerY), size / 2 + strokeWidth, stroke);
         DrawCircleV(new Vector2().x(centerX).y(centerY), size / 2, color);
     }

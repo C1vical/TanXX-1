@@ -52,10 +52,10 @@ public class GameScreen extends GameState {
 
     // Bullets
     public Texture bullet;
-    public static float reloadSpeed = 0.15f; // default 0.8f
+    public static float reloadSpeed = 0.5f; // default 0.8f
     public static float reloadTimer = 0f;
     public static int bulletSize = barrelH; // default barrelH
-    public static int bulletSpeed = 400; // pixels per second
+    public static int bulletSpeed = 250; // pixels per second
     List<Bullet> bullets = new ArrayList<>();
 
     // Shapes
@@ -103,7 +103,7 @@ public class GameScreen extends GameState {
         settings = resizeImage(LoadImage("resources/game/settings.png"), settingsSize, settingsSize);
 
         // Set player tank
-        playerTank = new Tank(worldW / 2f - tankSize / 2f, worldH / 2f - tankSize / 2f, tankSize, angle, tankSpeed, tank, tankColor, tankStrokeColor);
+        playerTank = new Tank(worldW / 2f, worldH / 2f, tankSize, angle, tankSpeed, tank, tankColor, tankStrokeColor);
 
         // Set camera
         camera = new Camera2D();
@@ -208,28 +208,38 @@ public class GameScreen extends GameState {
         ClearBackground(borderGridColour);
 
         BeginMode2D(camera);
-        
-        drawWorld();
 
+        // Camera bounds
+        float camLeft   = camera.target().x() - camera.offset().x() / camera.zoom();
+        float camRight  = camLeft + GetScreenWidth() / camera.zoom();
+        float camTop    = camera.target().y() - camera.offset().y() / camera.zoom();
+        float camBottom = camTop + GetScreenHeight() / camera.zoom();
+
+        drawWorld();
         // Shapes
         for (Shape s : shapes) {
-            s.draw();
-            if (hitbox) {
-                s.drawHitBox();
+            if (s.getCenterX() >= camLeft && s.getCenterX() <= camRight && s.getCenterY() >= camTop && s.getCenterY() <= camBottom) {
+                s.draw();
+                if (hitbox) {
+                    s.drawHitBox();
+                }
             }
+
         }
 
         // Bullets
         Iterator<Bullet> it = bullets.iterator();
         while (it.hasNext()) {
             Bullet b = it.next();
-            if (b.isAlive()) {
-                b.draw();
-                if (hitbox) {
-                    b.drawHitBox();
+            if (b.getCenterX() >= camLeft && b.getCenterX() <= camRight && b.getCenterY() >= camTop && b.getCenterY() <= camBottom) {
+                if (b.isAlive()) {
+                    b.draw();
+                    if (hitbox) {
+                        b.drawHitBox();
+                    }
+                } else {
+                    it.remove();
                 }
-            } else {
-                it.remove();
             }
         }
 
@@ -357,13 +367,33 @@ public class GameScreen extends GameState {
     }
 
     private void fireBullet() {
-        float bulletX = playerTank.getCenterX() + (float) Math.cos(angle) * (barrelW + bulletSize / 2f) - bulletSize / 2f;
-        float bulletY = playerTank.getCenterY() + (float) Math.sin(angle) * (barrelW + bulletSize / 2f) - bulletSize / 2f;
+        float bulletX = playerTank.getCenterX() + (float) Math.cos(angle) * (barrelW + bulletSize / 2f);
+        float bulletY = playerTank.getCenterY() + (float) Math.sin(angle) * (barrelW + bulletSize / 2f);
         bullets.add(new Bullet(bulletX, bulletY, bulletSize, angle, bulletSpeed, bullet, bulletColor, bulletStrokeColor));
         reloadTimer = reloadSpeed;
     }
 
     public void checkCollisions() {
+        // Shape-shape collision
+//        for (int i = 0; i < shapes.size(); i++) {
+//            Shape s1 = shapes.get(i);
+//
+//            for (int j = i + 1; j < shapes.size(); j++) {
+//                Shape s2 = shapes.get(j);
+//
+//                boolean hit = Collision.polygonPolygonCollision(s1.polygon, s2.polygon);
+//
+//                if (hit) {
+//                    // Remove both shapes
+//                    shapes.remove(j); // remove s2 first (higher index)
+//                    shapes.remove(i); // then remove s1
+//                    i--; // step back i because s1 was removed
+//                    break; // exit inner loop since s1 is gone
+//                }
+//            }
+//        }
+
+        // Bullet and shape collision
         Iterator<Bullet> bulletIt = bullets.iterator();
         while (bulletIt.hasNext()) {
             Bullet b = bulletIt.next();
@@ -372,21 +402,35 @@ public class GameScreen extends GameState {
             while (shapeIt.hasNext()) {
                 Shape s = shapeIt.next();
 
-                if (CheckCollisionCircles(new Vector2().x(b.getCenterX()).y(b.getCenterY()),b.size / 2f, new Vector2().x(s.getCenterX()).y(s.getCenterY()), s.size / 2f)) {
+                boolean hit;
+
+                // Circle vs Polygon (bullet is circle)
+                hit = Collision.circlePolygonCollision(new Vector2().x(b.getCenterX()).y(b.getCenterY()), b.size / 2f, s.polygon);
+
+                if (hit) {
                     bulletIt.remove();
                     shapeIt.remove();
-                    break;
+                    break; // stop checking other shapes for this bullet
                 }
             }
         }
 
+        // Shape and tank collision
         Iterator<Shape> shapeIt = shapes.iterator();
         while (shapeIt.hasNext()) {
             Shape s = shapeIt.next();
-            if (CheckCollisionCircles(new Vector2().x(s.getCenterX()).y(s.getCenterY()),s.size / 2f, new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY()), playerTank.size / 2f)) {
+
+            boolean hit;
+
+            // Polygon vs Polygon (tank can be polygon if you want) or circle vs polygon
+            hit = Collision.circlePolygonCollision(new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY()), playerTank.size / 2f, s.polygon);
+
+            if (hit) {
                 shapeIt.remove();
-                break;
+                // optionally, you can handle tank damage here
+                break; // remove only 1 shape per frame
             }
         }
     }
+
 }

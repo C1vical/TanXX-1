@@ -2,9 +2,6 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.newColor;
 
 public class Sprite {
-    // Coordinates in the world 
-    protected float worldX;
-    protected float worldY;
 
     // Coordinates of center
     protected float centerX;
@@ -40,10 +37,9 @@ public class Sprite {
     // Alive status
     protected boolean alive;
 
-
-    public Sprite(float worldX, float worldY, float size, float angle, float speed, Texture texture, Color color, Color stroke) {
-        this.worldX = worldX;
-        this.worldY = worldY;
+    public Sprite(float centerX, float centerY, float size, float angle, float speed, Texture texture, Color color, Color stroke) {
+        this.centerX = centerX;
+        this.centerY = centerY;
         this.size = size;
         this.angle = angle;
         this.speed = speed;

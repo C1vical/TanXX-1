@@ -1,4 +1,4 @@
-import static com.raylib.Colors.WHITE;
+import static com.raylib.Colors.BLUE;
 import static com.raylib.Raylib.*;
 
 public class Shape extends Sprite {
@@ -14,6 +14,12 @@ public class Shape extends Sprite {
 
     private boolean alive = true;
 
+    // Vertices
+    public Polygon polygon;
+    private int sides;
+    private Vector2[] vertices;
+    private float step;
+
     public Shape(float orbitX, float orbitY, float size, float angle, float speed, Texture texture, Color color, Color stroke, int type) {
         super(0, 0, size, angle, speed, texture, color, stroke);
         
@@ -27,12 +33,28 @@ public class Shape extends Sprite {
         // Random orbit radius between 30 and 100
         orbitRadius = 30 + (float)(Math.random() * 70);
         
-        worldX = (float) (orbitX + Math.cos(orbitAngle) * orbitRadius);
-        worldY = (float) (orbitY + Math.sin(orbitAngle) * orbitRadius);
+        centerX = (float) (orbitX + Math.cos(orbitAngle) * orbitRadius);
+        centerY = (float) (orbitY + Math.sin(orbitAngle) * orbitRadius);
 
         alive = false;
 
         this.type = type;
+
+        switch (type) {
+            case 0 -> sides = 4;
+            case 1 -> sides = 3;
+            default -> sides = 5;
+        }
+
+        vertices = new Vector2[sides];
+        step = (float) (Math.PI * 2.0 / sides);
+
+        for (int i = 0; i < sides; i++) {
+            float a = angle + i * step;
+            vertices[i] = new Vector2().x(centerX + (float) Math.cos(a) * (size + strokeWidth)).y(centerY + (float) Math.sin(a) * (size + strokeWidth));
+        }
+
+        polygon = new Polygon(vertices);
     }
 
     public void update() {
@@ -44,8 +66,12 @@ public class Shape extends Sprite {
         centerX = (float) (orbitX + Math.cos(orbitAngle) * orbitRadius);
         centerY = (float) (orbitY + Math.sin(orbitAngle) * orbitRadius);
 
-        worldX = centerX - size / 2f;
-        worldY = centerY - size / 2f;
+        for (int i = 0; i < sides; i++) {
+            float a = angle + i * step;
+            vertices[i] = new Vector2().x(centerX + (float) Math.cos(a) * (size + strokeWidth)).y(centerY + (float) Math.sin(a) * (size + strokeWidth));
+        }
+
+        polygon.update(vertices);
     }
 
     public void draw() {
@@ -53,6 +79,7 @@ public class Shape extends Sprite {
             case 0 -> {
                 DrawPoly(new Vector2().x(centerX).y(centerY), 4, size + strokeWidth, angle * (180f / (float) Math.PI), stroke);
                 DrawPoly(new Vector2().x(centerX).y(centerY), 4, size, angle * (180f / (float) Math.PI), color);
+
             }
             case 1 -> {
                 DrawPoly(new Vector2().x(centerX).y(centerY), 3, size + strokeWidth, angle * 180f / (float) Math.PI, stroke);

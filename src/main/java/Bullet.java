@@ -4,19 +4,16 @@ public class Bullet extends Sprite {
     // Lifetime in frames
     private float lifeTime;
 
-    public Bullet(float worldX, float worldY, float size, float angle, float speed, Texture texture, Color color, Color stroke) {
-        super(worldX, worldY, size, angle, speed, texture, color, stroke);
-        lifeTime = 3f;
+    public Bullet(float centerX, float centerY, float size, float angle, float speed, Texture texture, Color color, Color stroke) {
+        super(centerX, centerY, size, angle, speed, texture, color, stroke);
+        lifeTime = 2f;
         alive = true;
     }
 
     public void update() {
         // Move bullet in the direction of its angle
-        worldX += (float) (Math.cos(angle) * speed * GameScreen.dt);
-        worldY += (float) (Math.sin(angle) * speed * GameScreen.dt);
-
-        centerX = worldX + size / 2f;
-        centerY = worldY + size / 2f;
+        centerX += (float) (Math.cos(angle) * speed * GameScreen.dt);
+        centerY += (float) (Math.sin(angle) * speed * GameScreen.dt);
 
         // Reduce lifetime
         lifeTime -= GameScreen.dt;
