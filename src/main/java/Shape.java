@@ -1,4 +1,5 @@
 import static com.raylib.Colors.BLUE;
+import static com.raylib.Helpers.newColor;
 import static com.raylib.Raylib.*;
 
 public class Shape extends Sprite {
@@ -20,9 +21,32 @@ public class Shape extends Sprite {
     private Vector2[] vertices;
     private float step;
 
-    public Shape(float orbitX, float orbitY, float size, float angle, float speed, Texture texture, Color color, Color stroke, int type) {
-        super(0, 0, size, angle, speed, texture, color, stroke);
-        
+    Color defaultSquareColor = newColor(214, 208, 30, 255);
+    Color defaultSquareStroke = newColor(158, 152, 24, 255);
+    Color defaultTriangleColor = newColor(214, 51, 30, 255);
+    Color defaultTriangleStroke = newColor(148, 30, 15, 255);
+    Color defaultPentagonColor = newColor(82, 58, 222, 255);
+    Color defaultPentagonStroke = newColor(59, 36, 212, 255);
+
+
+    public Shape(float orbitX, float orbitY, float angle, Texture texture, int type) {
+        super(0, 0, angle, texture);
+        size = 25;
+        switch(type) {
+            case 0 -> {
+               color = defaultSquareColor;
+               stroke = defaultSquareStroke;
+            }
+            case 1 -> {
+                color = defaultTriangleColor;
+                stroke = defaultTriangleStroke;
+            }
+            default -> {
+                color = defaultPentagonColor;
+                stroke = defaultPentagonStroke;
+            }
+        }
+
         this.orbitX = orbitX;
         this.orbitY = orbitY;
 

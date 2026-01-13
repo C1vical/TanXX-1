@@ -1,4 +1,9 @@
+import static com.raylib.Helpers.newColor;
 import static com.raylib.Raylib.*;
+import static com.raylib.Colors.*;
+import static com.raylib.Helpers.newColor;
+import static com.raylib.Helpers.newRectangle;
+
 
 public class Tank extends Sprite {
 
@@ -18,8 +23,19 @@ public class Tank extends Sprite {
 
     float decay = 4f;
 
-    public Tank(float centerX, float centerY, float size, float angle, float speed, Texture texture, Color color, Color stroke) {
-        super(centerX, centerY, size, angle, speed, texture, color, stroke);
+    Color defaultColor = newColor(144, 252, 3, 255);
+
+    public Tank(float centerX, float centerY, float angle, Texture texture) {
+        super(centerX, centerY, angle, texture);
+        size = 75;
+        speed = 200;
+        color = defaultColor;
+
+        maxHealth = 100;
+        health = maxHealth;
+        bodyDamage = 20;
+        healthRegen = 8;
+
         recoil = size * 0.8f;
     }
 
@@ -75,13 +91,17 @@ public class Tank extends Sprite {
     }
 
     public void draw() {
-        DrawCircleV(new Vector2().x(centerX).y(centerY), size / 2 + strokeWidth, stroke);
-        DrawCircleV(new Vector2().x(centerX).y(centerY), size / 2, color);
+        Rectangle source = newRectangle(0, 0, size + 2 * strokeWidth, size + 2 * strokeWidth);
+        Rectangle dest = newRectangle(centerX, centerY, size + 2 * strokeWidth, size + 2 * strokeWidth);
+        Vector2 origin = new Vector2().x(size / 2+ strokeWidth).y(size / 2 + strokeWidth);
+        DrawTexturePro(texture, source, dest, origin, angle, color);
+//        DrawCircleV(new Vector2().x(centerX).y(centerY), size / 2 + strokeWidth, stroke);
+//        DrawCircleV(new Vector2().x(centerX).y(centerY), size / 2, color);
     }
 
     public void applyRecoil() {
-        recoilX = -recoil * (float) Math.cos(angle);
-        recoilY = recoil * (float) Math.sin(angle);
+        recoilX = -recoil * (float) Math.cos(angle) * size / 10;
+        recoilY = recoil * (float) Math.sin(angle) * size / 10;
     }
 
     public void drawHitBox() {

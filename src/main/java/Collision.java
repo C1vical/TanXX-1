@@ -13,7 +13,7 @@ public class Collision {
                 Vector2 edge = Vector2Subtract(v2, v1); // Wdge
                 Vector2 axis = Vector2Normalize(Vector2Rotate(edge, (float) (Math.PI / 2))); // Normal to one of the sides of the polygon
 
-                // Project both polyogns onto the axis
+                // Project both polygon vertices onto the axis
                 float[] projA = project(a, axis);
                 float[] projB = project(b, axis);
 

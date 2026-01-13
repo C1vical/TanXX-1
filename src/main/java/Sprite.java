@@ -27,25 +27,20 @@ public class Sprite {
     // Hitbox color
     protected Color hitboxColor = newColor(17, 184, 83, 255);
 
-    // Sprite health
-    protected float health;
-    protected float maxHealth;
-
     // Stats
-    protected float damage;
+    protected float maxHealth;
+    protected float health;
+    protected float healthRegen;
+    protected float bodyDamage;
 
     // Alive status
     protected boolean alive;
 
-    public Sprite(float centerX, float centerY, float size, float angle, float speed, Texture texture, Color color, Color stroke) {
+    public Sprite(float centerX, float centerY, float angle, Texture texture) {
         this.centerX = centerX;
         this.centerY = centerY;
-        this.size = size;
         this.angle = angle;
-        this.speed = speed;
         this.texture = texture;
-        this.color = color;
-        this.stroke = stroke;
     }
 
     public float getCenterX() {

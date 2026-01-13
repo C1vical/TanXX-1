@@ -25,18 +25,8 @@ public class GameScreen extends GameState {
     public final Color borderGridLineColour = newColor(45, 45, 45, 255);
 
     // Colors
-    public final Color tankColor = newColor(212, 25, 125, 255);
-    public final Color tankStrokeColor = newColor(55, 55, 55, 255);
     public final Color barrelColor = newColor(100, 99, 107, 255);
     public final Color barrelStrokeColor = newColor(55, 55, 55, 255);
-    public final Color bulletColor = newColor(212, 25, 125, 255);
-    public final Color bulletStrokeColor = newColor(55, 55, 55, 255);
-    public final Color squareColor = newColor(214, 208, 30, 255);
-    public final Color squareStrokeColor = newColor(158, 152, 24, 255);
-    public final Color triangleColor = newColor(214, 51, 30, 255);
-    public final Color triangleStrokeColor = newColor(148, 30, 15, 255);
-    public final Color pentagonColor = newColor(82, 58, 222, 255);
-    public final Color pentagonStrokeColor = newColor(59, 36, 212, 255);
 
     // Tank
     public Texture tank;
@@ -47,12 +37,12 @@ public class GameScreen extends GameState {
 
     // Barrel
     public Texture barrel;
-    public static final int barrelW = tankSize;
-    public static final int barrelH = tankSize / 2;
+    public static final int barrelW = 75;
+    public static final int barrelH = tankSize + 10;
 
     // Bullets
     public Texture bullet;
-    public static float reloadSpeed = 0.5f; // default 0.8f
+    public static float reloadSpeed = 0.2f; // default 0.8f
     public static float reloadTimer = 0f;
     public static int bulletSize = barrelH; // default barrelH
     public static int bulletSpeed = 250; // pixels per second
@@ -73,15 +63,16 @@ public class GameScreen extends GameState {
     
     // Camera
     public static Camera2D camera = new Camera2D();
+    float camLeft;
+    float camRight;
+    float camTop;
+    float camBottom;
 
     // Camera zoom level
     public static float zoomLevel = 1.0f;
 
     // Frame time
     public static float dt;
-    public int fps;
-    public int boxW = 125, boxH = 50, boxX = 10, boxY = 10;
-    public Rectangle rect =  newRectangle(boxX, boxY, boxW, boxH);
 
     // Booleans
     public static boolean hitbox = false, autoFire = false, autoSpin = false;
@@ -94,7 +85,7 @@ public class GameScreen extends GameState {
 
     public GameScreen() {
         // Load Textures
-        tank = resizeImage(LoadImage("resources/game/tank.png"), tankSize, tankSize);
+        tank = resizeImage(LoadImage("resources/game/tank.png"), tankSize + 2 * 5, tankSize + 2 * 5);
         barrel = resizeImage(LoadImage("resources/game/barrel.png"), barrelW, barrelH);
         bullet = resizeImage(LoadImage("resources/game/bullet.png"), bulletSize, bulletSize);
         square = resizeImage(LoadImage("resources/game/square.png"), shapeRadius, shapeRadius);
@@ -103,7 +94,7 @@ public class GameScreen extends GameState {
         settings = resizeImage(LoadImage("resources/game/settings.png"), settingsSize, settingsSize);
 
         // Set player tank
-        playerTank = new Tank(worldW / 2f, worldH / 2f, tankSize, angle, tankSpeed, tank, tankColor, tankStrokeColor);
+        playerTank = new Tank(worldW / 2f, worldH / 2f, angle, tank);
 
         // Set camera
         camera = new Camera2D();
@@ -128,9 +119,7 @@ public class GameScreen extends GameState {
 
         // Camera
         camera.offset(new Vector2().x(GetScreenWidth() / 2f).y(GetScreenHeight() / 2f));
-
-        // Smooth lerp
-        Vector2 desiredTarget = new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY());
+        Vector2 desiredTarget = new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY()); // Smooth lerp
         camera.target().x(camera.target().x() + (desiredTarget.x() - camera.target().x()) * movementLerp);
         camera.target().y(camera.target().y() + (desiredTarget.y() - camera.target().y()) * movementLerp);
 
@@ -210,10 +199,10 @@ public class GameScreen extends GameState {
         BeginMode2D(camera);
 
         // Camera bounds
-        float camLeft   = camera.target().x() - camera.offset().x() / camera.zoom();
-        float camRight  = camLeft + GetScreenWidth() / camera.zoom();
-        float camTop    = camera.target().y() - camera.offset().y() / camera.zoom();
-        float camBottom = camTop + GetScreenHeight() / camera.zoom();
+        camLeft = camera.target().x() - camera.offset().x() / camera.zoom();
+        camRight = camLeft + GetScreenWidth() / camera.zoom();
+        camTop = camera.target().y() - camera.offset().y() / camera.zoom();
+        camBottom = camTop + GetScreenHeight() / camera.zoom();
 
         drawWorld();
         // Shapes
@@ -247,7 +236,7 @@ public class GameScreen extends GameState {
         Rectangle source = newRectangle(0, 0, barrelW, barrelH);
         Rectangle dest = newRectangle(playerTank.getCenterX(), playerTank.getCenterY(), barrelW, barrelH);
         Vector2 origin = new Vector2().x(0).y(barrelH / 2f);
-        DrawTexturePro(barrel, source, dest, origin, angle * (180f / (float) Math.PI), barrelColor); // Barrel
+        DrawTexturePro(barrel, source, dest, origin, angle * (180f / (float) Math.PI), barrelColor);
 
         // Tank
         playerTank.setAngle(angle);
@@ -273,11 +262,7 @@ public class GameScreen extends GameState {
             DrawText("Press SPACE to close", boxX + boxW / 2 - MeasureText("Press SPACE to close", 20) / 2,  boxY + 165, 20, BLACK);
         }
 
-        fps = GetFPS();
-        
-        DrawRectangleRounded(rect, 0.2f, 10, RAYWHITE);
-        DrawRectangleRoundedLines(rect, 0.2f, 10, DARKGRAY);
-        DrawText(fps + " FPS", boxX + boxW / 2 - MeasureText(fps + " FPS", 25) / 2, boxY + boxH / 2 - 25/2, 25, BLACK);
+        DrawFPS(10, 10);
     }
     
 
@@ -331,13 +316,13 @@ public class GameScreen extends GameState {
     public void getZoomLevel() {
         float scroll = GetMouseWheelMove();
         if (scroll > 0) {
-            zoomLevel += 0.1f;
+            zoomLevel += 0.03f;
         } else if (scroll < 0) {
-            zoomLevel -= 0.1f;
+            zoomLevel -= 0.03f;
         }
 
-        if (zoomLevel < 0.5f) zoomLevel = 0.5f;
-        if (zoomLevel > 4.0f) zoomLevel = 4.0f;
+        if (zoomLevel < 0.8f) zoomLevel = 0.8f;
+        if (zoomLevel > 3.0f) zoomLevel = 3.0f;
     }
 
     public Texture resizeImage(Image img, int newWidth, int newHeight) {
@@ -360,16 +345,16 @@ public class GameScreen extends GameState {
         float orbitY = (float) (Math.random() * GameScreen.worldH);
 
         switch (type) {
-            case 0 -> shapes.add(new Shape(orbitX, orbitY, shapeRadius, 0, 0, square, squareColor, squareStrokeColor, 0));
-            case 1 -> shapes.add(new Shape(orbitX, orbitY, shapeRadius, 0, 0, triangle, triangleColor, triangleStrokeColor, 1));
-            default -> shapes.add(new Shape(orbitX, orbitY, shapeRadius, 0, 0, pentagon, pentagonColor, pentagonStrokeColor, 2));
+            case 0 -> shapes.add(new Shape(orbitX, orbitY, 0, square, 0));
+            case 1 -> shapes.add(new Shape(orbitX, orbitY, 0, triangle, 1));
+            default -> shapes.add(new Shape(orbitX, orbitY, 0,   pentagon, 2));
         }
     }
 
     private void fireBullet() {
         float bulletX = playerTank.getCenterX() + (float) Math.cos(angle) * (barrelW + bulletSize / 2f);
         float bulletY = playerTank.getCenterY() + (float) Math.sin(angle) * (barrelW + bulletSize / 2f);
-        bullets.add(new Bullet(bulletX, bulletY, bulletSize, angle, bulletSpeed, bullet, bulletColor, bulletStrokeColor));
+        bullets.add(new Bullet(bulletX, bulletY, angle, bullet));
         reloadTimer = reloadSpeed;
     }
 
@@ -423,7 +408,7 @@ public class GameScreen extends GameState {
             boolean hit;
 
             // Polygon vs Polygon (tank can be polygon if you want) or circle vs polygon
-            hit = Collision.circlePolygonCollision(new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY()), playerTank.size / 2f, s.polygon);
+            hit = Collision.circlePolygonCollision(new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY()), playerTank.size / 2f + 2 * 5, s.polygon);
 
             if (hit) {
                 shapeIt.remove();
