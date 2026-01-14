@@ -12,6 +12,10 @@ public class Tank extends Sprite {
     protected float bounceY = 0f;
     protected float velocityX = 0;
     protected float velocityY = 0;
+
+    private static final float FRICTION = 0.9f;
+    private static final float accel = 20f;
+
     protected float recoilX = 0f;
     protected float recoilY = 0f;
     protected float recoil;
@@ -34,6 +38,7 @@ public class Tank extends Sprite {
         this.bodyDamage = 20;
         this.healthRegen = 8;
         this.recoil = size * 0.8f;
+        this.alive = true;
     }
 
     public void update() {
@@ -54,13 +59,35 @@ public class Tank extends Sprite {
             moveY /= (float) Math.sqrt(2);
         }
 
-        velocityX = moveX * speed + recoilX;
-        velocityY = moveY * speed + recoilY;
+        velocityX *= FRICTION;
+        velocityY *= FRICTION;
 
-        recoilX -= recoilX * decay * GameScreen.dt;
-        recoilY -= recoilY * decay * GameScreen.dt;
-        bounceX -= bounceX * decay * GameScreen.dt;
-        bounceY -= bounceY * decay * GameScreen.dt;
+        velocityX += moveX * accel;
+        velocityY += moveY * accel;
+
+        velocityX += recoilX;
+        velocityY += recoilY;
+
+        recoilX *= 0.9f;
+        recoilY *= 0.9f;
+        bounceX *= 0.9f;
+        bounceY *= 0.9f;
+
+        float speedNow = (float)Math.sqrt(velocityX * velocityX + velocityY * velocityY);
+        float maxSpeed = 10f * accel;
+
+        if (speedNow > maxSpeed) {
+            velocityX = (velocityX / speedNow) * maxSpeed;
+            velocityY = (velocityY / speedNow) * maxSpeed;
+        }
+
+//        velocityX = moveX * speed + recoilX;
+//        velocityY = moveY * speed + recoilY;
+//
+//        recoilX -= recoilX * decay * GameScreen.dt;
+//        recoilY -= recoilY * decay * GameScreen.dt;
+//        bounceX -= bounceX * decay * GameScreen.dt;
+//        bounceY -= bounceY * decay * GameScreen.dt;
 
         centerX += (velocityX + bounceX) * GameScreen.dt;
         centerY += (-velocityY + bounceY) * GameScreen.dt;
@@ -100,11 +127,13 @@ public class Tank extends Sprite {
         dest = newRectangle(centerX, centerY, size, size);
         origin = new Vector2().x(size / 2).y(size / 2);
         DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), color);
+
+        if (health < maxHealth) drawHealthBar();
     }
 
     public void applyRecoil() {
-        recoilX = -recoil * (float) Math.cos(angle) * size / 10;
-        recoilY = recoil * (float) Math.sin(angle) * size / 10;
+        recoilX += (float) -Math.cos(angle) * recoil;
+        recoilY += (float) Math.sin(angle) * recoil;
     }
 
     public boolean canFire() {

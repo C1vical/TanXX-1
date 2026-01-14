@@ -9,14 +9,15 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 
 public class Main {
-    public static final int DEFAULT_SCREEN_W = 1280;
-    public static final int DEFAULT_SCREEN_H = 720;
+    public static final int DEFAULT_SCREEN_W = 1920;
+    public static final int DEFAULT_SCREEN_H = 1080;
     public static ScreenType currentScreenType = ScreenType.MENU;
     public static GameState currentScreen;
 
     public static void main(String[] args) {
         SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(DEFAULT_SCREEN_W, DEFAULT_SCREEN_H, "TanXX");
+        MaximizeWindow();
         SetWindowMinSize(1280, 720);
         SetTargetFPS(60);
 

@@ -48,18 +48,19 @@ public class GameScreen extends GameState {
     // Camera settings
     public static Camera2D camera = new Camera2D();
     private float camLeft, camRight, camTop, camBottom;
-    private float zoomLevel = 1.0f;
-    private final float movementLerp = 0.1f;
-    private final float zoomLerp = 0.1f;
+    private float zoomLevel = 2f;
+    final float movementLerp = 0.1f;
+    final float zoomLerp = 0.1f;
 
     // Settings UI
-    public static int settingsSize = 50;
+    public static int settingsSize = 75;
     private Rectangle settingsRect;
     private boolean settingsHover = false;
     public static boolean showSettings = false;
 
     // Game state
     public static float dt;
+    public static boolean deathScreen = false;
     public static boolean hitbox = false, autoFire = false, autoSpin = false;
 
     ScreenType requestedScreen = ScreenType.GAME;
@@ -73,7 +74,9 @@ public class GameScreen extends GameState {
         pentagon = LoadTexture("resources/game/pentagon.png");
         settings = LoadTexture("resources/game/settings.png");
 
-        playerTank = new Basic(worldW / 2f, worldH / 2f, angle, tank, barrel);
+        float randX = worldW * (float) Math.random();
+        float randY = worldH * (float) Math.random();
+        playerTank = new Basic(randX, randY, angle, tank, barrel);
 
         camera = new Camera2D();
         camera.target(new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY()));
@@ -93,18 +96,27 @@ public class GameScreen extends GameState {
 
         updateCamera();
 
+
         if (!showSettings) {
             handleInput(mouseScreen);
 
-            if (shapes.size() < startShapes)  spawnShapes(startShapes - shapes.size());
+            if (shapes.size() < startShapes) spawnShapes(startShapes - shapes.size());
 
             spatialGrid.clear();
             for (Shape s : shapes) {
                 s.update();
                 spatialGrid.addShape(s);
             }
-            playerTank.update();
-            playerTank.regenHealth(dt);
+
+            if (!deathScreen) {
+                playerTank.update();
+                playerTank.regenHealth(dt);
+            }
+
+            if (!playerTank.isAlive()) {
+                deathScreen = true;
+            }
+
             for (Bullet b : bullets) b.update();
 
             checkCollisions();
@@ -128,11 +140,11 @@ public class GameScreen extends GameState {
         camera.target().x(camera.target().x() + (desiredTarget.x() - camera.target().x()) * movementLerp);
         camera.target().y(camera.target().y() + (desiredTarget.y() - camera.target().y()) * movementLerp);
 
-        if (!showSettings) {
-            getZoomLevel();
-            float desiredZoom = zoomLevel;
-            camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
-        }
+//        if (!showSettings) {
+//            getZoomLevel();
+//            float desiredZoom = zoomLevel;
+//            camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
+//        }
     }
 
     private void getZoomLevel() {
@@ -147,37 +159,52 @@ public class GameScreen extends GameState {
     private void handleInput(Vector2 mouseScreen) {
         Vector2 mouse = GetScreenToWorld2D(GetMousePosition(), camera);
 
-        if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT)) && playerTank.canFire() && !isHover(settingsRect, mouseScreen)) {
-            fireBullet();
-            playerTank.applyRecoil();
-            playerTank.resetReload();
+        if (IsKeyPressed(KEY_R) && deathScreen) {
+            deathScreen = false;
+            float randX = worldW * (float) Math.random();
+            float randY = worldH * (float) Math.random();
+            playerTank = new Basic(randX, randY, angle, tank, barrel);
+            autoSpin = false;
+            autoFire = false;
         }
 
-        if (IsKeyPressed(KEY_Q)) {
-            addShape();
-        }
+        if (!deathScreen) {
+            if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT)) && playerTank.canFire() && !isHover(settingsRect, mouseScreen)) {
+                fireBullet();
+                playerTank.applyRecoil();
+                playerTank.resetReload();
+            }
 
-        if (IsKeyPressed(KEY_B)) {
-            hitbox = !hitbox;
-        }
+            if (IsKeyPressed(KEY_Q)) {
+                addShape();
+            }
 
-        if (IsKeyPressed(KEY_E)) {
-            autoFire = !autoFire;
-        }
+            if (IsKeyPressed(KEY_B)) {
+                hitbox = !hitbox;
+            }
 
-        if (autoFire && playerTank.canFire()) {
-            fireBullet();
-            playerTank.applyRecoil();
-        }
+            if (IsKeyPressed(KEY_E)) {
+                autoFire = !autoFire;
+            }
 
-        if (IsKeyPressed(KEY_C)) {
-            autoSpin = !autoSpin;
-        }
+            if (autoFire && playerTank.canFire()) {
+                fireBullet();
+                playerTank.applyRecoil();
+            }
 
-        if (!autoSpin) {
-            angle = (float) Math.atan2(mouse.y() - playerTank.getCenterY(), mouse.x() - playerTank.getCenterX());
-        } else {
-            angle += 1 * dt;
+            if (IsKeyPressed(KEY_C)) {
+                autoSpin = !autoSpin;
+            }
+
+            if (!autoSpin) {
+                angle = (float) Math.atan2(mouse.y() - playerTank.getCenterY(), mouse.x() - playerTank.getCenterX());
+            } else {
+                angle += 1 * dt;
+            }
+
+            if (IsKeyPressed(KEY_K)) {
+                deathScreen = true;
+            }
         }
     }
 
@@ -199,6 +226,10 @@ public class GameScreen extends GameState {
         EndMode2D();
 
         drawUI();
+
+        if (deathScreen) {
+            drawDeathScreen();
+        }
     }
 
     private void drawWorld() {
@@ -245,9 +276,11 @@ public class GameScreen extends GameState {
         }
 
         // Tank
-        playerTank.setAngle(angle);
-        playerTank.draw();
-        if (hitbox) playerTank.drawHitBox();
+        if (!deathScreen) {
+            playerTank.setAngle(angle);
+            playerTank.draw();
+            if (hitbox) playerTank.drawHitBox();
+        }
     }
 
     private void drawUI() {
@@ -260,7 +293,6 @@ public class GameScreen extends GameState {
 
     private void drawSettings() {
         DrawRectangle(0, 0, screenW, screenH, newColor(0, 0, 0, 180));
-        DrawRectangle(0, 0, screenW, screenH, newColor(0, 0, 0, 180));
         int boxW = 1000, boxH = 600, boxX = (screenW - boxW) / 2, boxY = (screenH - boxH) / 2;
 
         Rectangle rect = newRectangle(boxX, boxY, boxW, boxH);
@@ -271,6 +303,13 @@ public class GameScreen extends GameState {
         DrawText("Settings", boxX + boxW / 2 - MeasureText("Settings", 50) / 2, boxY + 20, 50, BLACK);
         DrawText("Press SPACE to close", boxX + boxW / 2 - MeasureText("Press SPACE to close", 20) / 2,  boxY + 165, 20, BLACK);
     }
+
+    private void drawDeathScreen() {
+        DrawRectangle(0, 0, screenW, screenH, newColor(0, 0, 0, 75));
+        DrawText("You died!", GetScreenWidth() / 2 - MeasureText("You died!", 40) / 2, GetScreenHeight() / 2 - 40, 40, RED);
+        DrawText("Press R to respawn!", GetScreenWidth() / 2 - MeasureText("Press R to respawn!", 40) / 2, GetScreenHeight() / 2 + 10, 40, WHITE);
+    }
+
 
     @Override
     public void unload() {
@@ -296,7 +335,7 @@ public class GameScreen extends GameState {
 
         float settingsW = settingsSize * ratioW;
         float settingsH = settingsSize * ratioH;
-        settingsRect = newRectangle(screenW - settingsW - 10 * ratioW, 10 * ratioH, settingsW, settingsH);
+        settingsRect = newRectangle(screenW - settingsW - 15 * ratioW, 15 * ratioH, settingsW, settingsH);
     }
 
     private void spawnShapes(int num) {

@@ -6,8 +6,8 @@ import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 
 public abstract class GameState {
-    public static final int DEFAULT_SCREEN_W = 1280;
-    public static final int DEFAULT_SCREEN_H = 720;
+    public static final int DEFAULT_SCREEN_W = 1920;
+    public static final int DEFAULT_SCREEN_H = 1080;
     public static int screenW;
     public static int screenH;
     protected Color hovered = newColor(180, 180, 180, 255);

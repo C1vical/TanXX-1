@@ -98,6 +98,7 @@ public class Shape extends Sprite {
     public void draw() {
         DrawPoly(new Vector2().x(centerX).y(centerY), sides, size + strokeWidth, angle * (180f / (float) Math.PI), stroke);
         DrawPoly(new Vector2().x(centerX).y(centerY), sides, size, angle * (180f / (float) Math.PI), color);
+        if (health < maxHealth) drawHealthBar();
     }
 
     public void drawHitBox() {

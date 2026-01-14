@@ -72,26 +72,28 @@ public class MenuScreen extends GameState {
         screenW = GetScreenWidth();
         screenH = GetScreenHeight();
 
+        System.out.println(screenW + " " + screenH);
+
         float ratioW = screenW / (float) DEFAULT_SCREEN_W;
         float ratioH = screenH / (float) DEFAULT_SCREEN_H;
 
         backgroundRect = newRectangle(0, 0, screenW, screenH);
 
-        float logoW = 625 * ratioW;
-        float logoH = 250 * ratioH;
-        logoRect = newRectangle(screenW / 2f - logoW / 2, 75 * ratioH, logoW, logoH);
+        float logoW = 950 * ratioW;
+        float logoH = 375 * ratioH;
+        logoRect = newRectangle(screenW / 2f - logoW / 2, 125 * ratioH, logoW, logoH);
 
-        float playW = 600f * ratioW;
-        float playH = 240f * ratioH;
+        float playW = 900 * ratioW;
+        float playH = 360 * ratioH;
         playRect = newRectangle(screenW / 2f - playW / 2, screenH / 2f, playW, playH);
 
-        float credW = 200f * ratioW;
-        float credH = 80f * ratioH;
-        creditsRect = newRectangle(10 * ratioW, screenH - credH - 10 * ratioH, credW, credH);
+        float credW = 300f * ratioW;
+        float credH = 120f * ratioH;
+        creditsRect = newRectangle(15 * ratioW, screenH - credH - 15 * ratioH, credW, credH);
 
         float exitW = credW;
         float exitH = credH;
-        exitRect = newRectangle(screenW - exitW - 10 * ratioW, screenH - exitH - 10 * ratioH, exitW, exitH);
+        exitRect = newRectangle(screenW - exitW - 15 * ratioW, screenH - exitH - 15 * ratioH, exitW, exitH);
     }
 
     private void drawCredits() {

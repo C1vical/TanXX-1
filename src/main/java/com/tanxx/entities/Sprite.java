@@ -2,6 +2,7 @@ package com.tanxx.entities;
 
 import static com.raylib.Colors.*;
 import static com.raylib.Colors.BLACK;
+import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.newColor;
 import static com.tanxx.screens.GameState.screenH;
@@ -25,7 +26,7 @@ public class Sprite {
     protected float bodyDamage;
     protected boolean alive;
 
-    float healthBarX, healthBarY;
+    float healthBarX, healthBarY, healthBarWidth, healthBarHeight;
 
     public Sprite(float centerX, float centerY, float angle, Texture texture) {
         this.centerX = centerX;
@@ -59,13 +60,17 @@ public class Sprite {
         }
     }
 
-//    public void drawHealthBar() {
-//        healthBarX = centerX - size / 2f;
-//        healthBarY = centerY + size / 2f;
-//
-//        DrawRectangle((int) barX, (int) barY, (int) barW, (int) barH, DARKGRAY);
-//        float healthRatio = playerTank.getHealth() / playerTank.getMaxHealth();
-//        DrawRectangle((int) barX, (int) barY, (int) (barW * healthRatio), (int) barH, playerTank.getHealth() > playerTank.getMaxHealth() * 0.25f ? GREEN : RED);
-//        DrawRectangleLines((int) barX, (int) barY, (int) barW, (int) barH, BLACK);
-//    }
+    public void drawHealthBar() {
+        healthBarX = centerX - size / 2f;
+        healthBarY = centerY + size / 2f + 5;
+        healthBarWidth = size;
+        healthBarHeight = 10;
+
+        Rectangle rect = newRectangle(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
+        DrawRectangleRounded(rect, 0.3f, 0, DARKGRAY);
+        float healthRatio = getHealth() /getMaxHealth();
+        rect = newRectangle(healthBarX, healthBarY, healthBarWidth * healthRatio, healthBarHeight);
+        DrawRectangleRounded(rect, 0.3f, 0, GREEN);
+
+    }
 }

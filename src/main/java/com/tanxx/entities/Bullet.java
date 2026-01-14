@@ -37,6 +37,7 @@ public class Bullet extends Sprite {
         Rectangle dest = newRectangle(centerX, centerY, size, size);
         Vector2 origin = new Vector2().x(size / 2).y(size / 2);
         DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), color);
+        if (health < maxHealth) drawHealthBar();
     }
 
     public void drawHitBox() {
