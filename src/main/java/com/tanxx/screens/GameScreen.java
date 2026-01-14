@@ -76,7 +76,7 @@ public class GameScreen extends GameState {
 
         float randX = worldW * (float) Math.random();
         float randY = worldH * (float) Math.random();
-        playerTank = new Basic(randX, randY, angle, tank, barrel);
+        playerTank = new Annihilator(randX, randY, angle, tank, barrel);
 
         camera = new Camera2D();
         camera.target(new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY()));
@@ -163,7 +163,7 @@ public class GameScreen extends GameState {
             deathScreen = false;
             float randX = worldW * (float) Math.random();
             float randY = worldH * (float) Math.random();
-            playerTank = new Basic(randX, randY, angle, tank, barrel);
+            playerTank = new Annihilator(randX, randY, angle, tank, barrel);
             autoSpin = false;
             autoFire = false;
         }

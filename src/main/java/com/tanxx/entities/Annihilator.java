@@ -7,9 +7,9 @@ public class Annihilator extends Tank {
         super(centerX, centerY, angle, bodyTexture, barrelTexture);
         this.size = 75;
         this.speed = 150;
-        this.barrelW = size;
-        this.barrelH = size + 10;
-        this.recoil = barrelH * 0.3f;
+        this.barrelW = size - 10;
+        this.barrelH = size - 10;
+        this.recoil = barrelH * 1.3f;
         this.reloadSpeed = 1.2f;
     }
 }
