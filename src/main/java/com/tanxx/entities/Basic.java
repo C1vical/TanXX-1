@@ -9,7 +9,7 @@ public class Basic extends Tank {
         this.speed = 150;
         this.barrelW = size;
         this.barrelH = size / 2;
-        this.recoil = barrelH * 0.5f;
+        this.recoil = barrelH * 1.8f;
         this.reloadSpeed = 0.4f;
     }
 }

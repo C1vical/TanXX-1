@@ -1,5 +1,7 @@
 package com.tanxx.entities;
 
+import com.tanxx.screens.GameScreen;
+
 import static com.raylib.Colors.*;
 import static com.raylib.Colors.BLACK;
 import static com.raylib.Helpers.newRectangle;
@@ -46,7 +48,7 @@ public class Sprite {
     public float getBodyDamage() { return bodyDamage; }
 
     public void takeDamage(float amount) {
-        health -= amount;
+        health -= amount * GameScreen.dt;
         if (health <= 0) {
             health = 0;
             alive = false;

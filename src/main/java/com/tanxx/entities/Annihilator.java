@@ -9,7 +9,7 @@ public class Annihilator extends Tank {
         this.speed = 150;
         this.barrelW = size - 10;
         this.barrelH = size - 10;
-        this.recoil = barrelH * 1.3f;
+        this.recoil = barrelH * 1.8f;
         this.reloadSpeed = 1.2f;
     }
 }

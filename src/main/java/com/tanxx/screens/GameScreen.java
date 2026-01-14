@@ -76,7 +76,7 @@ public class GameScreen extends GameState {
 
         float randX = worldW * (float) Math.random();
         float randY = worldH * (float) Math.random();
-        playerTank = new Annihilator(randX, randY, angle, tank, barrel);
+        playerTank = new Basic(randX, randY, angle, tank, barrel);
 
         camera = new Camera2D();
         camera.target(new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY()));
@@ -163,7 +163,7 @@ public class GameScreen extends GameState {
             deathScreen = false;
             float randX = worldW * (float) Math.random();
             float randY = worldH * (float) Math.random();
-            playerTank = new Annihilator(randX, randY, angle, tank, barrel);
+            playerTank = new Basic(randX, randY, angle, tank, barrel);
             autoSpin = false;
             autoFire = false;
         }
@@ -306,7 +306,7 @@ public class GameScreen extends GameState {
 
     private void drawDeathScreen() {
         DrawRectangle(0, 0, screenW, screenH, newColor(0, 0, 0, 75));
-        DrawText("You died!", GetScreenWidth() / 2 - MeasureText("You died!", 40) / 2, GetScreenHeight() / 2 - 40, 40, RED);
+        DrawText("You DIED!", GetScreenWidth() / 2 - MeasureText("You DIED!", 40) / 2, GetScreenHeight() / 2 - 40, 40, RED);
         DrawText("Press R to respawn!", GetScreenWidth() / 2 - MeasureText("Press R to respawn!", 40) / 2, GetScreenHeight() / 2 + 10, 40, WHITE);
     }
 
@@ -351,9 +351,10 @@ public class GameScreen extends GameState {
         float orbitY = (float) (Math.random() * GameScreen.worldH);
 
         switch (type) {
-            case 0 -> shapes.add(new Shape(orbitX, orbitY, 0, square, 0));
-            case 1 -> shapes.add(new Shape(orbitX, orbitY, 0, triangle, 1));
-            default -> shapes.add(new Shape(orbitX, orbitY, 0, pentagon, 2));
+            case 0 -> shapes.add(new Square(orbitX, orbitY, 0, square));
+            case 1 -> shapes.add(new Triangle(orbitX, orbitY, 0, triangle));
+            default -> shapes.add(new
+                    Pentagon(orbitX, orbitY, 0, pentagon));
         }
     }
 

@@ -3,63 +3,34 @@ package com.tanxx.entities;
 import com.tanxx.physics.Polygon;
 import com.tanxx.screens.GameScreen;
 
-import static com.raylib.Colors.BLUE;
-import static com.raylib.Helpers.newColor;
-import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Raylib.*;
 
-public class Shape extends Sprite {
-    private static final Color SQUARE_COLOR = newColor(214, 208, 30, 255);
-    private static final Color SQUARE_STROKE = newColor(158, 152, 24, 255);
-    private static final Color TRIANGLE_COLOR = newColor(214, 51, 30, 255);
-    private static final Color TRIANGLE_STROKE = newColor(148, 30, 15, 255);
-    private static final Color PENTAGON_COLOR = newColor(82, 58, 222, 255);
-    private static final Color PENTAGON_STROKE = newColor(59, 36, 212, 255);
-
+public abstract class Shape extends Sprite {
     float rotationSpeed;
     double orbitAngle;
     float orbitAngleSpeed;
     float orbitRadius;
     float orbitX;
     float orbitY;
-    int type;
     int sides;
     float step;
     Vector2[] vertices;
     public Polygon polygon;
 
-    public Shape(float orbitX, float orbitY, float angle, Texture texture, int type) {
+    public Color color;
+    public Color stroke;
+
+    public Shape(float orbitX, float orbitY, float angle, Texture texture, int sides, float maxHealth, float bodyDamage) {
         super(0, 0, angle, texture);
         this.size = 25;
-        this.type = type;
         this.orbitX = orbitX;
         this.orbitY = orbitY;
         this.alive = true;
 
-        switch (type) {
-            case 0 -> {
-                color = SQUARE_COLOR;
-                stroke = SQUARE_STROKE;
-                sides = 4;
-                maxHealth = 30;
-                bodyDamage = 10;
-            }
-            case 1 -> {
-                color = TRIANGLE_COLOR;
-                stroke = TRIANGLE_STROKE;
-                sides = 3;
-                maxHealth = 20;
-                bodyDamage = 15;
-            }
-            default -> {
-                color = PENTAGON_COLOR;
-                stroke = PENTAGON_STROKE;
-                sides = 5;
-                maxHealth = 100;
-                bodyDamage = 30;
-            }
-        }
-        health = maxHealth;
+        this.sides = sides;
+        this.maxHealth = maxHealth;
+        this.bodyDamage = bodyDamage;
+        this.health = maxHealth;
 
         orbitAngleSpeed = (float) (Math.random() * 0.08 + 0.02f) * (Math.random() < 0.5 ? 1 : -1);
         rotationSpeed = (float) (Math.random() * 0.08 + 0.02f) * (Math.random() < 0.5 ? 1 : -1);
@@ -78,6 +49,7 @@ public class Shape extends Sprite {
 
         polygon = new Polygon(vertices);
     }
+
 
     public void update() {
         orbitAngle += orbitAngleSpeed * GameScreen.dt;

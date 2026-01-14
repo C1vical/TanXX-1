@@ -9,17 +9,17 @@ import static com.raylib.Raylib.*;
 public class Bullet extends Sprite {
     private float lifeTime;
     float bulletDamage;
-    float bulletPenetration;
+
+
 
     public Bullet(float centerX, float centerY, float angle, Texture texture, float size) {
         super(centerX, centerY, angle, texture);
         this.size = size;
-        this.speed = 250;
-        this.color = newColor(144, 252, 3, 255);
-        this.maxHealth = 30;
+        this.speed = 100;
+        this.color = newColor(24, 158, 140, 255);
+        this.maxHealth = 8;
         this.health = maxHealth;
-        this.bulletDamage = 25;
-        this.bulletPenetration = 1;
+        this.bulletDamage = 7;
         this.lifeTime = 2f;
         this.alive = true;
     }

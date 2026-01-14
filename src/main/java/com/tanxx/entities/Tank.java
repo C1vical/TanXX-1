@@ -12,10 +12,6 @@ public class Tank extends Sprite {
     protected float bounceY = 0f;
     protected float velocityX = 0;
     protected float velocityY = 0;
-
-    private static final float FRICTION = 0.9f;
-    private static final float accel = 20f;
-
     protected float recoilX = 0f;
     protected float recoilY = 0f;
     protected float recoil;
@@ -28,17 +24,36 @@ public class Tank extends Sprite {
     protected float reloadSpeed;
     protected float reloadTimer = 0f;
 
+    private int level = 1;
+    private int healthRegenPoints = 0;
+    private int maxHealthPoints = 0;
+    private int bodyDamagePoints = 0;
+    private int bulletSpeedPoints = 0;
+    private int bulletPenetrationPoints = 0;
+    private int bulletDamagePoints = 0;
+    private int reloadPoints = 0;
+    private int movementSpeedPoints = 0;
+
+    private int bulletSpeed;
+    private int bulletPenetration;
+    private int bulletDamage;
+
     public Tank(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
         this.barrelTexture = barrelTexture;
-        this.color = newColor(144, 252, 3, 255);
-        this.stroke = newColor(55, 55, 55, 255);
-        this.maxHealth = 100;
+        this.color = newColor(24, 158, 140, 255);
+        updateStats();
         this.health = maxHealth;
-        this.bodyDamage = 20;
-        this.healthRegen = 8;
-        this.recoil = size * 0.8f;
         this.alive = true;
+    }
+
+    public void updateStats() {
+        healthRegen = 0.1f + (0.4f * healthRegenPoints);
+        maxHealth = 50 + 2 * (level - 1) + 20 * maxHealthPoints;
+        bodyDamage = 20 + 4 * bodyDamagePoints;
+        bulletSpeed = (5 + (4 * bulletSpeedPoints));
+        bulletPenetration = (8 + (6 * bulletPenetrationPoints));
+        bulletDamage = (7 + (3 * bulletDamagePoints));
     }
 
     public void update() {
@@ -51,7 +66,7 @@ public class Tank extends Sprite {
 
         if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) moveY += 1;
         if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) moveY -= 1;
-        if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) moveX -= 1;
+        if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))  moveX -= 1;
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) moveX += 1;
 
         if (moveX != 0 && moveY != 0) {
@@ -59,35 +74,13 @@ public class Tank extends Sprite {
             moveY /= (float) Math.sqrt(2);
         }
 
-        velocityX *= FRICTION;
-        velocityY *= FRICTION;
+        velocityX = moveX * speed + recoilX;
+        velocityY = moveY * speed + recoilY;
 
-        velocityX += moveX * accel;
-        velocityY += moveY * accel;
-
-        velocityX += recoilX;
-        velocityY += recoilY;
-
-        recoilX *= 0.9f;
-        recoilY *= 0.9f;
-        bounceX *= 0.9f;
-        bounceY *= 0.9f;
-
-        float speedNow = (float)Math.sqrt(velocityX * velocityX + velocityY * velocityY);
-        float maxSpeed = 10f * accel;
-
-        if (speedNow > maxSpeed) {
-            velocityX = (velocityX / speedNow) * maxSpeed;
-            velocityY = (velocityY / speedNow) * maxSpeed;
-        }
-
-//        velocityX = moveX * speed + recoilX;
-//        velocityY = moveY * speed + recoilY;
-//
-//        recoilX -= recoilX * decay * GameScreen.dt;
-//        recoilY -= recoilY * decay * GameScreen.dt;
-//        bounceX -= bounceX * decay * GameScreen.dt;
-//        bounceY -= bounceY * decay * GameScreen.dt;
+        recoilX -= recoilX * decay * GameScreen.dt;
+        recoilY -= recoilY * decay * GameScreen.dt;
+        bounceX -= bounceX * decay * GameScreen.dt;
+        bounceY -= bounceY * decay * GameScreen.dt;
 
         centerX += (velocityX + bounceX) * GameScreen.dt;
         centerY += (-velocityY + bounceY) * GameScreen.dt;
@@ -96,14 +89,17 @@ public class Tank extends Sprite {
             centerX = 0;
             bounceX = -velocityX * bounceStrength;
         }
-        if (centerX > GameScreen.worldW && velocityX > 0) {
+
+        if (centerX > GameScreen.worldW  && velocityX > 0) {
             centerX = GameScreen.worldW;
             bounceX = -velocityX * bounceStrength;
         }
+
         if (centerY < 0 && velocityY > 0) {
             centerY = 0;
             bounceY = velocityY * bounceStrength;
         }
+
         if (centerY > GameScreen.worldH && velocityY < 0) {
             centerY = GameScreen.worldH;
             bounceY = velocityY * bounceStrength;
@@ -132,8 +128,8 @@ public class Tank extends Sprite {
     }
 
     public void applyRecoil() {
-        recoilX += (float) -Math.cos(angle) * recoil;
-        recoilY += (float) Math.sin(angle) * recoil;
+        recoilX = -recoil * (float) Math.cos(angle);
+        recoilY = recoil * (float) Math.sin(angle);
     }
 
     public boolean canFire() {
@@ -151,4 +147,5 @@ public class Tank extends Sprite {
     public float getBulletSize() {
         return barrelH;
     }
+
 }
