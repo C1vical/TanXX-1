@@ -9,7 +9,7 @@ public class Square extends Shape {
     Color squareStrokeColor = newColor(158, 152, 24, 255);
 
     public Square(float orbitX, float orbitY, float angle, Texture texture) {
-        super(orbitX, orbitY, angle, texture, 4,10, 20);
+        super(orbitX, orbitY, angle, texture, 4,8, 8);
         color = squareColor;
         stroke = squareStrokeColor;
     }

@@ -18,7 +18,6 @@ public class Sprite {
     protected float size;
     protected Texture texture;
     protected Color color;
-    protected Color stroke;
     protected int strokeWidth = 5;
     protected Color hitboxColor = newColor(17, 184, 83, 255);
 

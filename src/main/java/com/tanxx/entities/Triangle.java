@@ -9,7 +9,7 @@ public class Triangle extends Shape {
     Color triangleStrokeColor = newColor(148, 30, 15, 255);
 
     public Triangle(float orbitX, float orbitY, float angle, Texture texture) {
-        super(orbitX, orbitY, angle, texture, 3,30, 20);
+        super(orbitX, orbitY, angle, texture, 3,15, 8);
         color = triangleColor;
         stroke = triangleStrokeColor;
     }

@@ -72,8 +72,6 @@ public class MenuScreen extends GameState {
         screenW = GetScreenWidth();
         screenH = GetScreenHeight();
 
-        System.out.println(screenW + " " + screenH);
-
         float ratioW = screenW / (float) DEFAULT_SCREEN_W;
         float ratioH = screenH / (float) DEFAULT_SCREEN_H;
 

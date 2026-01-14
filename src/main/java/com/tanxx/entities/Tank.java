@@ -34,9 +34,9 @@ public class Tank extends Sprite {
     private int reloadPoints = 0;
     private int movementSpeedPoints = 0;
 
-    private int bulletSpeed;
-    private int bulletPenetration;
-    private int bulletDamage;
+    private float bulletSpeed;
+    private float bulletPenetration;
+    private float bulletDamage;
 
     public Tank(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
@@ -51,9 +51,12 @@ public class Tank extends Sprite {
         healthRegen = 0.1f + (0.4f * healthRegenPoints);
         maxHealth = 50 + 2 * (level - 1) + 20 * maxHealthPoints;
         bodyDamage = 20 + 4 * bodyDamagePoints;
-        bulletSpeed = (5 + (4 * bulletSpeedPoints));
-        bulletPenetration = (8 + (6 * bulletPenetrationPoints));
-        bulletDamage = (7 + (3 * bulletDamagePoints));
+        bulletSpeed = 150 + 5 * bulletSpeedPoints;
+        bulletPenetration = (2 + (6 * bulletPenetrationPoints));
+        bulletDamage = (20 + (5 * bulletDamagePoints));
+        reloadSpeed = 0.6f - (0.04f * reloadPoints);
+        speed = 150 + (10 * movementSpeedPoints);
+
     }
 
     public void update() {
@@ -148,4 +151,41 @@ public class Tank extends Sprite {
         return barrelH;
     }
 
+    public float getBulletSpeed() { return bulletSpeed; }
+
+    public float getBulletDamage() { return bulletDamage; }
+
+    public float getBulletPenetration() { return bulletPenetration; }
+
+    public void setHealthRegenPoints(int healthRegenPoints) {
+        this.healthRegenPoints = healthRegenPoints;
+    }
+
+    public void setMaxHealthPoints(int maxHealthPoints) {
+        this.maxHealthPoints = maxHealthPoints;
+    }
+
+    public void setBodyDamagePoints(int bodyDamagePoints) {
+        this.bodyDamagePoints = bodyDamagePoints;
+    }
+
+    public void setBulletSpeedPoints(int bulletSpeedPoints) {
+        this.bulletSpeedPoints = bulletSpeedPoints;
+    }
+
+    public void setBulletPenetrationPoints(int bulletPenetrationPoints) {
+        this.bulletPenetrationPoints = bulletPenetrationPoints;
+    }
+
+    public void setBulletDamagePoints(int bulletDamagePoints) {
+        this.bulletDamagePoints = bulletDamagePoints;
+    }
+
+    public void setReloadPoints(int reloadPoints) {
+        this.reloadPoints = reloadPoints;
+    }
+
+    public void setMovementSpeedPoints(int movementSpeedPoints) {
+        this.movementSpeedPoints = movementSpeedPoints;
+    }
 }

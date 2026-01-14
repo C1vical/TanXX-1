@@ -96,7 +96,6 @@ public class GameScreen extends GameState {
 
         updateCamera();
 
-
         if (!showSettings) {
             handleInput(mouseScreen);
 
@@ -362,13 +361,14 @@ public class GameScreen extends GameState {
         float bulletSize = playerTank.getBulletSize();
         float bulletX = playerTank.getCenterX() + (float) Math.cos(angle) * (barrelW + bulletSize / 2f);
         float bulletY = playerTank.getCenterY() + (float) Math.sin(angle) * (barrelW + bulletSize / 2f);
-        bullets.add(new Bullet(bulletX, bulletY, angle, bullet, bulletSize));
+        bullets.add(new Bullet(bulletX, bulletY, angle, bullet, bulletSize, playerTank.getBulletDamage(), playerTank.getBulletSpeed(), playerTank.getBulletPenetration()));
         playerTank.resetReload();
     }
 
     private void checkCollisions() {
         checkBulletShapeCollisions();
-        checkTankShapeCollisions();
+
+        if (!deathScreen) checkTankShapeCollisions();
     }
 
     private void checkBulletShapeCollisions() {
