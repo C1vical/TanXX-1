@@ -1,54 +1,41 @@
+package com.tanxx.screens;
+
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 
-
 public class MenuScreen extends GameState {
-    
-    // Textures
-    public Texture background, logo, playBtn, creditsBtn, exitBtn;
-
-    public Rectangle backgroundRect, logoRect, playRect, creditsRect, exitRect;
-
-    // Booleans
-    public boolean showCredits = false, playHover = true, creditsHover = true, exitHover = true;
-
+    private Texture background, logo, playBtn, creditsBtn, exitBtn;
+    private Rectangle backgroundRect, logoRect, playRect, creditsRect, exitRect;
+    private boolean showCredits = false;
+    private boolean playHover = false;
+    private boolean creditsHover = false;
+    private boolean exitHover = false;
     private ScreenType requestedScreen = ScreenType.MENU;
 
     public MenuScreen() {
-        // Load Textures
         background = LoadTexture("resources/menu/menubackgroundblur.png");
         logo = LoadTexture("resources/menu/logo.png");
         playBtn = LoadTexture("resources/menu/play.png");
         creditsBtn = LoadTexture("resources/menu/credits.png");
         exitBtn = LoadTexture("resources/menu/exit.png");
-
         updateLayout();
     }
 
     @Override
     public void update() {
-
         if (IsWindowResized()) updateLayout();
 
         Vector2 mouse = GetMousePosition();
-        
-        if (isHover(playRect, mouse)) {
-            playHover = true;
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !showCredits) requestedScreen = ScreenType.GAME;
-        } else if (isHover(creditsRect, mouse)) {
-            creditsHover = true;
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !showCredits) {
-                showCredits = true;
-            }
-        } else if (isHover(exitRect, mouse))  {
-            exitHover= true;
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !showCredits) requestedScreen = ScreenType.EXIT;
-        } else {
-            playHover = false;
-            creditsHover = false;
-            exitHover = false;
+        playHover = isHover(playRect, mouse);
+        creditsHover = isHover(creditsRect, mouse);
+        exitHover = isHover(exitRect, mouse);
+
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !showCredits) {
+            if (playHover) requestedScreen = ScreenType.GAME;
+            else if (creditsHover) showCredits = true;
+            else if (exitHover) requestedScreen = ScreenType.EXIT;
         }
 
         if (IsKeyPressed(KEY_SPACE)) {
@@ -80,13 +67,13 @@ public class MenuScreen extends GameState {
     public ScreenType getRequestedScreen() {
         return requestedScreen;
     }
- 
-    public void updateLayout() {
+
+    private void updateLayout() {
         screenW = GetScreenWidth();
         screenH = GetScreenHeight();
 
-        float ratioW = screenW / (float) defaultScreenW;
-        float ratioH = screenH / (float) defaultScreenH;
+        float ratioW = screenW / (float) DEFAULT_SCREEN_W;
+        float ratioH = screenH / (float) DEFAULT_SCREEN_H;
 
         backgroundRect = newRectangle(0, 0, screenW, screenH);
 
@@ -107,8 +94,7 @@ public class MenuScreen extends GameState {
         exitRect = newRectangle(screenW - exitW - 10 * ratioW, screenH - exitH - 10 * ratioH, exitW, exitH);
     }
 
-    
-    void drawCredits() {
+    private void drawCredits() {
         DrawRectangle(0, 0, screenW, screenH, newColor(0, 0, 0, 180));
 
         int boxW = 400;
@@ -116,13 +102,14 @@ public class MenuScreen extends GameState {
         int boxX = (screenW - boxW) / 2;
         int boxY = (screenH - boxH) / 2;
 
-        DrawRectangleRounded(newRectangle(boxX, boxY, boxW, boxH), 0.2f, 10, RAYWHITE);
-        DrawRectangleRoundedLines(newRectangle(boxX, boxY, boxW, boxH), 0.2f, 10, DARKGRAY);
+        Rectangle rect = newRectangle(boxX, boxY, boxW, boxH);
+        DrawRectangleRounded(rect, 0.2f, 10, RAYWHITE);
+        DrawRectangleRoundedLines(rect, 0.2f, 10, DARKGRAY);
 
         DrawText("Credits", boxX + boxW / 2 - MeasureText("Credits", 30) / 2, boxY + 20, 30, BLACK);
         DrawText("Made by:", boxX + 40, boxY + 60, 20, BLACK);
         DrawText("Jonathan Yu", boxX + 40, boxY + 95, 20, BLACK);
         DrawText("Cheney Chen", boxX + 40, boxY + 130, 20, BLACK);
-        DrawText("Press SPACE to close", boxX + boxW / 2 - MeasureText("Press SPACE to close", 14) / 2,  boxY + 165, 14, BLACK);
+        DrawText("Press SPACE to close", boxX + boxW / 2 - MeasureText("Press SPACE to close", 14) / 2, boxY + 165, 14, BLACK);
     }
 }
