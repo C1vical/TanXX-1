@@ -24,7 +24,6 @@ public class Tank extends Sprite {
     protected float reloadSpeed;
     protected float reloadTimer = 0f;
 
-    private int level = 1;
     private int healthRegenPoints = 0;
     private int maxHealthPoints = 0;
     private int bodyDamagePoints = 0;
@@ -37,6 +36,12 @@ public class Tank extends Sprite {
     private float bulletSpeed;
     private float bulletPenetration;
     private float bulletDamage;
+    private float bodyDamageTank;
+
+    private int score;
+    private int levelScore;
+    private int level;
+    private float levelProgress;
 
     public Tank(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
@@ -45,24 +50,30 @@ public class Tank extends Sprite {
         updateStats();
         this.health = maxHealth;
         this.alive = true;
+        this.score = 0;
+        this.levelScore = 0;
+        this.level = 1;
+        this.levelProgress = 0f;
     }
 
     public void updateStats() {
         healthRegen = 0.1f + (0.4f * healthRegenPoints);
         maxHealth = 50 + 2 * (level - 1) + 20 * maxHealthPoints;
-        bodyDamage = 20 + 4 * bodyDamagePoints;
-        bulletSpeed = 150 + 5 * bulletSpeedPoints;
-        bulletPenetration = (2 + (6 * bulletPenetrationPoints));
-        bulletDamage = (20 + (5 * bulletDamagePoints));
+        bodyDamage = (20 + 4 * bodyDamagePoints);
+        bodyDamageTank = 30 + 6 * bodyDamagePoints;
+        bulletSpeed = (5 + 4 * bulletSpeedPoints) * 30;
+        bulletPenetration = 8 + 6 * bulletPenetrationPoints;
+        bulletDamage = 7 + 3 * bulletDamagePoints;
         reloadSpeed = 0.6f - (0.04f * reloadPoints);
         speed = 150 + (10 * movementSpeedPoints);
-
     }
 
     public void update() {
         if (reloadTimer > 0f) {
             reloadTimer -= GameScreen.dt;
         }
+
+        regenHealth(GameScreen.dt);
 
         float moveX = 0;
         float moveY = 0;
@@ -157,6 +168,8 @@ public class Tank extends Sprite {
 
     public float getBulletPenetration() { return bulletPenetration; }
 
+    public float getBodyDamageTank() { return bodyDamageTank; }
+
     public void setHealthRegenPoints(int healthRegenPoints) {
         this.healthRegenPoints = healthRegenPoints;
     }
@@ -188,4 +201,41 @@ public class Tank extends Sprite {
     public void setMovementSpeedPoints(int movementSpeedPoints) {
         this.movementSpeedPoints = movementSpeedPoints;
     }
+
+    public int getScore() {
+        return score;
+    }
+
+    public int getLevel() {
+        return level;
+    }
+
+    public float getLevelProgress() {
+        return levelProgress;
+    }
+
+    public void addScore(int amount) {
+        score += amount;
+        levelScore += amount;
+
+        while (levelScore >= xpToNextLevel()) {
+            levelScore -= xpToNextLevel();
+            levelUp();
+        }
+
+        levelProgress = (float) levelScore / xpToNextLevel();
+    }
+
+
+    private int xpToNextLevel() {
+        return 100 + (level - 1) * 50;
+    }
+
+    private void levelUp() {
+        level++;
+
+        updateStats();
+        health = maxHealth; // Diep-style full heal (optional)
+    }
+
 }

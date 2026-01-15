@@ -48,7 +48,7 @@ public class GameScreen extends GameState {
     // Camera settings
     public static Camera2D camera = new Camera2D();
     private float camLeft, camRight, camTop, camBottom;
-    private float zoomLevel = 2f;
+    private float zoomLevel = 1.0f;
     final float movementLerp = 0.1f;
     final float zoomLerp = 0.1f;
 
@@ -109,7 +109,6 @@ public class GameScreen extends GameState {
 
             if (!deathScreen) {
                 playerTank.update();
-                playerTank.regenHealth(dt);
             }
 
             if (!playerTank.isAlive()) {
@@ -224,6 +223,7 @@ public class GameScreen extends GameState {
 
         EndMode2D();
 
+        drawLevelBar();
         drawUI();
 
         if (deathScreen) {
@@ -280,6 +280,39 @@ public class GameScreen extends GameState {
             playerTank.draw();
             if (hitbox) playerTank.drawHitBox();
         }
+    }
+
+    private void drawLevelBar() {
+        float levelBarW = 350;
+        float levelBarH = 25;
+        float padding = 20;
+        float levelBarX = screenW / 2f - levelBarW / 2;
+        float levelBarY = screenH  - padding - levelBarH;
+        DrawRectangleRounded(newRectangle(levelBarX, levelBarY, levelBarW, levelBarH), 0.8f, 20, newColor(0, 0, 0, 200));
+
+        float progress = playerTank.getLevelProgress();
+        DrawRectangleRounded(newRectangle(levelBarX,levelBarY,levelBarW * progress, levelBarH),0.8f,20, newColor(255, 215, 0, 230));
+
+        String levelText = "Level " + playerTank.getLevel();
+        int levelTextFont = 20;
+        DrawText(levelText, (int) (levelBarX + levelBarW / 2) - MeasureText(levelText, levelTextFont) / 2, (int) (levelBarY + levelBarH / 2) - levelTextFont / 2, levelTextFont, WHITE);
+
+        float scoreBarW = 250;
+        float scoreBarH = 20;
+        float margin = 10;
+        float scoreBarX = screenW / 2f - scoreBarW / 2;
+        float scoreBarY = levelBarY - margin - scoreBarH;
+        DrawRectangleRounded(newRectangle(scoreBarX, scoreBarY, scoreBarW, scoreBarH), 0.8f, 20, newColor(48, 240, 141, 255));
+
+        String scoreText = "Score: " + playerTank.getScore();
+        int scoreTextFont = 15;
+        DrawText(scoreText, (int) (scoreBarX + scoreBarW / 2) - MeasureText(scoreText, scoreTextFont) / 2, (int) (scoreBarY + scoreBarH / 2) - scoreTextFont / 2, scoreTextFont, BLUE);
+
+        String nameText = "Player 1";
+        int nameTextFont = 25;
+        float nameTextX = screenW / 2f - (float) MeasureText(nameText, nameTextFont) / 2;
+        float nameTextY = scoreBarY - margin - nameTextFont;
+        DrawText(nameText, (int) nameTextX, (int) nameTextY, nameTextFont, WHITE);
     }
 
     private void drawUI() {
@@ -384,6 +417,7 @@ public class GameScreen extends GameState {
 
                     if (!s.isAlive()) {
                         shapes.remove(s);
+                        playerTank.addScore(s.getXp());
                     }
                     if (!b.isAlive()) {
                         bulletIt.remove();
@@ -403,6 +437,7 @@ public class GameScreen extends GameState {
 
                 if (!s.isAlive()) {
                     shapes.remove(s);
+                    playerTank.addScore(s.getXp());
                 }
             }
         }

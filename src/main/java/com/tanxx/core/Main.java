@@ -18,8 +18,10 @@ public class Main {
         SetConfigFlags(FLAG_WINDOW_RESIZABLE);
         InitWindow(DEFAULT_SCREEN_W, DEFAULT_SCREEN_H, "TanXX");
         MaximizeWindow();
+        ClearWindowState(FLAG_WINDOW_RESIZABLE);
         SetWindowMinSize(1280, 720);
         SetTargetFPS(60);
+
 
         Image icon = LoadImage("resources/menu/icon.png");
         SetWindowIcon(icon);

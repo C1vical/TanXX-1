@@ -20,6 +20,8 @@ public abstract class Shape extends Sprite {
     public Color color;
     public Color stroke;
 
+    protected int xp;
+
     public Shape(float orbitX, float orbitY, float angle, Texture texture, int sides, float maxHealth, float bodyDamage) {
         super(0, 0, angle, texture);
         this.size = 25;
@@ -50,8 +52,9 @@ public abstract class Shape extends Sprite {
         polygon = new Polygon(vertices);
     }
 
-
     public void update() {
+        regenHealth(GameScreen.dt);
+
         orbitAngle += orbitAngleSpeed * GameScreen.dt;
         angle += rotationSpeed * GameScreen.dt;
 
@@ -76,4 +79,6 @@ public abstract class Shape extends Sprite {
     public void drawHitBox() {
         DrawPolyLines(new Vector2().x(centerX).y(centerY), sides, size + strokeWidth, angle * (180f / (float) Math.PI), hitboxColor);
     }
+
+    public int getXp() { return xp; }
 }

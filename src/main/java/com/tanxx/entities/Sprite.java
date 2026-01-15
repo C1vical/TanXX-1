@@ -27,6 +27,8 @@ public class Sprite {
     protected float bodyDamage;
     protected boolean alive;
 
+    protected float timeSinceLastHit = 0f;
+
     float healthBarX, healthBarY, healthBarWidth, healthBarHeight;
 
     public Sprite(float centerX, float centerY, float angle, Texture texture) {
@@ -48,6 +50,7 @@ public class Sprite {
 
     public void takeDamage(float amount) {
         health -= amount * GameScreen.dt;
+        timeSinceLastHit = 0f;
         if (health <= 0) {
             health = 0;
             alive = false;
@@ -55,8 +58,9 @@ public class Sprite {
     }
 
     public void regenHealth(float dt) {
-        if (alive && health < maxHealth) {
-            health += healthRegen * dt;
+        timeSinceLastHit += dt;
+        if (alive && health < maxHealth && timeSinceLastHit >= 5f) {
+            health += 0.1f * maxHealth * dt;
             if (health > maxHealth) health = maxHealth;
         }
     }

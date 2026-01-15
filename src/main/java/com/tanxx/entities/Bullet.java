@@ -10,8 +10,6 @@ public class Bullet extends Sprite {
     private float lifeTime;
 
     private float bulletDamage;
-    private float bulletSpeed;
-    private float bulletPenetration;
 
     public Bullet(float centerX, float centerY, float angle, Texture texture, float size, float bulletDamage, float bulletSpeed, float bulletPenetration) {
         super(centerX, centerY, angle, texture);
@@ -24,15 +22,6 @@ public class Bullet extends Sprite {
         this.lifeTime = 2f;
         this.alive = true;
     }
-
-//    public void updateStats() {
-//        healthRegen = 0.1f + (0.4f * healthRegenPoints);
-//        maxHealth = 50 + 2 * (level - 1) + 20 * maxHealthPoints;
-//        bodyDamage = 20 + 4 * bodyDamagePoints;
-//        bulletSpeed = (5 + (4 * bulletSpeedPoints));
-//        bulletPenetration = (8 + (6 * bulletPenetrationPoints));
-//        bulletDamage = (7 + (3 * bulletDamagePoints));
-//    }
 
     public void update() {
         centerX += (float) (Math.cos(angle) * speed * GameScreen.dt);
@@ -53,5 +42,6 @@ public class Bullet extends Sprite {
     public void drawHitBox() {
         DrawCircleLinesV(new Vector2().x(centerX).y(centerY), size / 2, hitboxColor);
     }
+
     public float getBulletDamage() { return bulletDamage; }
 }

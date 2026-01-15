@@ -8,8 +8,9 @@ public class Pentagon extends Shape {
     Color pentagonStrokeColor = newColor(59, 36, 212, 255);
 
     public Pentagon(float orbitX, float orbitY, float angle, Texture texture) {
-        super(orbitX, orbitY, angle, texture, 5,25, 8);
+        super(orbitX, orbitY, angle, texture, 5,25, 100);
         color = pentagonColor;
         stroke = pentagonStrokeColor;
+        xp = 130;
     }
 }
