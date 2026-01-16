@@ -61,18 +61,22 @@ public class EntityManager {
         switch (type) {
             case 0 -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 10));
             case 1 -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 25));
-            default -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,5, 100, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 130));
+            default -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,5, 100, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 100));
         }
     }
 
     // Fire bullet
     public static void fireBullet() {
-        float bulletSize = playerTank.getBulletSize();
-        float bulletX = playerTank.getCenterX() + (float) Math.cos(angle) * (playerTank.getBarrelW() + bulletSize / 2f);
-        float bulletY = playerTank.getCenterY() + (float) Math.sin(angle) * (playerTank.getBarrelW() + bulletSize / 2f);
-        bullets.add(new Bullet(bulletX, bulletY, angle, bullet, bulletSize, playerTank.getBulletDamage(), playerTank.getBulletSpeed(), playerTank.getBulletPenetration()));
-        playerTank.applyRecoil();
-        playerTank.resetReload();
+        for (int i = 0; i < playerTank.barrels.length; i++) {
+            float bulletSize = playerTank.barrels[i].getBarrelH();
+            float turretAngle = playerTank.barrels[i].getTurretAngle() * (float) Math.PI / 180;
+            float bulletX = playerTank.getCenterX() + (float) Math.cos(angle + turretAngle) * (playerTank.barrels[i].getBarrelW() + bulletSize / 2f);
+            float bulletY = playerTank.getCenterY() + (float) Math.sin(angle + turretAngle) * (playerTank.barrels[i].getBarrelW() + bulletSize / 2f);
+            bullets.add(new Bullet(bulletX, bulletY, angle + turretAngle, bullet, bulletSize, playerTank.getBulletDamage(), playerTank.getBulletSpeed(), playerTank.getBulletPenetration()));
+            playerTank.applyRecoil();
+            playerTank.resetReload();
+        }
+
     }
 
     // Respawn player
@@ -103,7 +107,7 @@ public class EntityManager {
         int newLevel = Math.max(playerTank.getLevel() / 2, 1);
         int newScore = playerTank.getTotalScore(newLevel);
 
-        playerTank = new Basic(randX, randY, angle, tank, barrel);
+        playerTank = new ArenaCloser(randX, randY, angle, tank, barrel);
         playerTank.addScore(newScore);
 
         EntityManager.autoSpin = false;

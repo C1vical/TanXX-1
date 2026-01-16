@@ -14,12 +14,12 @@ public class Tank extends Entity {
     protected float baseSize = 50f;
     protected float sizeMultiplier = 1.0f;
 
-    // Barrel and weapon properties
-    protected float barrelW;
-    protected float barrelH;
+    // Barrel properties
+    protected Barrel[] barrels;
     protected Color barrelColor = newColor(100, 99, 107, 255);
     protected Color barrelStrokeColor = newColor(55, 55, 55, 255);
-    protected Texture barrelTexture;
+
+    // Bullet properties
     protected float reloadSpeed;
     protected float reloadTimer = 0f;
 
@@ -51,10 +51,9 @@ public class Tank extends Entity {
     private boolean upgradeSkill = false;
 
     // Constructor
-    public Tank(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
+    public Tank(float centerX, float centerY, float angle, Texture texture) {
         super(centerX, centerY, angle);
-        this.texture = bodyTexture;
-        this.barrelTexture = barrelTexture;
+        this.texture = texture;
         this.color = newColor(24, 158, 140, 255);
         for (int i = 0; i < 8; i++) {
             stats[i] = 0;
@@ -91,14 +90,16 @@ public class Tank extends Entity {
         size = baseSize * sizeFactor * sizeMultiplier;
 
         // Update barrel dimensions and recoil based on the new size
-        updateDimensions();
+        if (barrels != null) updateDimensions();
     }
 
     // Update barrel dimensions and recoil - can be overridden by subclasses
     protected void updateDimensions() {
-        barrelW = size;
-        barrelH = size / 2;
-        recoil = barrelH * 1.8f;
+        for (int i = 0; i < barrels.length; i++) {
+            barrels[i].setBarrelW(size);
+            barrels[i].setBarrelH(size / 2);
+            barrels[i].setRecoil(size / 2 * 1.8f);
+        }
     }
 
     // Main update loop for the tank
@@ -182,11 +183,10 @@ public class Tank extends Entity {
     // Draw the tank and its barrel
     @Override
     public void draw() {
-        // Barrel
-        Rectangle source = newRectangle(0, 0, barrelTexture.width(), barrelTexture.height());
-        Rectangle dest = newRectangle(centerX, centerY, barrelW, barrelH);
-        Vector2 origin = new Vector2().x(0).y(barrelH / 2f);
-        DrawTexturePro(barrelTexture, source, dest, origin, angle * (180f / (float) Math.PI), barrelColor);
+
+        for (int i = 0; i < barrels.length; i++) {
+            barrels[i].draw();
+        }
 
         Color currentColor = color;
         if (isDamage) {
@@ -196,9 +196,9 @@ public class Tank extends Entity {
         }
 
         // Tank body
-        source = newRectangle(0, 0, texture.width() , texture.height());
-        dest = newRectangle(centerX, centerY, size, size);
-        origin = new Vector2().x(size / 2).y(size / 2);
+        Rectangle source = newRectangle(0, 0, texture.width() , texture.height());
+        Rectangle dest = newRectangle(centerX, centerY, size, size);
+        Vector2 origin = new Vector2().x(size / 2).y(size / 2);
         DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), currentColor);
 
         if (EntityManager.hitbox) drawHitBox();
@@ -224,12 +224,6 @@ public class Tank extends Entity {
     public void drawHitBox() {
         DrawCircleLinesV(new Vector2().x(centerX).y(centerY), size / 2, hitboxColor);
     }
-
-    public float getBulletSize() {
-        return barrelH;
-    }
-
-    public float getBarrelW() { return barrelW; }
 
     public float getBulletSpeed() { return bulletSpeed; }
 

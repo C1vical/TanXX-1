@@ -108,4 +108,6 @@ public abstract class Entity {
     public float getTimeSinceDeath() {
         return timeSinceDeath;
     }
+
+    public void setColour(Color color){ this.color = color;}
 }

@@ -5,8 +5,8 @@ import static com.raylib.Raylib.*;
 
 public class Annihilator extends Tank {
     // Constructor sets much larger size and barrel dimensions for the annihilator tank
-    public Annihilator(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
-        super(centerX, centerY, angle, bodyTexture, barrelTexture);
+    public Annihilator(float centerX, float centerY, float angle, Texture bodyTexture) {
+        super(centerX, centerY, angle, bodyTexture);
         this.baseSize = 50;
         this.sizeMultiplier = 1.5f; // Initial size 75 (50 * 1.5)
         updateStats();
@@ -14,8 +14,10 @@ public class Annihilator extends Tank {
 
     @Override
     protected void updateDimensions() {
-        barrelW = size - 10;
-        barrelH = size - 10;
-        recoil = barrelH * 1.8f;
+        for (int i = 0; i < barrels.length; i++) {
+            barrels[i].setBarrelW(size - 10);
+            barrels[i].setBarrelH(size - 10);
+            barrels[i].setRecoil(barrels[i].getBarrelH() * 1.8f);
+        }
     }
 }
