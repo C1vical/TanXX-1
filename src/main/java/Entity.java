@@ -1,16 +1,9 @@
-package com.tanxx.entities;
-
-import com.tanxx.screens.GameScreen;
-
 import static com.raylib.Colors.*;
-import static com.raylib.Colors.BLACK;
 import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.newColor;
-import static com.tanxx.screens.GameState.screenH;
-import static com.tanxx.screens.GameState.screenW;
 
-public class Sprite {
+public class Entity {
     protected float centerX;
     protected float centerY;
     protected float angle;
@@ -19,7 +12,7 @@ public class Sprite {
     protected Texture texture;
     protected Color color;
     protected int strokeWidth = 5;
-    protected Color hitboxColor = newColor(17, 184, 83, 255);
+    protected Color hitboxColor = newColor(252, 3, 28, 255);
 
     protected float maxHealth;
     protected float health;
@@ -31,11 +24,14 @@ public class Sprite {
 
     float healthBarX, healthBarY, healthBarWidth, healthBarHeight;
 
-    public Sprite(float centerX, float centerY, float angle, Texture texture) {
+    protected float velocityX = 0f;
+    protected float velocityY = 0f;
+    protected float decay = 4f;
+
+    public Entity(float centerX, float centerY, float angle) {
         this.centerX = centerX;
         this.centerY = centerY;
         this.angle = angle;
-        this.texture = texture;
     }
 
     public float getCenterX() { return centerX; }
@@ -49,12 +45,18 @@ public class Sprite {
     public float getBodyDamage() { return bodyDamage; }
 
     public void takeDamage(float amount) {
-        health -= amount * GameScreen.dt;
+        if (!alive) return;
+        health -= amount;
         timeSinceLastHit = 0f;
         if (health <= 0) {
             health = 0;
             alive = false;
         }
+    }
+
+    public void addVelocity(float vx, float vy) {
+        velocityX += vx;
+        velocityY += vy;
     }
 
     public void regenHealth(float dt) {
@@ -69,7 +71,7 @@ public class Sprite {
         healthBarX = centerX - size / 2f;
         healthBarY = centerY + size / 2f + 5;
         healthBarWidth = size;
-        healthBarHeight = 10;
+        healthBarHeight = 8;
 
         Rectangle rect = newRectangle(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
         DrawRectangleRounded(rect, 0.3f, 0, DARKGRAY);

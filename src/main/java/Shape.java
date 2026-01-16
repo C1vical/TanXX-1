@@ -1,29 +1,29 @@
-package com.tanxx.entities;
-
-import com.tanxx.physics.Polygon;
-import com.tanxx.screens.GameScreen;
-
 import static com.raylib.Raylib.*;
+import static com.raylib.Colors.*;
 
-public abstract class Shape extends Sprite {
+// Shape class for all shapes in the game, extends off entity class
+
+public class Shape extends Entity {
+    // Rotation and orbit variables
     float rotationSpeed;
-    double orbitAngle;
+    float orbitAngle;
     float orbitAngleSpeed;
     float orbitRadius;
     float orbitX;
     float orbitY;
-    int sides;
-    float step;
-    Vector2[] vertices;
+
+    int sides;  // Number of sides
+    float step; // Angle between vertices
+    Vector2[] vertices; // Vertices of the shape
     public Polygon polygon;
 
-    public Color color;
-    public Color stroke;
+    public Color color;     // Fill color
+    public Color stroke;    // Stroke color
 
     protected int xp;
 
-    public Shape(float orbitX, float orbitY, float angle, Texture texture, int sides, float maxHealth, float bodyDamage) {
-        super(0, 0, angle, texture);
+    public Shape(float orbitX, float orbitY, float angle, int sides, float maxHealth, float bodyDamage) {
+        super(0, 0, angle);
         this.size = 25;
         this.orbitX = orbitX;
         this.orbitY = orbitY;
@@ -58,8 +58,41 @@ public abstract class Shape extends Sprite {
         orbitAngle += orbitAngleSpeed * GameScreen.dt;
         angle += rotationSpeed * GameScreen.dt;
 
+        velocityX -= velocityX * decay * GameScreen.dt;
+        velocityY -= velocityY * decay * GameScreen.dt;
+
+        orbitX += velocityX * GameScreen.dt;
+        orbitY += velocityY * GameScreen.dt;
+
         centerX = (float) (orbitX + Math.cos(orbitAngle) * orbitRadius);
         centerY = (float) (orbitY + Math.sin(orbitAngle) * orbitRadius);
+
+        if (Math.abs(velocityX) < 0.5f) velocityX = 0f;
+        if (Math.abs(velocityY) < 0.5f) velocityY = 0f;
+
+        // Ensure orbit center stays within bounds
+        float minX = orbitRadius;
+        float maxX = GameScreen.worldW - orbitRadius;
+        float minY = orbitRadius;
+        float maxY = GameScreen.worldH - orbitRadius;
+
+        if (orbitX < minX) {
+            orbitX = minX;
+            velocityX = 0; // stop further movement
+        }
+        if (orbitX > maxX) {
+            orbitX = maxX;
+            velocityX = 0;
+        }
+
+        if (orbitY < minY) {
+            orbitY = minY;
+            velocityY = 0;
+        }
+        if (orbitY > maxY) {
+            orbitY = maxY;
+            velocityY = 0;
+        }
 
         for (int i = 0; i < sides; i++) {
             float a = angle + i * step;
@@ -71,9 +104,12 @@ public abstract class Shape extends Sprite {
     }
 
     public void draw() {
-        DrawPoly(new Vector2().x(centerX).y(centerY), sides, size + strokeWidth, angle * (180f / (float) Math.PI), stroke);
-        DrawPoly(new Vector2().x(centerX).y(centerY), sides, size, angle * (180f / (float) Math.PI), color);
-        if (health < maxHealth) drawHealthBar();
+        Color currentStroke = alive ? stroke : RED;
+        Color currentColor = alive ? color : RED;
+        DrawPoly(new Vector2().x(centerX).y(centerY), sides, size + strokeWidth, angle * (180f / (float) Math.PI), currentStroke);
+        DrawPoly(new Vector2().x(centerX).y(centerY), sides, size, angle * (180f / (float) Math.PI), currentColor);
+        if (GameScreen.hitbox) drawHitBox();
+        if (health < maxHealth && alive) drawHealthBar();
     }
 
     public void drawHitBox() {

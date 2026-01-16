@@ -1,6 +1,3 @@
-package com.tanxx.physics;
-
-import com.tanxx.entities.Shape;
 import java.util.ArrayList;
 import java.util.List;
 

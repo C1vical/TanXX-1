@@ -1,6 +1,7 @@
-package com.tanxx.entities;
-
 import static com.raylib.Raylib.*;
+
+// The Annihilator class is a specialized type of Tank
+// It inherits all properties and methods from the Tank superclass
 
 public class Annihilator extends Tank {
     public Annihilator(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {

@@ -1,59 +1,91 @@
-package com.tanxx.screens;
-
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 
 public class MenuScreen extends GameState {
-    private Texture background, logo, playBtn, creditsBtn, exitBtn;
-    private Rectangle backgroundRect, logoRect, playRect, creditsRect, exitRect;
+
+    // Textuers
+    private final Texture background;
+    private final Texture logo;
+    private final Texture playBtn;
+    private final Texture creditsBtn;
+    private final Texture exitBtn;
+
+    // Layout rectangles
+    private Rectangle backgroundRect;
+    private Rectangle logoRect;
+    private Rectangle playRect;
+    private Rectangle creditsRect;
+    private Rectangle exitRect;
+
+    // UI States
     private boolean showCredits = false;
     private boolean playHover = false;
     private boolean creditsHover = false;
     private boolean exitHover = false;
+
+    // Set the requested screen type as MENU
     private ScreenType requestedScreen = ScreenType.MENU;
 
+    // Constructor
     public MenuScreen() {
+        // Load menu assets from the resources folder
         background = LoadTexture("resources/menu/menubackgroundblur.png");
         logo = LoadTexture("resources/menu/logo.png");
         playBtn = LoadTexture("resources/menu/play.png");
         creditsBtn = LoadTexture("resources/menu/credits.png");
         exitBtn = LoadTexture("resources/menu/exit.png");
+
+        // Initial layout setup
         updateLayout();
     }
 
+    // Update logic
     @Override
     public void update() {
-        if (IsWindowResized()) updateLayout();
-
+        // Mouse handling
         Vector2 mouse = GetMousePosition();
         playHover = isHover(playRect, mouse);
         creditsHover = isHover(creditsRect, mouse);
         exitHover = isHover(exitRect, mouse);
 
+        // Handle mouse clicks (only when credits are NOT open)
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !showCredits) {
-            if (playHover) requestedScreen = ScreenType.GAME;
-            else if (creditsHover) showCredits = true;
-            else if (exitHover) requestedScreen = ScreenType.EXIT;
+            if (playHover) {
+                requestedScreen = ScreenType.GAME;
+            } else if (creditsHover) {
+                showCredits = true;
+            } else if (exitHover) {
+                requestedScreen = ScreenType.EXIT;
+            }
         }
 
+        // Close credits with space
         if (IsKeyPressed(KEY_SPACE)) {
             showCredits = false;
         }
     }
 
+    // Drawing
     @Override
     public void draw() {
-        drawScaled(background, backgroundRect, WHITE);
-        drawScaled(logo, logoRect, WHITE);
-        drawButton(playBtn, playRect, playHover, showCredits);
-        drawButton(creditsBtn, creditsRect, creditsHover, showCredits);
-        drawButton(exitBtn, exitRect, exitHover, showCredits);
+        // Draw background and logo
+        Graphics.drawScaled(background, backgroundRect, WHITE);
+        Graphics.drawScaled(logo, logoRect, WHITE);
 
-        if (showCredits) drawCredits();
+        // Draw menu buttons
+        Graphics.drawButton(playBtn, playRect, playHover, showCredits);
+        Graphics.drawButton(creditsBtn, creditsRect, creditsHover, showCredits);
+        Graphics.drawButton(exitBtn, exitRect, exitHover, showCredits);
+
+        // Draw credits if active
+        if (showCredits) {
+            Graphics.drawCredits();
+        }
     }
 
+    // Unload resources
     @Override
     public void unload() {
         UnloadTexture(logo);
@@ -63,53 +95,42 @@ public class MenuScreen extends GameState {
         UnloadTexture(exitBtn);
     }
 
+    // Screen switching
     @Override
     public ScreenType getRequestedScreen() {
         return requestedScreen;
     }
 
+    // Layout scaling
     private void updateLayout() {
+        // Current window size
         screenW = GetScreenWidth();
         screenH = GetScreenHeight();
 
+        // Scale ratio relative to default resolution
         float ratioW = screenW / (float) DEFAULT_SCREEN_W;
         float ratioH = screenH / (float) DEFAULT_SCREEN_H;
 
+        // Background fills the entire scren
         backgroundRect = newRectangle(0, 0, screenW, screenH);
 
+        // Logo
         float logoW = 950 * ratioW;
         float logoH = 375 * ratioH;
         logoRect = newRectangle(screenW / 2f - logoW / 2, 125 * ratioH, logoW, logoH);
 
+        // Play button (centered)
         float playW = 900 * ratioW;
         float playH = 360 * ratioH;
         playRect = newRectangle(screenW / 2f - playW / 2, screenH / 2f, playW, playH);
 
+        // Credits button (bottom left)
         float credW = 300f * ratioW;
         float credH = 120f * ratioH;
         creditsRect = newRectangle(15 * ratioW, screenH - credH - 15 * ratioH, credW, credH);
 
-        float exitW = credW;
-        float exitH = credH;
-        exitRect = newRectangle(screenW - exitW - 15 * ratioW, screenH - exitH - 15 * ratioH, exitW, exitH);
+        // Exit button (bottom right)
+        exitRect = newRectangle(screenW - credW - 15 * ratioW, screenH - credH - 15 * ratioH, credW, credH);
     }
 
-    private void drawCredits() {
-        DrawRectangle(0, 0, screenW, screenH, newColor(0, 0, 0, 180));
-
-        int boxW = 400;
-        int boxH = 200;
-        int boxX = (screenW - boxW) / 2;
-        int boxY = (screenH - boxH) / 2;
-
-        Rectangle rect = newRectangle(boxX, boxY, boxW, boxH);
-        DrawRectangleRounded(rect, 0.2f, 10, RAYWHITE);
-        DrawRectangleRoundedLines(rect, 0.2f, 10, DARKGRAY);
-
-        DrawText("Credits", boxX + boxW / 2 - MeasureText("Credits", 30) / 2, boxY + 20, 30, BLACK);
-        DrawText("Made by:", boxX + 40, boxY + 60, 20, BLACK);
-        DrawText("Jonathan Yu", boxX + 40, boxY + 95, 20, BLACK);
-        DrawText("Cheney Chen", boxX + 40, boxY + 130, 20, BLACK);
-        DrawText("Press SPACE to close", boxX + boxW / 2 - MeasureText("Press SPACE to close", 14) / 2, boxY + 165, 14, BLACK);
-    }
 }
