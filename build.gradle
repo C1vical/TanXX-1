@@ -11,10 +11,14 @@ dependencies {
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     manifest {
         attributes(
-                'Main-Class': 'com.tanxx.core.Main'
+                'Main-Class': 'Main'
         )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
@@ -22,4 +26,14 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
     }
+}
+
+tasks.register('distZip', Zip) {
+    dependsOn jar
+    from(jar.archiveFile)
+    from('resources') {
+        into 'resources'
+    }
+    archiveFileName = 'TanXX-Release.zip'
+    destinationDirectory = file("$buildDir/distributions")
 }

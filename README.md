@@ -15,10 +15,23 @@ Right-click on the example and select `run`.
 
 Edit `Main.java` with your own code.  (You can delete the examples.)  Then
 
-To run:
+## Sharing your game
 
-    ./gradlew run
+To package your game for sharing with others:
 
-To build a zip file you can distribute:
-
+1.  Run the following command:
+    ```powershell
     ./gradlew distZip
+    ```
+2.  The resulting file will be located at `build/distributions/TanXX-Release.zip`.
+3.  You can share this ZIP file. Anyone who receives it just needs to extract it and run:
+    ```powershell
+    java -jar TanXX.jar
+    ```
+    *(Note: They will need Java 17 or newer installed on their system.)*
+
+## Running from source
+To run the game during development:
+```powershell
+./gradlew run
+```

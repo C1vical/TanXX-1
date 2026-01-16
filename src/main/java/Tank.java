@@ -48,6 +48,7 @@ public class Tank extends Entity {
     private final int[] levelXP = {4,9,15,22,28,35,44,54,64,75,87,101,117,132,161,161,192,215,251,259,299,322,388,398,450,496,546,600,659,723,791,839,889,942,999,1059,1093,1190,1261,1337,1417,1502,1593,1687, 0};
     private int skillPoints;
     private boolean levelUp = true;
+    private boolean upgradeSkill = false;
 
     // Constructor
     public Tank(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
@@ -260,6 +261,7 @@ public class Tank extends Entity {
         score += amount;
         levelScore += amount;
         if (level < 45) {
+            levelProgress = (float) levelScore / levelXP[level - 1];
             while (levelScore >= levelXP[level - 1]) {
                 levelUp();
                 if (level == 45) {
@@ -279,6 +281,7 @@ public class Tank extends Entity {
         // Skill points according to diep.io (total 33 points at level 45)
         if (level <= 28 || level % 3 == 0) {
             skillPoints++;
+            upgradeSkill = true;
         }
     }
 
@@ -296,5 +299,13 @@ public class Tank extends Entity {
             total += levelXP[i];
         }
         return total;
+    }
+
+    public boolean isUpgradeSkill() {
+        return upgradeSkill;
+    }
+
+    public void setUpgradeSkill(boolean upgradeSkill) {
+        this.upgradeSkill = upgradeSkill;
     }
 }

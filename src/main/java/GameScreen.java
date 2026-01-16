@@ -89,13 +89,13 @@ public class GameScreen extends GameState {
             // Hover area expands as the menu pops out
             float hoverWidth = 50 + (Graphics.upgradeMenuWidth) * Graphics.upgradeMenuAnim;
             Rectangle hoverArea = newRectangle(0, Graphics.startY - 50, hoverWidth, Graphics.menuH + 50);
-            if (CheckCollisionPointRec(mouseScreen, hoverArea) || Graphics.upgradeMenuTimer > 0) {
-                Graphics.upgradeMenuAnim += 6f * EntityManager.dt;
+            if (CheckCollisionPointRec(mouseScreen, hoverArea) || Graphics.upgradeMenuTimer > 0 || EntityManager.playerTank.isUpgradeSkill()) {
+                Graphics.upgradeMenuAnim += 8f * EntityManager.dt;
             } else {
-                Graphics.upgradeMenuAnim -= 6f * EntityManager.dt;
+                Graphics.upgradeMenuAnim -= 8f * EntityManager.dt;
             }
         } else {
-            Graphics.upgradeMenuAnim -= 6f * EntityManager.dt;
+            Graphics.upgradeMenuAnim -= 8f * EntityManager.dt;
         }
         if (Graphics.upgradeMenuAnim > 1f) Graphics.upgradeMenuAnim = 1f;
         if (Graphics.upgradeMenuAnim < 0f) Graphics.upgradeMenuAnim = 0f;

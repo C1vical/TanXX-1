@@ -60,14 +60,14 @@ public class Graphics {
             "Bullet Penetration", "Bullet Damage", "Reload Speed", "Movement Speed"
     };
     public static final Color[] statColors = {
-            newColor(255, 128, 255, 255), // Pink
-            newColor(128, 255, 128, 255), // Green
-            newColor(128, 255, 255, 255), // Cyan
-            newColor(255, 255, 128, 255), // Yellow
-            newColor(128, 128, 255, 255), // Blue
-            newColor(255, 128, 128, 255), // Red
-            newColor(255, 179, 128, 255), // Orange
-            newColor(230, 230, 230, 255)  // Gray
+            newColor(252, 173, 118, 255),
+            newColor(249, 67, 255, 255),
+            newColor(133, 67, 255, 255),
+            newColor(67, 127, 255, 255),
+            newColor(255, 222, 67, 255),
+            newColor(255, 67, 67, 255),
+            newColor(130, 255, 67, 255),
+            newColor(67, 255, 249, 255)
     };
     public static final float upgradeMenuWidth = 200;
     public static final float upgradeItemHeight = 25;
@@ -244,14 +244,14 @@ public class Graphics {
         // Level bar
         DrawRectangleRounded(newRectangle(levelBarX, levelBarY, levelBarW, levelBarH), 0.8f, 20, newColor(0, 0, 0, 200));
         float progress = EntityManager.playerTank.getLevelProgress();
-        DrawRectangleRounded(newRectangle(levelBarX, levelBarY, levelBarW * progress, levelBarH), 0.8f, 20, newColor(255, 215, 0, 230));
+        DrawRectangleRounded(newRectangle(levelBarX, levelBarY, levelBarW * progress, levelBarH), 0.8f, 20, newColor(255, 222, 67, 230));
         String levelText = "Level " + EntityManager.playerTank.getLevel();
         DrawText(levelText, (int) (levelBarX + levelBarW / 2) - MeasureText(levelText, levelTextFont) / 2, (int) (levelBarY + levelBarH / 2) - levelTextFont / 2, levelTextFont, WHITE);
 
         // Score bar
-        DrawRectangleRounded(newRectangle(scoreBarX, scoreBarY, scoreBarW, scoreBarH), 0.8f, 20, newColor(48, 240, 141, 255));
+        DrawRectangleRounded(newRectangle(scoreBarX, scoreBarY, scoreBarW, scoreBarH), 0.8f, 20, newColor(67, 255, 145, 255));
         String scoreText = "Score: " + EntityManager.playerTank.getScore();
-        DrawText(scoreText, (int) (scoreBarX + scoreBarW / 2) - MeasureText(scoreText, scoreTextFont) / 2, (int) (scoreBarY + scoreBarH / 2) - scoreTextFont / 2, scoreTextFont, BLUE);
+        DrawText(scoreText, (int) (scoreBarX + scoreBarW / 2) - MeasureText(scoreText, scoreTextFont) / 2, (int) (scoreBarY + scoreBarH / 2) - scoreTextFont / 2, scoreTextFont, BLACK);
 
         // Name
         DrawText(nameText, (int) nameTextX, (int) nameTextY, nameTextFont, WHITE);
@@ -264,7 +264,12 @@ public class Graphics {
         float x = hiddenX + (padding - hiddenX) * upgradeMenuAnim;
 
         // Locked state visuals
-        boolean locked = EntityManager.playerTank.getSkillPoints() <= 0;
+        boolean locked = false;
+        if (EntityManager.playerTank.getSkillPoints() <= 0) {
+            locked = true;
+            EntityManager.playerTank.setUpgradeSkill(false);
+
+        }
         Color bgColor = locked ? newColor(0, 0, 0, 210) : newColor(0, 0, 0, 150);
         Color skillTextColor = locked ? LIGHTGRAY : WHITE;
         Color statTextColor = locked ? GRAY : WHITE;

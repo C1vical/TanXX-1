@@ -98,7 +98,7 @@ public abstract class Entity {
         DrawRectangleRounded(rect, 0.3f, 0, DARKGRAY);
         float healthRatio = getHealth() / getMaxHealth();
         rect = newRectangle(healthBarX, healthBarY, healthBarWidth * healthRatio, healthBarHeight);
-        DrawRectangleRounded(rect, 0.3f, 0, GREEN);
+        DrawRectangleRounded(rect, 0.3f, 0, newColor(133, 227, 125, 255));
     }
 
     public void setDamage(boolean isDamage) {
