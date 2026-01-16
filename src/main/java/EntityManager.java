@@ -7,8 +7,8 @@ import static com.raylib.Helpers.newColor;
 public class EntityManager {
 
     // World dimensions
-    public static final int worldW = 1000;
-    public static final int worldH = 1000;
+    public static final int worldW = 4000;
+    public static final int worldH = 4000;
     public static final int borderSize = 1000;
 
     // Game state flags
@@ -50,17 +50,18 @@ public class EntityManager {
         // Generate a random position that is NOT on top of the player and in world boundaries
         float orbitX;
         float orbitY;
+        float orbitRadius = 30 + (float) (Math.random() * 70);
         float safeDistance = 75;
 
         do {
-            orbitX = (float) (Math.random() * worldW);
-            orbitY = (float) (Math.random() * worldH);
-        } while (Math.hypot(orbitX - playerTank.getCenterX(), orbitY - playerTank.getCenterY()) < safeDistance && orbitX > 0 && orbitY > 0 && orbitX < worldW && orbitY < worldH);
+            orbitX = (float) (Math.random() * (worldW - 2 * orbitRadius)) + orbitRadius;
+            orbitY = (float) (Math.random() * (worldH - 2 * orbitRadius)) + orbitRadius;
+        } while (Math.hypot(orbitX - playerTank.getCenterX(), orbitY - playerTank.getCenterY()) < safeDistance);
 
         switch (type) {
-            case 0 -> shapes.add(new Shape(orbitX, orbitY, 0, 4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 10));
-            case 1 -> shapes.add(new Shape(orbitX, orbitY, 0, 3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 25));
-            default -> shapes.add(new Shape(orbitX, orbitY, 0, 5, 100, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 100));
+            case 0 -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 10));
+            case 1 -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 25));
+            default -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,5, 100, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 100));
         }
     }
 
@@ -131,7 +132,7 @@ public class EntityManager {
                     resolveCollision(b, s, b.getBulletDamage(), s.getBodyDamage());
 
                     // Apply knockback after damage
-                    applyKnockback(b, s, 5, 10);
+                    applyKnockback(b, s, 30, 30);
 
                     // Award XP
                     if (!s.isAlive()) {
@@ -153,7 +154,7 @@ public class EntityManager {
                 resolveCollision(playerTank, s, playerTank.getBodyDamage(), s.getBodyDamage());
 
                 // Apply knockback after damage
-                applyKnockback(s, playerTank, 10, 50);
+                applyKnockback(s, playerTank, 100, 100);
 
                 if (!s.isAlive()) {
                     playerTank.addScore(s.getXp());

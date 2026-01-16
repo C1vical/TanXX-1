@@ -16,6 +16,9 @@ public class Graphics {
     public static final Color borderGridLineColour = newColor(45, 45, 45, 255);
     public static final int tileSize = 20;
 
+    // Display properties
+    public static float padding = 15;
+
     // Settings UI properties
     public static int settingsSize = 75;
     public static Rectangle settingsRect;
@@ -25,7 +28,6 @@ public class Graphics {
     // Level bar properties
     public static float levelBarW = 350;
     public static float levelBarH = 25;
-    public static float padding = 20;
     public static float levelBarX;
     public static float levelBarY;
     public static int levelTextFont = 20;
@@ -43,6 +45,14 @@ public class Graphics {
     public static int nameTextFont = 25;
     public static float nameTextX;
     public static float nameTextY;
+
+    // Minimap properties
+    public static final float miniMapW = 200;
+    public static final float miniMapH = 200;
+    public static float miniMapX;
+    public static float miniMapY;
+    public static final Color miniMapColour = newColor(148, 148, 148, 200);
+    public static final Color miniMapBorderColour = newColor(71, 71, 71, 200);
 
     // Upgrade Menu configuration
     public static final String[] statNames = {
@@ -63,9 +73,10 @@ public class Graphics {
     public static final float upgradeItemHeight = 25;
     public static final float menuH = statNames.length * (upgradeItemHeight + 5);
     public static float startY;
-    public static final float upgradeMenuPadding = 10;
+    public static final float hiddenX = -upgradeMenuWidth - 5;
     public static float upgradeMenuAnim = 0f; // 0 = collapsed, 1 = expanded
     public static float upgradeMenuTimer = 0f; // Time to keep the menu open after keypress
+    public static final float skillTextX = 15;
 
     // MenuScreen UI layout rectangles
     public static Rectangle backgroundRect;
@@ -116,6 +127,7 @@ public class Graphics {
         if (zoomLevel > 20.0f) zoomLevel = 20.0f;
     }
 
+    // Update game layout based on screen size
     public static void updateGameLayout() {
         GameState.screenW = GetScreenWidth();
         GameState.screenH = GetScreenHeight();
@@ -125,7 +137,7 @@ public class Graphics {
 
         float settingsW = settingsSize * ratioW;
         float settingsH = settingsSize * ratioH;
-        settingsRect = newRectangle(GameState.screenW - settingsW - 15 * ratioW, 15 * ratioH, settingsW, settingsH);
+        settingsRect = newRectangle(GameState.screenW - settingsW - padding * ratioW, GameState.screenH - settingsH - padding * ratioH, settingsW, settingsH);
 
         levelBarX = GameState.screenW / 2f - levelBarW / 2;
         levelBarY = GameState.screenH - padding - levelBarH;
@@ -136,9 +148,13 @@ public class Graphics {
         nameTextX = GameState.screenW / 2f - (float) MeasureText(nameText, nameTextFont) / 2;
         nameTextY = scoreBarY - margin - nameTextFont;
 
-        startY = GameState.screenH - padding - menuH - 50;
+        startY = GameState.screenH - menuH - 50;
+
+        miniMapX = GameState.screenW - miniMapW - padding * ratioW;
+        miniMapY = padding * ratioH;
     }
 
+    // Update menu layout based on screen size
     public static void updateMenuLayout() {
         GameState.screenW = GetScreenWidth();
         GameState.screenH = GetScreenHeight();
@@ -158,9 +174,9 @@ public class Graphics {
 
         float credW = 300f * ratioW;
         float credH = 120f * ratioH;
-        creditsRect = newRectangle(15 * ratioW, GameState.screenH - credH - 15 * ratioH, credW, credH);
+        creditsRect = newRectangle(padding * ratioW, GameState.screenH - credH - padding * ratioH, credW, credH);
 
-        exitRect = newRectangle(GameState.screenW - credW - 15 * ratioW, GameState.screenH - credH - 15 * ratioH, credW, credH);
+        exitRect = newRectangle(GameState.screenW - credW - padding * ratioW, GameState.screenH - credH - padding * ratioH, credW, credH);
     }
 
     // Draw a texture with scaling applied to a destination rectangle
@@ -169,12 +185,12 @@ public class Graphics {
         DrawTexturePro(tex, source, dest, new Vector2().x(0).y(0), 0f, color);
     }
 
-    // Draw a button with hover effect
+    // Draw a button with a hover effect
     public static void drawButton(Texture tex, Rectangle rect, boolean hover, boolean show) {
         drawScaled(tex, rect, hover && !show ? hovered : WHITE);
     }
 
-    // --- GameScreen Drawing Methods ---
+    // Gamescreen drawing methods
 
     public static void drawWorld() {
         // Draw vertical border grid lines
@@ -245,9 +261,7 @@ public class Graphics {
         if (EntityManager.deathScreen) return;
 
         // Animated X position
-        float hiddenX = -upgradeMenuWidth - 5;
-        float targetX = padding;
-        float x = hiddenX + (targetX - hiddenX) * upgradeMenuAnim;
+        float x = hiddenX + (padding - hiddenX) * upgradeMenuAnim;
 
         // Locked state visuals
         boolean locked = EntityManager.playerTank.getSkillPoints() <= 0;
@@ -255,8 +269,7 @@ public class Graphics {
         Color skillTextColor = locked ? LIGHTGRAY : WHITE;
         Color statTextColor = locked ? GRAY : WHITE;
 
-        // Skill points indicator (stays partially visible to signal available upgrades)
-        float skillTextX = Math.max(x, 15);
+        // Skill points indicator
         DrawText("x" + EntityManager.playerTank.getSkillPoints(), (int) skillTextX, (int) startY - 30, 25, skillTextColor);
 
         for (int i = 0; i < statNames.length; i++) {
@@ -292,7 +305,7 @@ public class Graphics {
             DrawText(statNames[i], (int) x + 10, (int) y  + 3, 12, statTextColor);
 
             // Draw the hotkey number
-            DrawText(String.valueOf(i + 1), (int) (x + upgradeMenuWidth - 15), (int) y + 3, 12, locked ? DARKGRAY : GRAY);
+            DrawText(String.valueOf(i + 1), (int) (x + upgradeMenuWidth - padding), (int) y + 3, 12, locked ? DARKGRAY : GRAY);
 
             // Draw highlight if hovered
             if (CheckCollisionPointRec(GetMousePosition(), rect)) {
@@ -318,13 +331,24 @@ public class Graphics {
         DrawText("Press SPACE to close", boxX + boxW / 2 - MeasureText("Press SPACE to close", 20) / 2,  boxY + 165, 20, BLACK);
     }
 
+    public static void drawMiniMap() {
+        Rectangle rect = newRectangle(miniMapX, miniMapY, miniMapW, miniMapH);
+        DrawRectangleRounded(rect, 0.05f, 10, miniMapColour);
+        DrawRectangleRoundedLines(rect, 0.05f, 10, miniMapBorderColour);
+
+        float x = EntityManager.playerTank.getCenterX() / EntityManager.worldW;
+        float y = EntityManager.playerTank.getCenterY() / EntityManager.worldH;
+
+        DrawCircleV(new Vector2().x(miniMapX + miniMapW * x).y(miniMapY + miniMapH * y), 5, RED);
+    }
+
     public static void drawDeathScreen() {
         DrawRectangle(0, 0, GameState.screenW, GameState.screenH, newColor(0, 0, 0, 75));
         DrawText("You DIED!", GetScreenWidth() / 2 - MeasureText("You DIED!", 40) / 2, GetScreenHeight() / 2 - 40, 40, RED);
         DrawText("Press R to respawn!", GetScreenWidth() / 2 - MeasureText("Press R to respawn!", 40) / 2, GetScreenHeight() / 2 + 10, 40, WHITE);
     }
 
-    // --- MenuScreen Drawing Methods ---
+    // Menu-screen drawing methods
 
     public static void drawCredits() {
         // Dark background (not fully opaque)

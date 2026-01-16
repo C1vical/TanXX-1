@@ -96,7 +96,7 @@ public abstract class Entity {
 
         Rectangle rect = newRectangle(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
         DrawRectangleRounded(rect, 0.3f, 0, DARKGRAY);
-        float healthRatio = getHealth() /getMaxHealth();
+        float healthRatio = getHealth() / getMaxHealth();
         rect = newRectangle(healthBarX, healthBarY, healthBarWidth * healthRatio, healthBarHeight);
         DrawRectangleRounded(rect, 0.3f, 0, GREEN);
     }

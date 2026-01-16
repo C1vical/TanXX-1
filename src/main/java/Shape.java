@@ -22,11 +22,12 @@ public class Shape extends Entity {
 
     protected int xp;
 
-    public Shape(float orbitX, float orbitY, float angle, int sides, float maxHealth, float bodyDamage, Color color, Color stroke, int xp) {
+    public Shape(float orbitX, float orbitY, float orbitRadius, float angle, int sides, float maxHealth, float bodyDamage, Color color, Color stroke, int xp) {
         super(0, 0, angle);
         this.size = 25;
         this.orbitX = orbitX;
         this.orbitY = orbitY;
+        this.orbitRadius = orbitRadius;
         this.alive = true;
         this.sides = sides;
         this.maxHealth = maxHealth;
@@ -36,9 +37,9 @@ public class Shape extends Entity {
         this.stroke = stroke;
         this.xp = xp;
 
+        this.orbitAngle = (float) (Math.random() * Math.PI * 2);
         orbitAngleSpeed = (float) (Math.random() * 0.08 + 0.02f) * (Math.random() < 0.5 ? 1 : -1);
         rotationSpeed = (float) (Math.random() * 0.08 + 0.02f) * (Math.random() < 0.5 ? 1 : -1);
-        orbitRadius = 30 + (float) (Math.random() * 70);
 
         centerX = (float) (orbitX + Math.cos(orbitAngle) * orbitRadius);
         centerY = (float) (orbitY + Math.sin(orbitAngle) * orbitRadius);

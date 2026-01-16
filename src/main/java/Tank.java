@@ -45,8 +45,9 @@ public class Tank extends Entity {
     private int levelScore;
     private int level;
     private float levelProgress;
-    private final int[] levelXP = new int[45];
+    private final int[] levelXP = {4,9,15,22,28,35,44,54,64,75,87,101,117,132,161,161,192,215,251,259,299,322,388,398,450,496,546,600,659,723,791,839,889,942,999,1059,1093,1190,1261,1337,1417,1502,1593,1687, 0};
     private int skillPoints;
+    private boolean levelUp = true;
 
     // Constructor
     public Tank(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
@@ -57,17 +58,14 @@ public class Tank extends Entity {
         for (int i = 0; i < 8; i++) {
             stats[i] = 0;
         }
-        updateStats();
-        this.health = maxHealth;
         this.alive = true;
         this.level = 1;
         this.score = 0;
         this.levelScore = 0;
         this.skillPoints = 0;
         this.levelProgress = 0f;
-        for (int i = 0; i < levelXP.length; i++) {
-            levelXP[i] = 100 + i * 50;
-        }
+        updateStats();
+        this.health = maxHealth;
     }
 
     // Recalculates actual stats based on stat levels and player level
@@ -81,6 +79,11 @@ public class Tank extends Entity {
         bulletDamage = (7 + 3 * stats[5]);
         reloadSpeed = 0.6f - (0.04f * stats[6]);
         speed = 150 + (10 * stats[7]);
+
+        if (levelUp) {
+            health = maxHealth;
+            levelUp = false;
+        }
 
         // Tank size scaling: sizeFactor = 1.01 ^ (lvl - 1)
         float sizeFactor = (float) Math.pow(1.01, level - 1);
@@ -257,27 +260,25 @@ public class Tank extends Entity {
         score += amount;
         levelScore += amount;
         if (level < 45) {
-            while (levelScore >= levelXP[level - 1]) levelUp();
-            levelProgress = (float) levelScore / levelXP[level - 1];
-        } else {
-            levelProgress = 1f;
+            while (levelScore >= levelXP[level - 1]) {
+                levelUp();
+                if (level == 45) {
+                    levelProgress = 1f;
+                    break;
+                }
+            }
         }
-
     }
 
     public void levelUp() {
+        levelUp = true;
         levelScore -= levelXP[level - 1];
         level++;
+        levelProgress = (float) levelScore / levelXP[level - 1];
 
         // Skill points according to diep.io (total 33 points at level 45)
         if (level <= 28 || level % 3 == 0) {
             skillPoints++;
-        }
-
-        health = maxHealth;
-
-        if (level >= 45) {
-            level = 45;
         }
     }
 

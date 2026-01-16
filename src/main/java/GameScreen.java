@@ -87,9 +87,8 @@ public class GameScreen extends GameState {
             if (Graphics.upgradeMenuTimer > 0) Graphics.upgradeMenuTimer -= EntityManager.dt;
 
             // Hover area expands as the menu pops out
-            float hoverWidth = 40 + (Graphics.upgradeMenuWidth) * Graphics.upgradeMenuAnim;
-            Rectangle hoverArea = newRectangle(0, Graphics.startY - 50, hoverWidth, Graphics.menuH + 100);
-
+            float hoverWidth = 50 + (Graphics.upgradeMenuWidth) * Graphics.upgradeMenuAnim;
+            Rectangle hoverArea = newRectangle(0, Graphics.startY - 50, hoverWidth, Graphics.menuH + 50);
             if (CheckCollisionPointRec(mouseScreen, hoverArea) || Graphics.upgradeMenuTimer > 0) {
                 Graphics.upgradeMenuAnim += 6f * EntityManager.dt;
             } else {
@@ -202,8 +201,9 @@ public class GameScreen extends GameState {
         // Draw UI elements that are not affected by the camera
         Graphics.drawSettings();
         Graphics.drawUpgradeMenu();
-        if (Graphics.showSettings) Graphics.drawSettingsMenu();
         Graphics.drawLevelBar();
+        Graphics.drawMiniMap();
+        if (Graphics.showSettings) Graphics.drawSettingsMenu();
 
         // Draw death overlay if the player is dead
         if (EntityManager.deathScreen) {
