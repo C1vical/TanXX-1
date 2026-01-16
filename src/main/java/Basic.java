@@ -4,11 +4,10 @@ import static com.raylib.Raylib.*;
 // Inherits all behavior from the Tank superclass
 
 public class Basic extends Tank {
+    // Constructor sets default size and barrel dimensions for the basic tank
     public Basic(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture, barrelTexture);
-        this.size = 50;
-        this.barrelW = size;
-        this.barrelH = size / 2;
-        this.recoil = barrelH * 1.8f;
+        this.baseSize = 50;
+        updateStats(); // Ensure initial size and stats are calculated
     }
 }

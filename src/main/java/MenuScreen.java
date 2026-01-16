@@ -5,25 +5,12 @@ import static com.raylib.Helpers.newRectangle;
 
 public class MenuScreen extends GameState {
 
-    // Textuers
+    // Textures
     private final Texture background;
     private final Texture logo;
     private final Texture playBtn;
     private final Texture creditsBtn;
     private final Texture exitBtn;
-
-    // Layout rectangles
-    private Rectangle backgroundRect;
-    private Rectangle logoRect;
-    private Rectangle playRect;
-    private Rectangle creditsRect;
-    private Rectangle exitRect;
-
-    // UI States
-    private boolean showCredits = false;
-    private boolean playHover = false;
-    private boolean creditsHover = false;
-    private boolean exitHover = false;
 
     // Set the requested screen type as MENU
     private ScreenType requestedScreen = ScreenType.MENU;
@@ -38,7 +25,7 @@ public class MenuScreen extends GameState {
         exitBtn = LoadTexture("resources/menu/exit.png");
 
         // Initial layout setup
-        updateLayout();
+        Graphics.updateMenuLayout();
     }
 
     // Update logic
@@ -46,24 +33,24 @@ public class MenuScreen extends GameState {
     public void update() {
         // Mouse handling
         Vector2 mouse = GetMousePosition();
-        playHover = isHover(playRect, mouse);
-        creditsHover = isHover(creditsRect, mouse);
-        exitHover = isHover(exitRect, mouse);
+        Graphics.playHover = isHover(Graphics.playRect, mouse);
+        Graphics.creditsHover = isHover(Graphics.creditsRect, mouse);
+        Graphics.exitHover = isHover(Graphics.exitRect, mouse);
 
         // Handle mouse clicks (only when credits are NOT open)
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !showCredits) {
-            if (playHover) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !Graphics.showCredits) {
+            if (Graphics.playHover) {
                 requestedScreen = ScreenType.GAME;
-            } else if (creditsHover) {
-                showCredits = true;
-            } else if (exitHover) {
+            } else if (Graphics.creditsHover) {
+                Graphics.showCredits = true;
+            } else if (Graphics.exitHover) {
                 requestedScreen = ScreenType.EXIT;
             }
         }
 
         // Close credits with space
         if (IsKeyPressed(KEY_SPACE)) {
-            showCredits = false;
+            Graphics.showCredits = false;
         }
     }
 
@@ -71,16 +58,16 @@ public class MenuScreen extends GameState {
     @Override
     public void draw() {
         // Draw background and logo
-        Graphics.drawScaled(background, backgroundRect, WHITE);
-        Graphics.drawScaled(logo, logoRect, WHITE);
+        Graphics.drawScaled(background, Graphics.backgroundRect, WHITE);
+        Graphics.drawScaled(logo, Graphics.logoRect, WHITE);
 
         // Draw menu buttons
-        Graphics.drawButton(playBtn, playRect, playHover, showCredits);
-        Graphics.drawButton(creditsBtn, creditsRect, creditsHover, showCredits);
-        Graphics.drawButton(exitBtn, exitRect, exitHover, showCredits);
+        Graphics.drawButton(playBtn, Graphics.playRect, Graphics.playHover, Graphics.showCredits);
+        Graphics.drawButton(creditsBtn, Graphics.creditsRect, Graphics.creditsHover, Graphics.showCredits);
+        Graphics.drawButton(exitBtn, Graphics.exitRect, Graphics.exitHover, Graphics.showCredits);
 
         // Draw credits if active
-        if (showCredits) {
+        if (Graphics.showCredits) {
             Graphics.drawCredits();
         }
     }
@@ -100,37 +87,4 @@ public class MenuScreen extends GameState {
     public ScreenType getRequestedScreen() {
         return requestedScreen;
     }
-
-    // Layout scaling
-    private void updateLayout() {
-        // Current window size
-        screenW = GetScreenWidth();
-        screenH = GetScreenHeight();
-
-        // Scale ratio relative to default resolution
-        float ratioW = screenW / (float) DEFAULT_SCREEN_W;
-        float ratioH = screenH / (float) DEFAULT_SCREEN_H;
-
-        // Background fills the entire scren
-        backgroundRect = newRectangle(0, 0, screenW, screenH);
-
-        // Logo
-        float logoW = 950 * ratioW;
-        float logoH = 375 * ratioH;
-        logoRect = newRectangle(screenW / 2f - logoW / 2, 125 * ratioH, logoW, logoH);
-
-        // Play button (centered)
-        float playW = 900 * ratioW;
-        float playH = 360 * ratioH;
-        playRect = newRectangle(screenW / 2f - playW / 2, screenH / 2f, playW, playH);
-
-        // Credits button (bottom left)
-        float credW = 300f * ratioW;
-        float credH = 120f * ratioH;
-        creditsRect = newRectangle(15 * ratioW, screenH - credH - 15 * ratioH, credW, credH);
-
-        // Exit button (bottom right)
-        exitRect = newRectangle(screenW - credW - 15 * ratioW, screenH - credH - 15 * ratioH, credW, credH);
-    }
-
 }

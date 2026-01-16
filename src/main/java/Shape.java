@@ -22,17 +22,19 @@ public class Shape extends Entity {
 
     protected int xp;
 
-    public Shape(float orbitX, float orbitY, float angle, int sides, float maxHealth, float bodyDamage) {
+    public Shape(float orbitX, float orbitY, float angle, int sides, float maxHealth, float bodyDamage, Color color, Color stroke, int xp) {
         super(0, 0, angle);
         this.size = 25;
         this.orbitX = orbitX;
         this.orbitY = orbitY;
         this.alive = true;
-
         this.sides = sides;
         this.maxHealth = maxHealth;
         this.bodyDamage = bodyDamage;
         this.health = maxHealth;
+        this.color = color;
+        this.stroke = stroke;
+        this.xp = xp;
 
         orbitAngleSpeed = (float) (Math.random() * 0.08 + 0.02f) * (Math.random() < 0.5 ? 1 : -1);
         rotationSpeed = (float) (Math.random() * 0.08 + 0.02f) * (Math.random() < 0.5 ? 1 : -1);
@@ -53,16 +55,21 @@ public class Shape extends Entity {
     }
 
     public void update() {
-        regenHealth(GameScreen.dt);
+        // Check if damaged
+        if (timeSinceLastHit > 0.02) isDamage = false;
 
-        orbitAngle += orbitAngleSpeed * GameScreen.dt;
-        angle += rotationSpeed * GameScreen.dt;
+        if (!alive) timeSinceDeath += EntityManager.dt;
 
-        velocityX -= velocityX * decay * GameScreen.dt;
-        velocityY -= velocityY * decay * GameScreen.dt;
+        regenHealth(EntityManager.dt);
 
-        orbitX += velocityX * GameScreen.dt;
-        orbitY += velocityY * GameScreen.dt;
+        orbitAngle += orbitAngleSpeed * EntityManager.dt;
+        angle += rotationSpeed * EntityManager.dt;
+
+        velocityX -= velocityX * decay * EntityManager.dt;
+        velocityY -= velocityY * decay * EntityManager.dt;
+
+        orbitX += velocityX * EntityManager.dt;
+        orbitY += velocityY * EntityManager.dt;
 
         centerX = (float) (orbitX + Math.cos(orbitAngle) * orbitRadius);
         centerY = (float) (orbitY + Math.sin(orbitAngle) * orbitRadius);
@@ -72,9 +79,9 @@ public class Shape extends Entity {
 
         // Ensure orbit center stays within bounds
         float minX = orbitRadius;
-        float maxX = GameScreen.worldW - orbitRadius;
+        float maxX = EntityManager.worldW - orbitRadius;
         float minY = orbitRadius;
-        float maxY = GameScreen.worldH - orbitRadius;
+        float maxY = EntityManager.worldH - orbitRadius;
 
         if (orbitX < minX) {
             orbitX = minX;
@@ -104,11 +111,18 @@ public class Shape extends Entity {
     }
 
     public void draw() {
-        Color currentStroke = alive ? stroke : RED;
-        Color currentColor = alive ? color : RED;
+        Color currentColor = color;
+        Color currentStroke = stroke;
+        if (isDamage) {
+            currentColor = RAYWHITE;
+            currentStroke = RAYWHITE;
+        } else if (!alive) {
+            currentColor = RED;
+            currentStroke = RED;
+        }
         DrawPoly(new Vector2().x(centerX).y(centerY), sides, size + strokeWidth, angle * (180f / (float) Math.PI), currentStroke);
         DrawPoly(new Vector2().x(centerX).y(centerY), sides, size, angle * (180f / (float) Math.PI), currentColor);
-        if (GameScreen.hitbox) drawHitBox();
+        if (EntityManager.hitbox) drawHitBox();
         if (health < maxHealth && alive) drawHealthBar();
     }
 

@@ -24,20 +24,21 @@ public class Bullet extends Entity {
 
     // Update the bullet's position, velocity, and lifetime each frame
     public void update() {
+        if (!alive) timeSinceDeath += EntityManager.dt;
         // Apply decay to velocity
-        velocityX -= velocityX * decay * GameScreen.dt;
-        velocityY -= velocityY * decay * GameScreen.dt;
+        velocityX -= velocityX * decay * EntityManager.dt;
+        velocityY -= velocityY * decay * EntityManager.dt;
 
         // Move the bullet in the direction it's facing plus any velocity (from recoil, knockback, etc.)
-        centerX += (float) (Math.cos(angle) * speed * GameScreen.dt) + velocityX * GameScreen.dt;
-        centerY += (float) (Math.sin(angle) * speed * GameScreen.dt) + velocityY * GameScreen.dt;
+        centerX += (float) (Math.cos(angle) * speed * EntityManager.dt) + velocityX * EntityManager.dt;
+        centerY += (float) (Math.sin(angle) * speed * EntityManager.dt) + velocityY * EntityManager.dt;
 
         // Stop the bullet from moving if velocity is very small
         if (Math.abs(velocityX) < 0.5f) velocityX = 0f;
         if (Math.abs(velocityY) < 0.5f) velocityY = 0f;
 
         // Reduce lifetime
-        lifeTime -= GameScreen.dt;
+        lifeTime -= EntityManager.dt;
         if (lifeTime <= 0f) alive = false;
 
         // Remove the bullet if health is less than 0
@@ -51,11 +52,8 @@ public class Bullet extends Entity {
         Vector2 origin = new Vector2().x(size / 2).y(size / 2);
         DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), color);
 
-        // Draws hitbox if boolean is true
-        if (GameScreen.hitbox) drawHitBox();
-
-        // Draws health bar
-        if (health < maxHealth) drawHealthBar();
+        // Draw hitbox if boolean is true
+        if (EntityManager.hitbox) drawHitBox();
     }
 
     // Draw bullet hitbox

@@ -1,12 +1,20 @@
+import static com.raylib.Colors.RAYWHITE;
+import static com.raylib.Colors.RED;
 import static com.raylib.Helpers.newColor;
 import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.newRectangle;
 
+// Tank class represents the player or any AI-controlled tanks
 public class Tank extends Entity {
+    // Movement and physics properties
     protected float bounceStrength = 0.8f;
     protected float inputVelX = 0;
     protected float inputVelY = 0;
     protected float recoil;
+    protected float baseSize = 50f;
+    protected float sizeMultiplier = 1.0f;
+
+    // Barrel and weapon properties
     protected float barrelW;
     protected float barrelH;
     protected Color barrelColor = newColor(100, 99, 107, 255);
@@ -15,27 +23,32 @@ public class Tank extends Entity {
     protected float reloadSpeed;
     protected float reloadTimer = 0f;
 
+    // Stat levels (0-8 for each stat)
     private int[] stats = new int[8];
-    // Health regen
-    // Max health
-    // Body damage
-    // Bullet speed
-    // Bullet penetration
-    // Bullet damage
-    // Reload speed
-    // Movement speed
+    // stats[0]: Health regen
+    // stats[1]: Max health
+    // stats[2]: Body damage
+    // stats[3]: Bullet speed
+    // stats[4]: Bullet penetration
+    // stats[5]: Bullet damage
+    // stats[6]: Reload speed
+    // stats[7]: Movement speed
 
+    // Derived combat stats
     private float bulletSpeed;
     private float bulletPenetration;
     private float bulletDamage;
+    private float speed; // Kept for compatibility but movement uses acceleration now
 
+    // Progression stats
     private int score;
     private int levelScore;
     private int level;
     private float levelProgress;
-    private int[] levelXP = new int[45];
+    private final int[] levelXP = new int[45];
     private int skillPoints;
 
+    // Constructor
     public Tank(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle);
         this.texture = bodyTexture;
@@ -47,35 +60,68 @@ public class Tank extends Entity {
         updateStats();
         this.health = maxHealth;
         this.alive = true;
+        this.level = 1;
         this.score = 0;
         this.levelScore = 0;
-        this.level = 1;
-        this.skillPoints = 30;
+        this.skillPoints = 0;
         this.levelProgress = 0f;
         for (int i = 0; i < levelXP.length; i++) {
             levelXP[i] = 100 + i * 50;
         }
     }
 
+    // Recalculates actual stats based on stat levels and player level
     public void updateStats() {
+        // Some formulas are taken from the actual Diep.io game, others are created to fit ours
         healthRegen = 0.1f + (0.4f * stats[0]);
         maxHealth = 50 + 2 * (level - 1) + 20 * stats[1];
         bodyDamage = (20 + 4 * stats[2]);
-        bulletSpeed = (5 + 4 * stats[3]) * 20;
+        bulletSpeed = 200 + 20 * stats[3];
         bulletPenetration = 8 + 6 * stats[4];
         bulletDamage = (7 + 3 * stats[5]);
         reloadSpeed = 0.6f - (0.04f * stats[6]);
         speed = 150 + (10 * stats[7]);
+
+        // Tank size scaling: sizeFactor = 1.01 ^ (lvl - 1)
+        float sizeFactor = (float) Math.pow(1.01, level - 1);
+        size = baseSize * sizeFactor * sizeMultiplier;
+
+        // Update barrel dimensions and recoil based on the new size
+        updateDimensions();
     }
 
+    // Update barrel dimensions and recoil - can be overridden by subclasses
+    protected void updateDimensions() {
+        barrelW = size;
+        barrelH = size / 2;
+        recoil = barrelH * 1.8f;
+    }
+
+    // Main update loop for the tank
+    @Override
+
     public void update() {
+        // Handle reload timer
         if (reloadTimer > 0f) {
-            reloadTimer -= GameScreen.dt;
+            reloadTimer -= EntityManager.dt;
         }
+
+        // Check if damaged
+        if (timeSinceLastHit > 0.02) isDamage = false;
+
+        if (!alive) timeSinceDeath += EntityManager.dt;
+
         updateStats();
 
-        regenHealth(GameScreen.dt);
+        // Movement input handling
+        handleInput();
 
+        // Passive regeneration
+        regenHealth(EntityManager.dt);
+    }
+
+    // Handle input
+    public void handleInput() {
         float moveX = 0;
         float moveY = 0;
 
@@ -84,6 +130,7 @@ public class Tank extends Entity {
         if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))  moveX -= 1;
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) moveX += 1;
 
+        // Diagonal normalization
         if (moveX != 0 && moveY != 0) {
             moveX /= (float) Math.sqrt(2);
             moveY /= (float) Math.sqrt(2);
@@ -92,19 +139,28 @@ public class Tank extends Entity {
         inputVelX = moveX * speed;
         inputVelY = moveY * speed;
 
-        velocityX -= velocityX * decay * GameScreen.dt;
-        velocityY -= velocityY * decay * GameScreen.dt;
+        velocityX -= velocityX * decay * EntityManager.dt;
+        velocityY -= velocityY * decay * EntityManager.dt;
 
-        centerX += (inputVelX + velocityX) * GameScreen.dt;
-        centerY += (-inputVelY + velocityY) * GameScreen.dt;
+        centerX += (inputVelX + velocityX) * EntityManager.dt;
+        centerY += (-inputVelY + velocityY) * EntityManager.dt;
 
+        // World boundary collisions
+        checkBounds();
+
+        // Stop jitter
+        if (Math.abs(velocityX) < 0.5f) velocityX = 0f;
+        if (Math.abs(velocityY) < 0.5f) velocityY = 0f;
+    }
+
+    public void checkBounds() {
         if (centerX < 0 && (inputVelX + velocityX) < 0) {
             centerX = 0;
             velocityX = -(inputVelX + velocityX) * bounceStrength - inputVelX;
         }
 
-        if (centerX > GameScreen.worldW  && (inputVelX + velocityX) > 0) {
-            centerX = GameScreen.worldW;
+        if (centerX > EntityManager.worldW  && (inputVelX + velocityX) > 0) {
+            centerX = EntityManager.worldW;
             velocityX = -(inputVelX + velocityX) * bounceStrength - inputVelX;
         }
 
@@ -113,15 +169,14 @@ public class Tank extends Entity {
             velocityY = -(-inputVelY + velocityY) * bounceStrength + inputVelY;
         }
 
-        if (centerY > GameScreen.worldH && (-inputVelY + velocityY) > 0) {
-            centerY = GameScreen.worldH;
+        if (centerY > EntityManager.worldH && (-inputVelY + velocityY) > 0) {
+            centerY = EntityManager.worldH;
             velocityY = -(-inputVelY + velocityY) * bounceStrength + inputVelY;
         }
-
-        if (Math.abs(velocityX) < 0.5f) velocityX = 0f;
-        if (Math.abs(velocityY) < 0.5f) velocityY = 0f;
     }
 
+    // Draw the tank and its barrel
+    @Override
     public void draw() {
         // Barrel
         Rectangle source = newRectangle(0, 0, barrelTexture.width(), barrelTexture.height());
@@ -129,28 +184,39 @@ public class Tank extends Entity {
         Vector2 origin = new Vector2().x(0).y(barrelH / 2f);
         DrawTexturePro(barrelTexture, source, dest, origin, angle * (180f / (float) Math.PI), barrelColor);
 
-        // Tank
+        Color currentColor = color;
+        if (isDamage) {
+            currentColor = RAYWHITE;
+        } else if (!alive) {
+            currentColor = RED;
+        }
+
+        // Tank body
         source = newRectangle(0, 0, texture.width() , texture.height());
         dest = newRectangle(centerX, centerY, size, size);
         origin = new Vector2().x(size / 2).y(size / 2);
-        DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), color);
+        DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), currentColor);
 
-        if (GameScreen.hitbox) drawHitBox();
+        if (EntityManager.hitbox) drawHitBox();
         if (health < maxHealth) drawHealthBar();
     }
 
+    // Apply knockback force in the opposite direction of firing
     public void applyRecoil() {
         addVelocity(-recoil * (float) Math.cos(angle), -recoil * (float) Math.sin(angle));
     }
 
+    // Check if the weapon is ready to fire
     public boolean canFire() {
         return reloadTimer <= 0f;
     }
 
+    // Start the reload timer
     public void resetReload() {
         reloadTimer = reloadSpeed;
     }
 
+    // Draw circular hitbox
     public void drawHitBox() {
         DrawCircleLinesV(new Vector2().x(centerX).y(centerY), size / 2, hitboxColor);
     }
@@ -167,77 +233,52 @@ public class Tank extends Entity {
 
     public float getBulletPenetration() { return bulletPenetration; }
 
-    public void setHealthRegenPoints(int healthRegenPoints) {
-        this.stats[0] = healthRegenPoints;
-    }
-
-    public void setMaxHealthPoints(int maxHealthPoints) {
-        this.stats[1] = maxHealthPoints;
-    }
-
-    public void setBodyDamagePoints(int bodyDamagePoints) {
-        this.stats[2] = bodyDamagePoints;
-    }
-
-    public void setBulletSpeedPoints(int bulletSpeedPoints) {
-        this.stats[3] = bulletSpeedPoints;
-    }
-
-    public void setBulletPenetrationPoints(int bulletPenetrationPoints) {
-        this.stats[4] = bulletPenetrationPoints;
-    }
-
-    public void setBulletDamagePoints(int bulletDamagePoints) {
-        this.stats[5] = bulletDamagePoints;
-    }
-
-    public void setReloadPoints(int reloadPoints) {
-        this.stats[6] = reloadPoints;
-    }
-
-    public void setMovementSpeedPoints(int movementSpeedPoints) {
-        this.stats[7] = movementSpeedPoints;
+    public int getLevel() {
+        return level;
     }
 
     public int getScore() {
         return score;
     }
 
-    public int getLevel() {
-        return level;
-    }
-
     public float getLevelProgress() {
         return levelProgress;
+    }
+
+    public int getSkillPoints() {
+        return skillPoints;
+    }
+
+    public int[] getStats() {
+        return stats;
     }
 
     public void addScore(int amount) {
         score += amount;
         levelScore += amount;
-
-        while (levelScore >= levelXP[level - 1]) {
-            levelScore -= levelXP[level - 1];
-            level++;
-            
-            // Skill points according to diep.io (total 33 points at level 45)
-            if (level <= 28 || level % 3 == 0) {
-                skillPoints++;
-            }
-
-            updateStats();
-            health = maxHealth;
-
-            if (level >= 45) {
-                level = 45;
-                break;
-            }
+        if (level < 45) {
+            while (levelScore >= levelXP[level - 1]) levelUp();
+            levelProgress = (float) levelScore / levelXP[level - 1];
+        } else {
+            levelProgress = 1f;
         }
 
-        levelProgress = (float) levelScore / levelXP[level - 1];
     }
 
-    public int getSkillPoints() {
-        return skillPoints;
+    public void levelUp() {
+        levelScore -= levelXP[level - 1];
+        level++;
+
+        // Skill points according to diep.io (total 33 points at level 45)
+        if (level <= 28 || level % 3 == 0) {
+            skillPoints++;
+        }
+
+        health = maxHealth;
+
+        if (level >= 45) {
+            level = 45;
+        }
     }
 
     public void upgradeStat(int index) {
@@ -248,27 +289,11 @@ public class Tank extends Entity {
         }
     }
 
-    public int[] getStats() {
-        return stats;
-    }
-
-    public void setLevel(int level) {
-        this.level = level;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
     public int getTotalScore(int level) {
         int total = 0;
         for (int i = 0; i < level - 1; i++) {
             total += levelXP[i];
         }
         return total;
-    }
-
-    public void setLevelProgress(float levelProgress) {
-        this.levelProgress = levelProgress;
     }
 }

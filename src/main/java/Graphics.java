@@ -2,12 +2,166 @@ import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
-import java.util.Iterator;
 
+// Graphics class centralizes all drawing and UI layout logic
 public class Graphics {
 
     // Color when a button is hovered
     public static final Color hovered = newColor(180, 180, 180, 255);
+
+    // World and grid colors
+    public static final Color worldGridColour = newColor(65, 65, 65, 255);
+    public static final Color worldGridLineColour = newColor(78, 78, 78, 255);
+    public static final Color borderGridColour = newColor(34, 34, 34, 255);
+    public static final Color borderGridLineColour = newColor(45, 45, 45, 255);
+    public static final int tileSize = 20;
+
+    // Settings UI properties
+    public static int settingsSize = 75;
+    public static Rectangle settingsRect;
+    public static boolean settingsHover = false;
+    public static boolean showSettings = false;
+
+    // Level bar properties
+    public static float levelBarW = 350;
+    public static float levelBarH = 25;
+    public static float padding = 20;
+    public static float levelBarX;
+    public static float levelBarY;
+    public static int levelTextFont = 20;
+
+    // Score bar properties
+    public static float scoreBarW = 250;
+    public static float scoreBarH = 20;
+    public static float margin = 10;
+    public static float scoreBarX;
+    public static float scoreBarY;
+    public static int scoreTextFont = 15;
+
+    // Player name display properties
+    public static String nameText = "Player 1";
+    public static int nameTextFont = 25;
+    public static float nameTextX;
+    public static float nameTextY;
+
+    // Upgrade Menu configuration
+    public static final String[] statNames = {
+            "Health Regen", "Max Health", "Body Damage", "Bullet Speed",
+            "Bullet Penetration", "Bullet Damage", "Reload Speed", "Movement Speed"
+    };
+    public static final Color[] statColors = {
+            newColor(255, 128, 255, 255), // Pink
+            newColor(128, 255, 128, 255), // Green
+            newColor(128, 255, 255, 255), // Cyan
+            newColor(255, 255, 128, 255), // Yellow
+            newColor(128, 128, 255, 255), // Blue
+            newColor(255, 128, 128, 255), // Red
+            newColor(255, 179, 128, 255), // Orange
+            newColor(230, 230, 230, 255)  // Gray
+    };
+    public static final float upgradeMenuWidth = 200;
+    public static final float upgradeItemHeight = 25;
+    public static final float menuH = statNames.length * (upgradeItemHeight + 5);
+    public static float startY;
+    public static final float upgradeMenuPadding = 10;
+    public static float upgradeMenuAnim = 0f; // 0 = collapsed, 1 = expanded
+    public static float upgradeMenuTimer = 0f; // Time to keep the menu open after keypress
+
+    // MenuScreen UI layout rectangles
+    public static Rectangle backgroundRect;
+    public static Rectangle logoRect;
+    public static Rectangle playRect;
+    public static Rectangle creditsRect;
+    public static Rectangle exitRect;
+
+    // MenuScreen UI states
+    public static boolean showCredits = false;
+    public static boolean playHover = false;
+    public static boolean creditsHover = false;
+    public static boolean exitHover = false;
+
+    // Camera and viewport bounds
+    public static Camera2D camera = new Camera2D();
+    public static float camLeft, camRight, camTop, camBottom;
+    public static float zoomLevel = 1.0f;
+
+    // Lerp constants for smooth transitions
+    public static final float movementLerp = 0.1f;
+    public static final float zoomLerp = 0.1f;
+
+    // Updates camera position and zoom based on player position and mouse scroll
+    public static void updateCamera(Tank playerTank) {
+        // Center camera
+        camera.offset(new Vector2().x(GetScreenWidth() / 2f).y(GetScreenHeight() / 2f));
+
+        // Smoothly follow player (using lerp)
+        Vector2 desiredTarget = new Vector2().x(playerTank.getCenterX()).y(playerTank.getCenterY());
+        camera.target().x(camera.target().x() + (desiredTarget.x() - camera.target().x()) * movementLerp);
+        camera.target().y(camera.target().y() + (desiredTarget.y() - camera.target().y()) * movementLerp);
+
+        // Zoom only when settings are closed
+        if (!showSettings) {
+            getZoomLevel();
+            float desiredZoom = zoomLevel;
+            camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
+        }
+    }
+
+    public static void getZoomLevel() {
+        float scroll = GetMouseWheelMove();
+        if (scroll > 0) zoomLevel += 0.1f;
+        else if (scroll < 0) zoomLevel -= 0.1f;
+
+        if (zoomLevel < 0.8f) zoomLevel = 0.8f;
+        if (zoomLevel > 20.0f) zoomLevel = 20.0f;
+    }
+
+    public static void updateGameLayout() {
+        GameState.screenW = GetScreenWidth();
+        GameState.screenH = GetScreenHeight();
+
+        float ratioW = GameState.screenW / (float) GameState.DEFAULT_SCREEN_W;
+        float ratioH = GameState.screenH / (float) GameState.DEFAULT_SCREEN_H;
+
+        float settingsW = settingsSize * ratioW;
+        float settingsH = settingsSize * ratioH;
+        settingsRect = newRectangle(GameState.screenW - settingsW - 15 * ratioW, 15 * ratioH, settingsW, settingsH);
+
+        levelBarX = GameState.screenW / 2f - levelBarW / 2;
+        levelBarY = GameState.screenH - padding - levelBarH;
+
+        scoreBarX = GameState.screenW / 2f - scoreBarW / 2;
+        scoreBarY = levelBarY - margin - scoreBarH;
+
+        nameTextX = GameState.screenW / 2f - (float) MeasureText(nameText, nameTextFont) / 2;
+        nameTextY = scoreBarY - margin - nameTextFont;
+
+        startY = GameState.screenH - padding - menuH - 50;
+    }
+
+    public static void updateMenuLayout() {
+        GameState.screenW = GetScreenWidth();
+        GameState.screenH = GetScreenHeight();
+
+        float ratioW = GameState.screenW / (float) GameState.DEFAULT_SCREEN_W;
+        float ratioH = GameState.screenH / (float) GameState.DEFAULT_SCREEN_H;
+
+        backgroundRect = newRectangle(0, 0, GameState.screenW, GameState.screenH);
+
+        float logoW = 950 * ratioW;
+        float logoH = 375 * ratioH;
+        logoRect = newRectangle(GameState.screenW / 2f - logoW / 2, 125 * ratioH, logoW, logoH);
+
+        float playW = 900 * ratioW;
+        float playH = 360 * ratioH;
+        playRect = newRectangle(GameState.screenW / 2f - playW / 2, GameState.screenH / 2f, playW, playH);
+
+        float credW = 300f * ratioW;
+        float credH = 120f * ratioH;
+        creditsRect = newRectangle(15 * ratioW, GameState.screenH - credH - 15 * ratioH, credW, credH);
+
+        exitRect = newRectangle(GameState.screenW - credW - 15 * ratioW, GameState.screenH - credH - 15 * ratioH, credW, credH);
+    }
 
     // Draw a texture with scaling applied to a destination rectangle
     public static void drawScaled(Texture tex, Rectangle dest, Color color) {
@@ -22,134 +176,111 @@ public class Graphics {
 
     // --- GameScreen Drawing Methods ---
 
-    public static void drawWorld(GameScreen gs) {
+    public static void drawWorld() {
         // Draw vertical border grid lines
-        for (int x = - GameScreen.borderSize; x <= GameScreen.worldW + GameScreen.borderSize; x += gs.tileSize) {
-            if (x >= gs.camLeft && x <= gs.camRight) DrawLine(x, -GameScreen.borderSize, x, GameScreen.worldH + GameScreen.borderSize, gs.borderGridLineColour);
+        for (int x = - EntityManager.borderSize; x <= EntityManager.worldW + EntityManager.borderSize; x += tileSize) {
+            if (x >= camLeft && x <= camRight) DrawLine(x, -EntityManager.borderSize, x, EntityManager.worldH + EntityManager.borderSize, borderGridLineColour);
         }
 
         // Draw horizontal border grid lines
-        for (int y = - GameScreen.borderSize; y <= GameScreen.worldH + GameScreen.borderSize; y += gs.tileSize) {
-            if (y >= gs.camTop && y <= gs.camBottom) DrawLine(-GameScreen.borderSize, y, GameScreen.worldW + GameScreen.borderSize, y, gs.borderGridLineColour);
+        for (int y = - EntityManager.borderSize; y <= EntityManager.worldH + EntityManager.borderSize; y += tileSize) {
+            if (y >= camTop && y <= camBottom) DrawLine(-EntityManager.borderSize, y, EntityManager.worldW + EntityManager.borderSize, y, borderGridLineColour);
         }
 
         // Draw world background
-        DrawRectangle(0, 0, GameScreen.worldW, GameScreen.worldH, gs.worldGridColour);
+        DrawRectangle(0, 0, EntityManager.worldW, EntityManager.worldH, worldGridColour);
 
         // Draw vertical grid lines inside the world
-        for (int x = 0; x <= GameScreen.worldW; x += gs.tileSize) {
-            if (x >= gs.camLeft && x <= gs.camRight) DrawLine(x, 0, x, GameScreen.worldH, gs.worldGridLineColour);
+        for (int x = 0; x <= EntityManager.worldW; x += tileSize) {
+            if (x >= camLeft && x <= camRight) DrawLine(x, 0, x, EntityManager.worldH, worldGridLineColour);
         }
 
         // Draw horizontal grid lines inside the world
-        for (int y = 0; y <= GameScreen.worldH; y += gs.tileSize) {
-            if (y >= gs.camTop && y <= gs.camBottom) DrawLine(0, y, GameScreen.worldW, y, gs.worldGridLineColour);
+        for (int y = 0; y <= EntityManager.worldH; y += tileSize) {
+            if (y >= camTop && y <= camBottom) DrawLine(0, y, EntityManager.worldW, y, worldGridLineColour);
         }
     }
 
-    public static void drawEntities(GameScreen gs) {
+    public static void drawEntities() {
         // Shapes
-        for (Shape s : gs.shapes) {
+        for (Shape s : EntityManager.shapes) {
             // Camera culling
-            if (s.getCenterX() + s.getSize() > gs.camLeft && s.getCenterX() - s.getSize() < gs.camRight && s.getCenterY() + s.getSize() > gs.camTop && s.getCenterY() - s.getSize() < gs.camBottom) {
+            if (s.getCenterX() + s.getSize() > camLeft && s.getCenterX() - s.getSize() < camRight && s.getCenterY() + s.getSize() > camTop && s.getCenterY() - s.getSize() < camBottom) {
                 s.draw();
             }
         }
 
         // Bullets
-        Iterator<Bullet> it = gs.bullets.iterator();
-        while (it.hasNext()) {
-            Bullet b = it.next();
-
-            // Remove dead bullets
-            if (!b.isAlive()) {
-                it.remove();
-                continue;
-            }
-
+        for (Bullet b : EntityManager.bullets) {
             // Camera culling
-            if (b.getCenterX() + b.getSize() > gs.camLeft && b.getCenterX() - b.getSize() < gs.camRight && b.getCenterY() + b.getSize() > gs.camTop && b.getCenterY() - b.getSize() < gs.camBottom) {
+            if (b.getCenterX() + b.getSize() > camLeft && b.getCenterX() - b.getSize() < camRight && b.getCenterY() + b.getSize() > camTop && b.getCenterY() - b.getSize() < camBottom) {
                 b.draw();
             }
         }
 
         // Player tank
-        if (!GameScreen.deathScreen) {
-            GameScreen.playerTank.draw();
+        if (!EntityManager.deathScreen) {
+            EntityManager.playerTank.draw();
         }
     }
 
-    public static void drawLevelBar(GameScreen gs) {
+    public static void drawLevelBar() {
         // Level bar
-        DrawRectangleRounded(newRectangle(gs.levelBarX, gs.levelBarY, gs.levelBarW, gs.levelBarH), 0.8f, 20, newColor(0, 0, 0, 200));
-        float progress = GameScreen.playerTank.getLevelProgress();
-        DrawRectangleRounded(newRectangle(gs.levelBarX, gs.levelBarY, gs.levelBarW * progress, gs.levelBarH), 0.8f, 20, newColor(255, 215, 0, 230));
-        String levelText = "Level " + GameScreen.playerTank.getLevel();
-        DrawText(levelText, (int) (gs.levelBarX + gs.levelBarW / 2) - MeasureText(levelText, gs.levelTextFont) / 2, (int) (gs.levelBarY + gs.levelBarH / 2) - gs.levelTextFont / 2, gs.levelTextFont, WHITE);
+        DrawRectangleRounded(newRectangle(levelBarX, levelBarY, levelBarW, levelBarH), 0.8f, 20, newColor(0, 0, 0, 200));
+        float progress = EntityManager.playerTank.getLevelProgress();
+        DrawRectangleRounded(newRectangle(levelBarX, levelBarY, levelBarW * progress, levelBarH), 0.8f, 20, newColor(255, 215, 0, 230));
+        String levelText = "Level " + EntityManager.playerTank.getLevel();
+        DrawText(levelText, (int) (levelBarX + levelBarW / 2) - MeasureText(levelText, levelTextFont) / 2, (int) (levelBarY + levelBarH / 2) - levelTextFont / 2, levelTextFont, WHITE);
 
         // Score bar
-        DrawRectangleRounded(newRectangle(gs.scoreBarX, gs.scoreBarY, gs.scoreBarW, gs.scoreBarH), 0.8f, 20, newColor(48, 240, 141, 255));
-        String scoreText = "Score: " + GameScreen.playerTank.getScore();
-        DrawText(scoreText, (int) (gs.scoreBarX + gs.scoreBarW / 2) - MeasureText(scoreText, gs.scoreTextFont) / 2, (int) (gs.scoreBarY + gs.scoreBarH / 2) - gs.scoreTextFont / 2, gs.scoreTextFont, BLUE);
+        DrawRectangleRounded(newRectangle(scoreBarX, scoreBarY, scoreBarW, scoreBarH), 0.8f, 20, newColor(48, 240, 141, 255));
+        String scoreText = "Score: " + EntityManager.playerTank.getScore();
+        DrawText(scoreText, (int) (scoreBarX + scoreBarW / 2) - MeasureText(scoreText, scoreTextFont) / 2, (int) (scoreBarY + scoreBarH / 2) - scoreTextFont / 2, scoreTextFont, BLUE);
 
         // Name
-        DrawText(gs.nameText, (int) gs.nameTextX, (int) gs.nameTextY, gs.nameTextFont, WHITE);
+        DrawText(nameText, (int) nameTextX, (int) nameTextY, nameTextFont, WHITE);
     }
 
-    public static void drawUI(GameScreen gs) {
-        // Settings button
-        drawButton(gs.settings, gs.settingsRect, gs.settingsHover, GameScreen.showSettings);
-
-        // FPS counter
-        DrawFPS(10, 15);
-
-        // Upgrade menu
-        drawUpgradeMenu(gs);
-
-        // Settings menu overlay
-        if (GameScreen.showSettings) drawSettings();
-    }
-
-    public static void drawUpgradeMenu(GameScreen gs) {
-        if (GameScreen.deathScreen) return;
-
-        float menuH = gs.statNames.length * (gs.upgradeItemHeight + 5);
-        float startY = GameState.screenH - gs.padding - menuH - 50;
+    public static void drawUpgradeMenu() {
+        if (EntityManager.deathScreen) return;
 
         // Animated X position
-        float hiddenX = -gs.upgradeMenuWidth - 5;
-        float targetX = gs.padding;
-        float x = hiddenX + (targetX - hiddenX) * gs.upgradeMenuAnim;
+        float hiddenX = -upgradeMenuWidth - 5;
+        float targetX = padding;
+        float x = hiddenX + (targetX - hiddenX) * upgradeMenuAnim;
 
         // Locked state visuals
-        boolean locked = GameScreen.playerTank.getSkillPoints() <= 0;
+        boolean locked = EntityManager.playerTank.getSkillPoints() <= 0;
         Color bgColor = locked ? newColor(0, 0, 0, 210) : newColor(0, 0, 0, 150);
         Color skillTextColor = locked ? LIGHTGRAY : WHITE;
         Color statTextColor = locked ? GRAY : WHITE;
 
         // Skill points indicator (stays partially visible to signal available upgrades)
         float skillTextX = Math.max(x, 15);
-        DrawText("x" + GameScreen.playerTank.getSkillPoints(), (int)skillTextX, (int)startY - 30, 25, skillTextColor);
+        DrawText("x" + EntityManager.playerTank.getSkillPoints(), (int) skillTextX, (int) startY - 30, 25, skillTextColor);
 
-        for (int i = 0; i < gs.statNames.length; i++) {
-            float y = startY + i * (gs.upgradeItemHeight + 5);
-            Rectangle rect = newRectangle(x, y, gs.upgradeMenuWidth, gs.upgradeItemHeight);
+        for (int i = 0; i < statNames.length; i++) {
+            float y = startY + i * (upgradeItemHeight + 5);
+            Rectangle rect = newRectangle(x, y, upgradeMenuWidth, upgradeItemHeight);
 
             // Draw background
             DrawRectangleRounded(rect, 0.4f, 20, bgColor);
 
-            // Draw stat level segments
-            int statLevel = GameScreen.playerTank.getStats()[i];
+            // Stat level
+            int statLevel = EntityManager.playerTank.getStats()[i];
+            // Gap between segments
             float segmentGap = 2;
-            float segmentWidth = (gs.upgradeMenuWidth - 10 - (7 * segmentGap)) / 8f;
+            // Width of each segment
+            float segmentWidth = (upgradeMenuWidth - 10 - (7 * segmentGap)) / 8f;
 
+            // Draw stat level segments
             for (int j = 0; j < 8; j++) {
                 float segX = x + 5 + j * (segmentWidth + segmentGap);
                 Rectangle segRect = newRectangle(segX, y + 18, segmentWidth, 4);
                 if (j < statLevel) {
-                    Color barColor = gs.statColors[i];
+                    Color barColor = statColors[i];
                     if (locked) {
-                        barColor = newColor(barColor.r() & 0xFF, barColor.g() & 0xFF, barColor.b() & 0xFF, 100);
+                        barColor = newColor(barColor.r(), barColor.g(), barColor.b(), 100);
                     }
                     DrawRectangleRounded(segRect, 1f, 20, barColor);
                 } else {
@@ -157,11 +288,11 @@ public class Graphics {
                 }
             }
 
-            // Draw stat name
-            DrawText(gs.statNames[i], (int)x + 10, (int)y + 3, 12, statTextColor);
+            // Draw the stat name
+            DrawText(statNames[i], (int) x + 10, (int) y  + 3, 12, statTextColor);
 
-            // Draw hotkey number
-            DrawText(String.valueOf(i + 1), (int)(x + gs.upgradeMenuWidth - 15), (int)y + 3, 12, locked ? DARKGRAY : GRAY);
+            // Draw the hotkey number
+            DrawText(String.valueOf(i + 1), (int) (x + upgradeMenuWidth - 15), (int) y + 3, 12, locked ? DARKGRAY : GRAY);
 
             // Draw highlight if hovered
             if (CheckCollisionPointRec(GetMousePosition(), rect)) {
@@ -171,6 +302,10 @@ public class Graphics {
     }
 
     public static void drawSettings() {
+        drawButton(GameScreen.settings, settingsRect, settingsHover, showSettings);
+    }
+
+    public static void drawSettingsMenu() {
         DrawRectangle(0, 0, GameState.screenW, GameState.screenH, newColor(0, 0, 0, 180));
         int boxW = 1000, boxH = 600, boxX = (GameState.screenW - boxW) / 2, boxY = (GameState.screenH - boxH) / 2;
 
