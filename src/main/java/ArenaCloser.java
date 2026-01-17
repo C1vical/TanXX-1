@@ -6,10 +6,11 @@ import static com.raylib.Raylib.*;
 public class ArenaCloser extends Tank {
     public ArenaCloser(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
-        this.baseSize = 120;
-        Barrel barrel1 = new Barrel(size, size / 2, 0, barrelTexture);
-        this.barrels = new Barrel[] {barrel1};
-        this.sizeMultiplier = 1.5f; // Initial size 75 (50 * 1.5)
+        this.baseRadius = 120;
+        this.radiusMultiplier = 1.5f; // Initial radius 75 (50 * 1.5)
+        this.barrels = new Barrel[] {
+            new Barrel(radius, radius / 2, 0, 0, 0, barrelTexture)
+        };
         updateStats();
     }
 }

@@ -6,18 +6,19 @@ import static com.raylib.Raylib.*;
 // Inherits from the entity superclass, so it has position, velocity, and basic rendering
 public class Bullet extends Entity {
     private float lifeTime;     // How long the bullet exists before disappearing
-    private float bulletDamage; // Damage dealt on impact
 
     // Constructor
-    public Bullet(float centerX, float centerY, float angle, Texture texture, float size, float bulletDamage, float bulletSpeed, float bulletPenetration) {
+    public Bullet(float centerX, float centerY, float angle, Texture texture, float radius, float bulletDamage, float bulletSpeed, float bulletPenetration) {
         super(centerX, centerY, angle);
         this.texture = texture;
-        this.size = size;
+        this.radius = radius;
+        this.width = radius;
+        this.height = radius;
         this.speed = bulletSpeed;
         this.color = newColor(24, 158, 140, 255);
         this.maxHealth = bulletPenetration;     // Bullet penetration is the same as bullet health
         this.health = maxHealth;
-        this.bulletDamage = bulletDamage;
+        this.bodyDamage = bulletDamage;
         this.lifeTime = 2f; // Lifetime in seconds
         this.alive = true;
     }
@@ -48,8 +49,8 @@ public class Bullet extends Entity {
     // Draw the bullet
     public void draw() {
         Rectangle source = newRectangle(0, 0, texture.width(), texture.height());
-        Rectangle dest = newRectangle(centerX, centerY, size, size);
-        Vector2 origin = new Vector2().x(size / 2).y(size / 2);
+        Rectangle dest = newRectangle(centerX, centerY, width, height);
+        Vector2 origin = new Vector2().x(width / 2).y(height / 2);
         DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), color);
 
         // Draw hitbox if boolean is true
@@ -58,11 +59,11 @@ public class Bullet extends Entity {
 
     // Draw bullet hitbox
     public void drawHitBox() {
-        DrawCircleLinesV(new Vector2().x(centerX).y(centerY), size / 2, hitboxColor);
+        DrawCircleLinesV(new Vector2().x(centerX).y(centerY), radius / 2, hitboxColor);
     }
 
     // Getter for bullet damage
-    public float getBulletDamage() {
-        return bulletDamage;
+    public float getBodyDamage() {
+        return bodyDamage;
     }
 }

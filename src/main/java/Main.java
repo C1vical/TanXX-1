@@ -30,7 +30,7 @@ public class Main {
         // Disable window resizing after creating the window
         ClearWindowState(FLAG_WINDOW_RESIZABLE);
 
-        // Set the minimum window size as 1280 x 720
+        // Set the minimum window radius as 1280 x 720
         SetWindowMinSize(1280, 720);
 
         // Set the target fps of our game to 60

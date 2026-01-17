@@ -9,7 +9,7 @@ public class SpatialGrid {
     private final int rows;
     private final List<Shape>[][] grid;
 
-    // Initializes spatial grid with the given world dimensions and cell size
+    // Initializes spatial grid with the given world dimensions and cell radius
     @SuppressWarnings("unchecked")
     public SpatialGrid(int worldW, int worldH, int cellSize) {
         this.cellSize = cellSize;
@@ -45,7 +45,7 @@ public class SpatialGrid {
     // Returns a list of potential shapes that could be colliding with a circle at (x,y)
     public void getPotentialCollisions(float x, float y, float radius, float maxObjectSize, List<Shape> result) {
         result.clear();
-        // Calculate the range of cells to check based on the object's radius and the maximum possible size of other shapes
+        // Calculate the range of cells to check based on the object's radius and the maximum possible radius of other shapes
         int minX = Math.max(0, (int) ((x - radius - maxObjectSize) / cellSize));
         int maxX = Math.min(cols - 1, (int) ((x + radius + maxObjectSize) / cellSize));
         int minY = Math.max(0, (int) ((y - radius - maxObjectSize) / cellSize));

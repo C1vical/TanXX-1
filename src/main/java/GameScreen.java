@@ -22,7 +22,7 @@ public class GameScreen extends GameState {
 
         float randX = EntityManager.worldW * (float) Math.random();
         float randY = EntityManager.worldH * (float) Math.random();
-        EntityManager.playerTank = new ArenaCloser(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+        EntityManager.playerTank = new Basic(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
 
         Graphics.camera = new Camera2D();
         Graphics.camera.target(new Vector2().x(EntityManager.playerTank.getCenterX()).y(EntityManager.playerTank.getCenterY()));
@@ -146,7 +146,6 @@ public class GameScreen extends GameState {
         if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT)) && EntityManager.playerTank.canFire() && !isHover(Graphics.settingsRect, mouseScreen)) {
             EntityManager.fireBullet();
         }
-
         // Toggle features
         if (IsKeyPressed(KEY_Q)) EntityManager.addShape();            // Add shape
         if (IsKeyPressed(KEY_B)) EntityManager.hitbox = !EntityManager.hitbox;      // Toggle hitbox
@@ -157,8 +156,6 @@ public class GameScreen extends GameState {
         // Autofire logic
         if (EntityManager.autoFire && EntityManager.playerTank.canFire()) {
             EntityManager.fireBullet();
-            EntityManager.playerTank.applyRecoil();
-            EntityManager.playerTank.resetReload();
         }
 
         // Auto spin logic

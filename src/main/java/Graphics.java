@@ -94,7 +94,7 @@ public class Graphics {
     // Camera and viewport bounds
     public static Camera2D camera = new Camera2D();
     public static float camLeft, camRight, camTop, camBottom;
-    public static float zoomLevel = 1.0f;
+    public static float zoomLevel = 2f;
 
     // Lerp constants for smooth transitions
     public static final float movementLerp = 0.1f;
@@ -112,7 +112,7 @@ public class Graphics {
 
         // Zoom only when settings are closed
         if (!showSettings) {
-            getZoomLevel();
+//            getZoomLevel();
             float desiredZoom = zoomLevel;
             camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
         }
@@ -127,7 +127,7 @@ public class Graphics {
         if (zoomLevel > 20.0f) zoomLevel = 20.0f;
     }
 
-    // Update game layout based on screen size
+    // Update game layout based on screen radius
     public static void updateGameLayout() {
         GameState.screenW = GetScreenWidth();
         GameState.screenH = GetScreenHeight();
@@ -154,7 +154,7 @@ public class Graphics {
         miniMapY = padding * ratioH;
     }
 
-    // Update menu layout based on screen size
+    // Update menu layout based on screen radius
     public static void updateMenuLayout() {
         GameState.screenW = GetScreenWidth();
         GameState.screenH = GetScreenHeight();
@@ -221,7 +221,7 @@ public class Graphics {
         // Shapes
         for (Shape s : EntityManager.shapes) {
             // Camera culling
-            if (s.getCenterX() + s.getSize() > camLeft && s.getCenterX() - s.getSize() < camRight && s.getCenterY() + s.getSize() > camTop && s.getCenterY() - s.getSize() < camBottom) {
+            if (s.getCenterX() + s.getRadius() > camLeft && s.getCenterX() - s.getRadius() < camRight && s.getCenterY() + s.getRadius() > camTop && s.getCenterY() - s.getRadius() < camBottom) {
                 s.draw();
             }
         }
@@ -229,7 +229,7 @@ public class Graphics {
         // Bullets
         for (Bullet b : EntityManager.bullets) {
             // Camera culling
-            if (b.getCenterX() + b.getSize() > camLeft && b.getCenterX() - b.getSize() < camRight && b.getCenterY() + b.getSize() > camTop && b.getCenterY() - b.getSize() < camBottom) {
+            if (b.getCenterX() + b.getRadius() > camLeft && b.getCenterX() - b.getRadius() < camRight && b.getCenterY() + b.getRadius() > camTop && b.getCenterY() - b.getRadius() < camBottom) {
                 b.draw();
             }
         }
@@ -289,10 +289,10 @@ public class Graphics {
             // Gap between segments
             float segmentGap = 2;
             // Width of each segment
-            float segmentWidth = (upgradeMenuWidth - 10 - (7 * segmentGap)) / 8f;
+            float segmentWidth = (upgradeMenuWidth - 10 - (7 * segmentGap)) / 7f;
 
             // Draw stat level segments
-            for (int j = 0; j < 8; j++) {
+            for (int j = 0; j < 7; j++) {
                 float segX = x + 5 + j * (segmentWidth + segmentGap);
                 Rectangle segRect = newRectangle(segX, y + 18, segmentWidth, 4);
                 if (j < statLevel) {

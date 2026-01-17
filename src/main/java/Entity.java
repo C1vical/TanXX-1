@@ -11,7 +11,9 @@ public abstract class Entity {
     protected float centerY;
     protected float angle;
     protected float speed;
-    protected float size;
+    protected float radius;
+    protected float width;
+    protected float height;
 
     // Visual fields
     protected Texture texture;
@@ -54,7 +56,11 @@ public abstract class Entity {
     public float getCenterX() { return centerX; }
     public float getCenterY() { return centerY; }
     public void setAngle(float angle) { this.angle = angle; }
-    public float getSize() { return size; }
+    public float getRadius() { return radius; }
+    public float getWidth() { return width; }
+    public float getHeight() { return height; }
+    public void setWidth(float width) { this.width = width; }
+    public void setHeight(float height) { this.height = height; }
     public boolean isAlive() { return alive; }
 
     public float getHealth() { return health; }
@@ -81,24 +87,29 @@ public abstract class Entity {
     // Passive health regeneration
     public void regenHealth(float dt) {
         timeSinceLastHit += dt;
-        if (alive && health < maxHealth && timeSinceLastHit >= 5f) {
-            health += 0.1f * maxHealth * dt;
+
+        if (alive && health < maxHealth) {
+            if (timeSinceLastHit >= 30f) {
+                health += (healthRegen + 0.1f) * maxHealth * dt;
+            } else {
+                health += healthRegen * maxHealth * dt;
+            }
             if (health > maxHealth) health = maxHealth;
         }
     }
 
     // Drawing the health bar below the entity
     public void drawHealthBar() {
-        healthBarX = centerX - size / 2f;
-        healthBarY = centerY + size / 2f + 5;
-        healthBarWidth = size;
-        healthBarHeight = 8;
+        healthBarX = centerX - width / 2f;
+        healthBarY = centerY + height / 2f + 6;
+        healthBarWidth = width;
+        healthBarHeight = 4;
 
         Rectangle rect = newRectangle(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
-        DrawRectangleRounded(rect, 0.3f, 0, DARKGRAY);
+        DrawRectangleRounded(rect, 0.5f, 0, DARKGRAY);
         float healthRatio = getHealth() / getMaxHealth();
         rect = newRectangle(healthBarX, healthBarY, healthBarWidth * healthRatio, healthBarHeight);
-        DrawRectangleRounded(rect, 0.3f, 0, newColor(133, 227, 125, 255));
+        DrawRectangleRounded(rect, 0.5f, 0, newColor(133, 227, 125, 255));
     }
 
     public void setDamage(boolean isDamage) {

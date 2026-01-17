@@ -7,8 +7,8 @@ import static com.raylib.Helpers.newColor;
 public class EntityManager {
 
     // World dimensions
-    public static final int worldW = 800;
-    public static final int worldH = 800;
+    public static final int worldW = 4000;
+    public static final int worldH = 4000;
     public static final int borderSize = 5000;
 
     // Game state flags
@@ -25,8 +25,8 @@ public class EntityManager {
     // Spacial partitioning (for collisions)
     public static SpatialGrid spatialGrid = new SpatialGrid(worldW, worldH, 100);
     public static List<Shape> potentialShapes = new ArrayList<>();
-    public static float MAX_SHAPE_SIZE = 50f;
-    public static final int startShapes = 30;
+    public static float MAX_SHAPE_RADIUS = 50f;
+    public static final int startShapes = 100;
 
     // Player and textures
     public static Tank playerTank;
@@ -51,7 +51,7 @@ public class EntityManager {
         float orbitX;
         float orbitY;
         float orbitRadius = 30 + (float) (Math.random() * 70);
-        float safeDistance = 75;
+        float safeDistance = playerTank.getWidth() / 2 + 150;
 
         do {
             orbitX = (float) (Math.random() * (worldW - 2 * orbitRadius)) + orbitRadius;
@@ -67,17 +67,33 @@ public class EntityManager {
 
     // Fire bullet
     public static void fireBullet() {
-        for (int i = 0; i < playerTank.barrels.length; i++) {
-            float bulletSize = playerTank.barrels[i].getBarrelH();
-            float turretAngle = playerTank.barrels[i].getTurretAngle() * (float) Math.PI / 180;
-            float bulletX = playerTank.getCenterX() + (float) Math.cos(angle + turretAngle) * (playerTank.barrels[i].getBarrelW() + bulletSize / 2f);
-            float bulletY = playerTank.getCenterY() + (float) Math.sin(angle + turretAngle) * (playerTank.barrels[i].getBarrelW() + bulletSize / 2f);
-            bullets.add(new Bullet(bulletX, bulletY, angle + turretAngle, bullet, bulletSize, playerTank.getBulletDamage(), playerTank.getBulletSpeed(), playerTank.getBulletPenetration()));
-            playerTank.applyRecoil();
-            playerTank.resetReload();
-        }
+        for (Barrel barrel : playerTank.barrels) {
+            // Only fire if the barrel can shoot
+           if (!barrel.canShoot()) continue;
 
+           // Spawn bullet
+           float baseAngle = playerTank.angle;
+           float turretAngle = barrel.getTurretAngle() * (float) Math.PI / 180f;
+           float finalAngle = baseAngle + turretAngle;
+
+           // Offset
+           float offsetX = -(float) Math.sin(baseAngle) * barrel.offset;
+           float offsetY = (float) Math.cos(baseAngle) * barrel.offset;
+
+           // Forward spawn distance
+           float bulletRadius = barrel.getBarrelH();
+           float forward = barrel.getBarrelW() + bulletRadius * 0.5f;
+
+           float bulletX = playerTank.getCenterX() + offsetX + forward * (float) Math.cos(finalAngle);
+           float bulletY = playerTank.getCenterY() + offsetY + forward * (float) Math.sin(finalAngle);
+
+           bullets.add(new Bullet(bulletX, bulletY, finalAngle, bullet, bulletRadius, playerTank.getBulletDamage(), playerTank.getBulletSpeed(), playerTank.getBulletPenetration()
+           ));
+           barrel.canShoot = false;
+        }
+        playerTank.applyRecoil();
     }
+
 
     // Respawn player
     public static void respawnPlayer() {
@@ -107,7 +123,7 @@ public class EntityManager {
         int newLevel = Math.max(playerTank.getLevel() / 2, 1);
         int newScore = playerTank.getTotalScore(newLevel);
 
-        playerTank = new ArenaCloser(randX, randY, angle, tank, barrel);
+        playerTank = new Basic(randX, randY, angle, tank, barrel);
         playerTank.addScore(newScore);
 
         EntityManager.autoSpin = false;
@@ -125,18 +141,19 @@ public class EntityManager {
         // Loop through every bullet entity
         for (Bullet b : bullets) {
             // Find nearby shapes for collision testing usng the spatial grid
-            spatialGrid.getPotentialCollisions(b.getCenterX(), b.getCenterY(), b.getSize() / 2f, MAX_SHAPE_SIZE, potentialShapes);
+            spatialGrid.getPotentialCollisions(b.getCenterX(), b.getCenterY(), b.getWidth() / 2f, MAX_SHAPE_RADIUS, potentialShapes);
 
             // Then, loop through the list of potential shapes instead of all shapes (much more efficient)
             for (Shape s : potentialShapes) {
                 // Only collide with living shapes
-                if (s.isAlive() && Collision.circlePolygonCollision(b.getCenterX(), b.getCenterY(), b.getSize() / 2f, s.polygon)) {
-                    s.setDamage(true);
+                if (s.isAlive() && Collision.circlePolygonCollision(b.getCenterX(), b.getCenterY(), b.getWidth() / 2f, s.polygon)) {
+                    if (s.isAlive()) s.setDamage(true);
+                    if (b.isAlive()) b.setDamage(true);
                     // Resolve damage exchange between bullet and shape
-                    resolveCollision(b, s, b.getBulletDamage(), s.getBodyDamage());
+                    resolveCollision(b, s, b.getBodyDamage(), s.getBodyDamage());
 
                     // Apply knockback after damage
-                    applyKnockback(b, s, 30, 30);
+                    applyKnockback(b, s, 5, 5);
 
                     // Award XP
                     if (!s.isAlive()) {
@@ -149,16 +166,16 @@ public class EntityManager {
 
     // Check collision between tanks and shapes (same concept as above)
     public static void checkTankShapeCollisions() {
-        spatialGrid.getPotentialCollisions(playerTank.getCenterX(), playerTank.getCenterY(), playerTank.getSize() / 2f, MAX_SHAPE_SIZE, potentialShapes);
+        spatialGrid.getPotentialCollisions(playerTank.getCenterX(), playerTank.getCenterY(), playerTank.getWidth() / 2f, MAX_SHAPE_RADIUS, potentialShapes);
         for (Shape s : potentialShapes) {
-            if (s.isAlive() && Collision.circlePolygonCollision(playerTank.getCenterX(), playerTank.getCenterY(), playerTank.getSize() / 2f, s.polygon)) {
-                s.setDamage(true);
-                playerTank.setDamage(true);
+            if (s.isAlive() && Collision.circlePolygonCollision(playerTank.getCenterX(), playerTank.getCenterY(), playerTank.getWidth() / 2f, s.polygon)) {
+                if (s.isAlive()) s.setDamage(true);
+                if (playerTank.isAlive()) playerTank.setDamage(true);
 
                 resolveCollision(playerTank, s, playerTank.getBodyDamage(), s.getBodyDamage());
 
                 // Apply knockback after damage
-                applyKnockback(s, playerTank, 100, 100);
+                applyKnockback(s, playerTank, 50, 50);
 
                 if (!s.isAlive()) {
                     playerTank.addScore(s.getXp());
@@ -170,7 +187,7 @@ public class EntityManager {
     // Check collision between shapes (again, same concept as above)
     public static void checkShapeShapeCollisions() {
         for (Shape a : shapes) {
-            spatialGrid.getPotentialCollisions(a.getCenterX(), a.getCenterY(), a.getSize() / 2f, MAX_SHAPE_SIZE, potentialShapes);
+            spatialGrid.getPotentialCollisions(a.getCenterX(), a.getCenterY(), a.getWidth() / 2f, MAX_SHAPE_RADIUS, potentialShapes);
             for (Shape b : potentialShapes) {
                 if (a == b) continue;
                 if (!b.isAlive()) continue;
@@ -221,18 +238,19 @@ public class EntityManager {
 
     // Update all entities
     public static void updateEntities() {
-        // Update shapes and rebuild the spatial grid
+        // Update shapes
         spatialGrid.clear();
         for (Shape s : shapes) {
             s.update();
             spatialGrid.addShape(s);
         }
 
-        // Update player
+        // Update player tank
         if (!deathScreen) {
-            playerTank.update();
+            playerTank.update(); // This now handles barrels and shooting
         }
 
+        // Check if dead
         if (!playerTank.isAlive()) {
             deathScreen = true;
         }
@@ -242,9 +260,10 @@ public class EntityManager {
             b.update();
         }
 
-        // Remove dead entities AFTER they have been updated (so they can move one last time)
+        // Remove dead entities
         removeEntities();
     }
+
 
     public static void removeEntities() {
         bullets.removeIf(b -> !b.isAlive() && b.getTimeSinceDeath() > 0.08);

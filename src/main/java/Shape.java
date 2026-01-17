@@ -24,7 +24,9 @@ public class Shape extends Entity {
 
     public Shape(float orbitX, float orbitY, float orbitRadius, float angle, int sides, float maxHealth, float bodyDamage, Color color, Color stroke, int xp) {
         super(0, 0, angle);
-        this.size = 25;
+        this.radius = 25;
+        this.width = radius * 2;
+        this.height = radius * 2;
         this.orbitX = orbitX;
         this.orbitY = orbitY;
         this.orbitRadius = orbitRadius;
@@ -49,7 +51,7 @@ public class Shape extends Entity {
 
         for (int i = 0; i < sides; i++) {
             float a = angle + i * step;
-            vertices[i] = new Vector2().x(centerX + (float) Math.cos(a) * (size + strokeWidth)).y(centerY + (float) Math.sin(a) * (size + strokeWidth));
+            vertices[i] = new Vector2().x(centerX + (float) Math.cos(a) * (radius + strokeWidth)).y(centerY + (float) Math.sin(a) * (radius + strokeWidth));
         }
 
         polygon = new Polygon(vertices);
@@ -104,8 +106,8 @@ public class Shape extends Entity {
 
         for (int i = 0; i < sides; i++) {
             float a = angle + i * step;
-            vertices[i].x(centerX + (float) Math.cos(a) * (size + strokeWidth));
-            vertices[i].y(centerY + (float) Math.sin(a) * (size + strokeWidth));
+            vertices[i].x(centerX + (float) Math.cos(a) * (radius + strokeWidth));
+            vertices[i].y(centerY + (float) Math.sin(a) * (radius + strokeWidth));
         }
 
         polygon.update();
@@ -121,14 +123,14 @@ public class Shape extends Entity {
             currentColor = RED;
             currentStroke = RED;
         }
-        DrawPoly(new Vector2().x(centerX).y(centerY), sides, size + strokeWidth, angle * (180f / (float) Math.PI), currentStroke);
-        DrawPoly(new Vector2().x(centerX).y(centerY), sides, size, angle * (180f / (float) Math.PI), currentColor);
+        DrawPoly(new Vector2().x(centerX).y(centerY), sides, radius + strokeWidth, angle * (180f / (float) Math.PI), currentStroke);
+        DrawPoly(new Vector2().x(centerX).y(centerY), sides, radius, angle * (180f / (float) Math.PI), currentColor);
         if (EntityManager.hitbox) drawHitBox();
-        if (health < maxHealth && alive) drawHealthBar();
+        if (health < maxHealth && alive && timeSinceDeath < 100) drawHealthBar();
     }
 
     public void drawHitBox() {
-        DrawPolyLines(new Vector2().x(centerX).y(centerY), sides, size + strokeWidth, angle * (180f / (float) Math.PI), hitboxColor);
+        DrawPolyLines(new Vector2().x(centerX).y(centerY), sides, radius + strokeWidth, angle * (180f / (float) Math.PI), hitboxColor);
     }
 
     public int getXp() { return xp; }

@@ -10,9 +10,8 @@ public class Tank extends Entity {
     protected float bounceStrength = 0.8f;
     protected float inputVelX = 0;
     protected float inputVelY = 0;
-    protected float recoil;
-    protected float baseSize = 50f;
-    protected float sizeMultiplier = 1.0f;
+    protected float baseRadius = 50f;
+    protected float radiusMultiplier = 1.0f;
 
     // Barrel properties
     protected Barrel[] barrels;
@@ -66,12 +65,13 @@ public class Tank extends Entity {
         this.levelProgress = 0f;
         updateStats();
         this.health = maxHealth;
+        this.baseRadius = radius;
     }
 
     // Recalculates actual stats based on stat levels and player level
     public void updateStats() {
         // Some formulas are taken from the actual Diep.io game, others are created to fit ours
-        healthRegen = 0.1f + (0.4f * stats[0]);
+        healthRegen = 0.05f + (0.04f * stats[0]);
         maxHealth = 50 + 2 * (level - 1) + 20 * stats[1];
         bodyDamage = (20 + 4 * stats[2]);
         bulletSpeed = 200 + 20 * stats[3];
@@ -81,48 +81,53 @@ public class Tank extends Entity {
         speed = 150 + (10 * stats[7]);
 
         if (levelUp) {
-            health = maxHealth;
-            levelUp = false;
+            if (!isDamage) {
+                if (health == maxHealth) health = maxHealth;
+            }
+            levelUp = false; // Tank radius scaling: sizeFactor = 1.01 ^ (lvl - 1)
+            radius = baseRadius * (float) Math.pow(1.01f, level - 1);
+            Graphics.zoomLevel = 2f - (0.016f * (level - 1));
+            width = radius;
+            height = radius;
         }
 
-        // Tank size scaling: sizeFactor = 1.01 ^ (lvl - 1)
-        float sizeFactor = (float) Math.pow(1.01, level - 1);
-        size = baseSize * sizeFactor * sizeMultiplier;
-
-        // Update barrel dimensions and recoil based on the new size
+        // Update barrel dimensions and recoil based on the new radius
         if (barrels != null) updateDimensions();
     }
 
     // Update barrel dimensions and recoil - can be overridden by subclasses
     protected void updateDimensions() {
-        for (int i = 0; i < barrels.length; i++) {
-            barrels[i].setBarrelW(size);
-            barrels[i].setBarrelH(size / 2);
-            barrels[i].setRecoil(size / 2 * 1.8f);
+        for (Barrel barrel : barrels) {
+            barrel.setBarrelW(radius);
+            barrel.setBarrelH(radius / 2);
+            barrel.setRecoil(radius / 2 * 1.8f);
         }
     }
 
     // Main update loop for the tank
     @Override
-
     public void update() {
-        // Handle reload timer
-        if (reloadTimer > 0f) {
-            reloadTimer -= EntityManager.dt;
+        // Update each barrel's timer
+        for (Barrel barrel : barrels) {
+            barrel.update();
         }
 
-        // Check if damaged
+        // Reload timer
+        if (reloadTimer > 0) reloadTimer -= EntityManager.dt;
+
+        // Movement input & velocity
+        handleInput();
+
+        // Passive regen
+        regenHealth(EntityManager.dt);
+
+        // Damage cooldown
         if (timeSinceLastHit > 0.02) isDamage = false;
 
         if (!alive) timeSinceDeath += EntityManager.dt;
 
+        // Update combat stats (health, barrel sizes, etc.)
         updateStats();
-
-        // Movement input handling
-        handleInput();
-
-        // Passive regeneration
-        regenHealth(EntityManager.dt);
     }
 
     // Handle input
@@ -184,8 +189,8 @@ public class Tank extends Entity {
     @Override
     public void draw() {
 
-        for (int i = 0; i < barrels.length; i++) {
-            barrels[i].draw();
+        for (Barrel barrel : barrels) {
+            barrel.draw();
         }
 
         Color currentColor = color;
@@ -197,8 +202,8 @@ public class Tank extends Entity {
 
         // Tank body
         Rectangle source = newRectangle(0, 0, texture.width() , texture.height());
-        Rectangle dest = newRectangle(centerX, centerY, size, size);
-        Vector2 origin = new Vector2().x(size / 2).y(size / 2);
+        Rectangle dest = newRectangle(centerX, centerY, width, height);
+        Vector2 origin = new Vector2().x(width / 2).y(height / 2);
         DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), currentColor);
 
         if (EntityManager.hitbox) drawHitBox();
@@ -207,22 +212,25 @@ public class Tank extends Entity {
 
     // Apply knockback force in the opposite direction of firing
     public void applyRecoil() {
-        addVelocity(-recoil * (float) Math.cos(angle), -recoil * (float) Math.sin(angle));
+        for (Barrel barrel : barrels) {
+            float a = angle + barrel.getTurretAngle() * (float) Math.PI / 180f;
+            addVelocity(-barrel.getRecoil() * (float) Math.cos(a), -barrel.getRecoil() * (float) Math.sin(a));
+        }
     }
 
-    // Check if the weapon is ready to fire
+    // Check if the turrets can fire
     public boolean canFire() {
-        return reloadTimer <= 0f;
-    }
-
-    // Start the reload timer
-    public void resetReload() {
-        reloadTimer = reloadSpeed;
+        if (reloadTimer > 0) return false;
+        if (barrels == null) return false;
+        for (Barrel b : barrels) {
+            if (b.canShoot()) return true;
+        }
+        return false;
     }
 
     // Draw circular hitbox
     public void drawHitBox() {
-        DrawCircleLinesV(new Vector2().x(centerX).y(centerY), size / 2, hitboxColor);
+        DrawCircleLinesV(new Vector2().x(centerX).y(centerY), radius / 2, hitboxColor);
     }
 
     public float getBulletSpeed() { return bulletSpeed; }
@@ -280,7 +288,7 @@ public class Tank extends Entity {
     }
 
     public void upgradeStat(int index) {
-        if (skillPoints > 0 && stats[index] < 8) {
+        if (skillPoints > 0 && stats[index] < 7) {
             stats[index]++;
             skillPoints--;
             updateStats();
