@@ -6,6 +6,9 @@ import static com.raylib.Helpers.newRectangle;
 public class Barrel {
     private float barrelW;
     private float barrelH;
+    float originalBarrelW;
+    float originalBarrelH;
+    float originalRecoil;
     float offset;
     private final float turretAngle;
     private float recoil;
@@ -26,6 +29,10 @@ public class Barrel {
         this.delayTimer = delay;
         this.recoil = barrelH * 1.8f;
         this.barrelTexture = barrelTexture;
+
+        originalBarrelW = barrelW;
+        originalBarrelH = barrelH;
+        originalRecoil = recoil;
     }
 
     public void update() {
@@ -51,11 +58,6 @@ public class Barrel {
     // Returns true if this barrel can shoot
     public boolean canShoot() {
         return canShoot;
-    }
-
-    // Call this after firing
-    public void resetReload() {
-        reloadTimer = EntityManager.playerTank.reloadSpeed;
     }
 
     public void draw() {

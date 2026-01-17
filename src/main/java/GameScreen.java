@@ -22,7 +22,7 @@ public class GameScreen extends GameState {
 
         float randX = EntityManager.worldW * (float) Math.random();
         float randY = EntityManager.worldH * (float) Math.random();
-        EntityManager.playerTank = new Basic(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+        EntityManager.playerTank = new Booster(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
 
         Graphics.camera = new Camera2D();
         Graphics.camera.target(new Vector2().x(EntityManager.playerTank.getCenterX()).y(EntityManager.playerTank.getCenterY()));

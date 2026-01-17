@@ -98,9 +98,9 @@ public class Tank extends Entity {
     // Update barrel dimensions and recoil - can be overridden by subclasses
     protected void updateDimensions() {
         for (Barrel barrel : barrels) {
-            barrel.setBarrelW(radius);
-            barrel.setBarrelH(radius / 2);
-            barrel.setRecoil(radius / 2 * 1.8f);
+            barrel.setBarrelW(barrel.originalBarrelW * (float) Math.pow(1.01f, level - 1));
+            barrel.setBarrelH(barrel.originalBarrelH * (float) Math.pow(1.01f, level - 1));
+            barrel.setRecoil(barrel.originalRecoil * (float) Math.pow(1.01f, level - 1));
         }
     }
 
