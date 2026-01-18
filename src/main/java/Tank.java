@@ -11,7 +11,6 @@ public class Tank extends Entity {
     protected float inputVelX = 0;
     protected float inputVelY = 0;
     protected float baseRadius = 50f;
-    protected float radiusMultiplier = 1.0f;
 
     // Barrel properties
     protected Barrel[] barrels;
@@ -49,6 +48,10 @@ public class Tank extends Entity {
     private boolean levelUp = true;
     private boolean upgradeSkill = false;
 
+    // Game statistics
+    private float timeAlive;
+    private float numShapesKilled;
+
     // Constructor
     public Tank(float centerX, float centerY, float angle, Texture texture) {
         super(centerX, centerY, angle);
@@ -66,6 +69,8 @@ public class Tank extends Entity {
         updateStats();
         this.health = maxHealth;
         this.baseRadius = radius;
+        this.timeAlive = 0;
+        this.numShapesKilled = 0;
     }
 
     // Recalculates actual stats based on stat levels and player level

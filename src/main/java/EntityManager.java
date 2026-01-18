@@ -123,7 +123,7 @@ public class EntityManager {
         int newLevel = Math.max(playerTank.getLevel() / 2, 1);
         int newScore = playerTank.getTotalScore(newLevel);
 
-        playerTank = new Booster(randX, randY, angle, tank, barrel);
+        playerTank = new Basic(randX, randY, angle, tank, barrel);
         playerTank.addScore(newScore);
 
         EntityManager.autoSpin = false;
