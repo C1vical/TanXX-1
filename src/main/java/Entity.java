@@ -24,13 +24,14 @@ public abstract class Entity {
     // Health fields
     protected float maxHealth;
     protected float health;
-    protected float healthRegen;
     protected float bodyDamage;
     protected boolean alive;
     protected boolean isDamage;
 
     protected float timeSinceLastHit;
     protected float timeSinceDeath;
+
+    protected float healthRatio;
 
     // Health bar dimensions
     float healthBarX, healthBarY, healthBarWidth, healthBarHeight;
@@ -50,6 +51,7 @@ public abstract class Entity {
         this.timeSinceDeath = 0f;
         this.velocityX = 0f;
         this.velocityY = 0f;
+        this.healthRatio = 1f;
     }
 
     // Abstract methods to be implemented by subclasses
@@ -62,9 +64,6 @@ public abstract class Entity {
     public void setAngle(float angle) { this.angle = angle; }
     public float getRadius() { return radius; }
     public float getWidth() { return width; }
-    public float getHeight() { return height; }
-    public void setWidth(float width) { this.width = width; }
-    public void setHeight(float height) { this.height = height; }
     public boolean isAlive() { return alive; }
 
     public float getHealth() { return health; }
@@ -95,9 +94,10 @@ public abstract class Entity {
         healthBarWidth = width;
         healthBarHeight = 4;
 
+        healthRatio = getHealth() / getMaxHealth();
+
         Rectangle rect = newRectangle(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
         DrawRectangleRounded(rect, 0.5f, 0, DARKGRAY);
-        float healthRatio = getHealth() / getMaxHealth();
         rect = newRectangle(healthBarX, healthBarY, healthBarWidth * healthRatio, healthBarHeight);
         DrawRectangleRounded(rect, 0.5f, 0, newColor(133, 227, 125, 255));
     }

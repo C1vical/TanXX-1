@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Random;
 
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
@@ -27,6 +26,7 @@ public class GameScreen extends GameState {
         Graphics.camera = new Camera2D();
         Graphics.camera.target(new Vector2().x(EntityManager.playerTank.getCenterX()).y(EntityManager.playerTank.getCenterY()));
         Graphics.camera.offset(new Vector2().x(GetScreenWidth() / 2f).y(GetScreenHeight() / 2f));
+        Graphics.zoomLevel = Graphics.defaultZoom;
         Graphics.camera.zoom(Graphics.zoomLevel);
 
         EntityManager.spawnShapes();
@@ -86,7 +86,7 @@ public class GameScreen extends GameState {
         if (!EntityManager.deathScreen) {
             if (Graphics.upgradeMenuTimer > 0) Graphics.upgradeMenuTimer -= EntityManager.dt;
 
-            // Hover area expands as the menu pops out
+            // The hover area expands as the menu pops out
             float hoverWidth = 50 + (Graphics.upgradeMenuWidth) * Graphics.upgradeMenuAnim;
             Rectangle hoverArea = newRectangle(0, Graphics.startY - 50, hoverWidth, Graphics.menuH + 50);
             if (CheckCollisionPointRec(mouseScreen, hoverArea) || Graphics.upgradeMenuTimer > 0 || EntityManager.playerTank.isUpgradeSkill()) {
@@ -107,13 +107,16 @@ public class GameScreen extends GameState {
         // Mouse position in world space
         Vector2 mouse = GetScreenToWorld2D(GetMousePosition(), Graphics.camera);
 
-        // Respawn logic
-        if (IsKeyPressed(KEY_R) && EntityManager.deathScreen) {
-            EntityManager.respawnPlayer();
+        if (EntityManager.deathScreen) {
+            // Respawn
+            if (IsKeyPressed(KEY_R)) {
+                EntityManager.respawnPlayer();
+            } else if (IsKeyPressed(KEY_SPACE)) { // Go back to the menu screen
+                EntityManager.deathScreen = false;
+                requestedScreen = ScreenType.MENU;
+            }
+            return;
         }
-
-        // If not in death-screen
-        if (EntityManager.deathScreen) return;
 
         // Upgrade handling
         // Animated X position for interaction

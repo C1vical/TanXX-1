@@ -57,7 +57,10 @@ public class Main {
                 // Switch to the new screen
                 switch (requested) {
                     case MENU -> currentScreen = new MenuScreen();
-                    case GAME -> currentScreen = new GameScreen();
+                    case GAME -> {
+                        EntityManager.resetGame();
+                        currentScreen = new GameScreen();
+                    }
                     case EXIT -> {}
                 }
 

@@ -94,7 +94,8 @@ public class Graphics {
     // Camera and viewport bounds
     public static Camera2D camera = new Camera2D();
     public static float camLeft, camRight, camTop, camBottom;
-    public static float zoomLevel = 1f;
+    public static final float defaultZoom = 1.5f;
+    public static float zoomLevel = 1.5f;
 
     // Lerp constants for smooth transitions
     public static final float movementLerp = 0.1f;
@@ -114,7 +115,7 @@ public class Graphics {
 
         // Zoom only when settings are closed
         if (!showSettings) {
-            getZoomLevel();
+//            getZoomLevel();
             float desiredZoom = zoomLevel;
             camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
         }
@@ -195,7 +196,6 @@ public class Graphics {
     // Gamescreen drawing methods
 
     public static void drawWorld() {
-
         float drawLeft = Math.max(0, camLeft);
         float drawTop = Math.max(0, camTop);
         float drawRight = Math.min(EntityManager.worldW, camRight);
@@ -368,12 +368,21 @@ public class Graphics {
         DrawCircleV(new Vector2().x(miniMapX + miniMapW * x).y(miniMapY + miniMapH * y), 5, RED);
     }
 
+    public static void drawUpgradeScreen() {
+        DrawRectangle(0, 0, GameState.screenW, GameState.screenH, newColor(0, 0, 0, 180));
+        int boxW = 1000, boxH = 600, boxX = (GameState.screenW - boxW) / 2, boxY = (GameState.screenH - boxH) / 2;
+    }
+
     public static void drawDeathScreen() {
         DrawRectangle(0, 0, GameState.screenW, GameState.screenH, newColor(0, 0, 0, 75));
-        DrawText("You DIED!", GetScreenWidth() / 2 - MeasureText("You DIED!", 40) / 2, GetScreenHeight() / 2 - 40, 40, RED);
+        DrawText("YOU DIED!", GetScreenWidth() / 2 - MeasureText("YOU DIED!", 40) / 2, GetScreenHeight() / 2 - 40, 40, RED);
         DrawText("Press R to respawn!", GetScreenWidth() / 2 - MeasureText("Press R to respawn!", 40) / 2, GetScreenHeight() / 2 + 10, 40, WHITE);
-        DrawText("Press ESC to return to the main menu", GetScreenWidth() / 2 - MeasureText("Press ESC to return to the main menu", 20) / 2, GetScreenHeight() / 2 + 60, 20, WHITE);
+        DrawText("Press SPACE to return to the main menu", GetScreenWidth() / 2 - MeasureText("Press SPACE to return to the main menu", 20) / 2, GetScreenHeight() / 2 + 60, 20, WHITE);
         DrawText("Statistics", GetScreenWidth() / 2 - MeasureText("Statistics", 30) / 2, GetScreenHeight() - 300, 30, WHITE);
+        DrawText("Level: " + EntityManager.playerTank.getLevel(), GetScreenWidth() / 2 - MeasureText("Level: " + EntityManager.playerTank.getLevel(), 20) / 2, GetScreenHeight() - 260, 20, WHITE);
+        DrawText("Score: " + EntityManager.playerTank.getScore(), GetScreenWidth() / 2 - MeasureText("Score: " + EntityManager.playerTank.getScore(), 20) / 2, GetScreenHeight() - 220, 20, WHITE);
+        DrawText("Shapes killed: " + EntityManager.playerTank.getNumShapesKilled(), GetScreenWidth() / 2 - MeasureText("Shapes killed: " + EntityManager.playerTank.getNumShapesKilled(), 20) / 2, GetScreenHeight() - 180, 20, WHITE);
+        DrawText("Time Alive: " + Math.round(EntityManager.playerTank.getTimeAlive()) + " s", GetScreenWidth() / 2 - MeasureText("Time Alive: " + Math.round(EntityManager.playerTank.getTimeAlive()) + " s", 20) / 2, GetScreenHeight() - 140, 20, WHITE);
     }
 
     // Menu-screen drawing methods

@@ -7,9 +7,8 @@ import static com.raylib.Helpers.newColor;
 public class EntityManager {
 
     // World dimensions
-    public static final int worldW = 800;
-    public static final int worldH = 800;
-    public static final int borderSize = 5000;
+    public static final int worldW = 4000;
+    public static final int worldH = 4000;
 
     // Game state flags
     public static float dt;     // Delta time (seconds per frame)
@@ -84,29 +83,32 @@ public class EntityManager {
 
     // Fire bullet
     public static void fireBullet() {
-        for (Barrel barrel : playerTank.barrels) {
+        for (Barrel b : playerTank.barrels) {
+
             // Only fire if the barrel can shoot
-           if (!barrel.canShoot()) continue;
+            if (!b.canShoot) continue;
 
-           // Spawn bullet
-           float baseAngle = playerTank.angle;
-           float turretAngle = barrel.getTurretAngle() * (float) Math.PI / 180f;
-           float finalAngle = baseAngle + turretAngle;
+            // Spawn bullet
+            float baseAngle = playerTank.angle;
+            float turretAngle = b.getTurretAngle() * (float) Math.PI / 180f;
+            float finalAngle = baseAngle + turretAngle;
 
-           // Offset
-           float offsetX = -(float) Math.sin(baseAngle) * barrel.offset;
-           float offsetY = (float) Math.cos(baseAngle) * barrel.offset;
+            // Offset
+            float offsetX = -(float) Math.sin(baseAngle) * b.offset;
+            float offsetY = (float) Math.cos(baseAngle) * b.offset;
 
-           // Forward spawn distance
-           float bulletRadius = barrel.getBarrelH();
-           float forward = barrel.getBarrelW() + bulletRadius * 0.5f;
+            // Forward spawn distance
+            float bulletRadius = b.getBarrelH();
+            float forward = b.getBarrelW() + bulletRadius * 0.5f;
 
-           float bulletX = playerTank.getCenterX() + offsetX + forward * (float) Math.cos(finalAngle);
-           float bulletY = playerTank.getCenterY() + offsetY + forward * (float) Math.sin(finalAngle);
+            float bulletX = playerTank.getCenterX() + offsetX + forward * (float) Math.cos(finalAngle);
+            float bulletY = playerTank.getCenterY() + offsetY + forward * (float) Math.sin(finalAngle);
 
-           bullets.add(new Bullet(bulletX, bulletY, finalAngle, bullet, bulletRadius, playerTank.getBulletDamage(), playerTank.getBulletSpeed(), playerTank.getBulletPenetration()
-           ));
-           barrel.canShoot = false;
+            bullets.add(new Bullet(bulletX, bulletY, finalAngle, bullet, bulletRadius, playerTank.getBulletDamage(), playerTank.getBulletSpeed(), playerTank.getBulletPenetration()));
+
+            // Reset timers
+            b.reloadTimer = b.reloadSpeed;
+            b.delayTimer = b.delay;
         }
         playerTank.applyRecoil();
     }
@@ -170,7 +172,7 @@ public class EntityManager {
                     resolveCollision(b, s, b.getBodyDamage(), s.getBodyDamage());
 
                     // Apply knockback after damage
-                    applyKnockback(b, s, 5, 5);
+                    applyKnockback(b, s, 10, 10);
 
                     // Award XP
                     if (!s.isAlive()) {
@@ -213,7 +215,7 @@ public class EntityManager {
                 if (!shapes.contains(b)) continue;
                 if (Collision.polygonPolygonCollision(a.polygon, b.polygon)) {
                     // Shapes don't deal damage to each other, but they do apply knockback
-                    applyKnockback(a, b, 5, 5);
+                    applyKnockback(a, b, 8, 8);
                 }
             }
         }
@@ -237,7 +239,7 @@ public class EntityManager {
         b.takeDamage(damageA * ratio);
     }
 
-    // Applies a simple push-back force to separate two colliding entities
+    // Applies a simple knockback force to separate two colliding entities
     public static void applyKnockback(Entity a, Entity b, float knockbackStrengthA, float knockbackStrengthB) {
         float dx = b.getCenterX() - a.getCenterX();
         float dy = b.getCenterY() - a.getCenterY();
@@ -264,6 +266,17 @@ public class EntityManager {
             spatialGrid.addShape(s);
         }
 
+        // Update bullets
+        for (Bullet b : bullets) {
+            b.update();
+        }
+
+        if (playerTank.upgradeTank) {
+            Twin newTank = new Twin(playerTank.getCenterX(), playerTank.getCenterY(), angle, tank, barrel);
+            newTank.copyStats(playerTank);  // copy all previous stats
+            playerTank = newTank;
+        }
+
         // Update player tank
         if (!deathScreen) {
             playerTank.update(); // This now handles barrels and shooting
@@ -274,18 +287,17 @@ public class EntityManager {
             deathScreen = true;
         }
 
-        // Update bullets
-        for (Bullet b : bullets) {
-            b.update();
-        }
-
         // Remove dead entities
         removeEntities();
     }
 
-
     public static void removeEntities() {
         bullets.removeIf(b -> !b.isAlive() && b.getTimeSinceDeath() > 0.08);
         shapes.removeIf(s -> !s.isAlive() && s.getTimeSinceDeath() > 0.08);
+    }
+
+    public static void resetGame() {
+        shapes.clear();
+        bullets.clear();
     }
 }

@@ -65,6 +65,8 @@ public class Shape extends Entity {
 
         regenHealth(EntityManager.dt);
 
+        healthRatio = health / maxHealth;
+
         orbitAngle += orbitAngleSpeed * EntityManager.dt;
         angle += rotationSpeed * EntityManager.dt;
 
@@ -106,8 +108,8 @@ public class Shape extends Entity {
 
         for (int i = 0; i < sides; i++) {
             float a = angle + i * step;
-            vertices[i].x(centerX + (float) Math.cos(a) * (radius + strokeWidth));
-            vertices[i].y(centerY + (float) Math.sin(a) * (radius + strokeWidth));
+            vertices[i].x(centerX + (float) Math.cos(a) * radius);
+            vertices[i].y(centerY + (float) Math.sin(a) * radius);
         }
 
         polygon.update();
@@ -123,14 +125,14 @@ public class Shape extends Entity {
             currentColor = RED;
             currentStroke = RED;
         }
-        DrawPoly(new Vector2().x(centerX).y(centerY), sides, radius + strokeWidth, angle * (180f / (float) Math.PI), currentStroke);
-        DrawPoly(new Vector2().x(centerX).y(centerY), sides, radius, angle * (180f / (float) Math.PI), currentColor);
+        DrawPoly(new Vector2().x(centerX).y(centerY), sides, radius, angle * (180f / (float) Math.PI), currentStroke);
+        DrawPoly(new Vector2().x(centerX).y(centerY), sides, radius - strokeWidth, angle * (180f / (float) Math.PI), currentColor);
         if (EntityManager.hitbox) drawHitBox();
         if (health < maxHealth && alive && timeSinceDeath < 100) drawHealthBar();
     }
 
     public void drawHitBox() {
-        DrawPolyLines(new Vector2().x(centerX).y(centerY), sides, radius + strokeWidth, angle * (180f / (float) Math.PI), hitboxColor);
+        DrawPolyLines(new Vector2().x(centerX).y(centerY), sides, radius, angle * (180f / (float) Math.PI), hitboxColor);
     }
 
     public int getXp() { return xp; }

@@ -13,22 +13,32 @@ public class Barrel {
     private final float turretAngle;
     private float recoil;
     float delay;
-    float delayTimer = 0f;
-    boolean canShoot = false;
+    float originalDelay;
+    float delayTimer;
+    boolean canShoot;
+    boolean isShoot;
     private final Texture barrelTexture;
     private final Color barrelColor = newColor(100, 99, 107, 255);
 
-    float reloadTimer = 0f;
+    float reloadSpeed;
+    float baseReloadSpeed;
+    float reloadTimer;
 
-    public Barrel(float barrelW, float barrelH, float offset, float turretAngle, float delay, Texture barrelTexture) {
+    public Barrel(float barrelW, float barrelH, float offset, float turretAngle, float delay, float reloadSpeed, Texture barrelTexture) {
         this.barrelW = barrelW;
         this.barrelH = barrelH;
         this.offset = offset;
         this.turretAngle = turretAngle;
         this.delay = delay;
+        this.originalDelay = delay;
         this.delayTimer = delay;
+        this.reloadSpeed = reloadSpeed;
+        this.baseReloadSpeed = reloadSpeed;
+        this.reloadTimer = 0f;
         this.recoil = barrelH * 1.8f;
         this.barrelTexture = barrelTexture;
+        this.isShoot = false;
+        this.canShoot = !(delayTimer > 0f);
 
         originalBarrelW = barrelW;
         originalBarrelH = barrelH;
@@ -36,28 +46,20 @@ public class Barrel {
     }
 
     public void update() {
-        // Update the delay timer
-        delayTimer -= EntityManager.dt;
+        // Update the reload timers
+        if (reloadTimer > 0f) reloadTimer -= EntityManager.dt;
 
-        // Only allow shooting if both delay and reload timer are ready
-        if (delayTimer <= 0 && reloadTimer <= 0f) {
-            canShoot = true;       // Barrel can fire
-            reloadTimer = EntityManager.playerTank.reloadSpeed; // reset reload timer
-            delayTimer = 0f;
+        // Check if player is holding the mouse button
+        isShoot = IsMouseButtonDown(MOUSE_BUTTON_LEFT) || EntityManager.autoFire;
+
+        if (isShoot) {
+            if (delayTimer > 0f) delayTimer -= EntityManager.dt;
         } else {
-            canShoot = false;
+            delayTimer = delay;
         }
 
-        // Countdown reload timer
-        if (reloadTimer > 0f) {
-            reloadTimer -= EntityManager.dt;
-        }
-    }
-
-
-    // Returns true if this barrel can shoot
-    public boolean canShoot() {
-        return canShoot;
+        // Barrel can shoot if both timers are done
+        canShoot = delayTimer <= 0f && reloadTimer <= 0f;
     }
 
     public void draw() {

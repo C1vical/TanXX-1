@@ -17,12 +17,8 @@ public class Tank extends Entity {
     protected Color barrelColor = newColor(100, 99, 107, 255);
     protected Color barrelStrokeColor = newColor(55, 55, 55, 255);
 
-    // Bullet properties
-    protected float reloadSpeed;
-    protected float reloadTimer = 0f;
-
+    // Stats
     // Stat levels (0-8 for each stat)
-    private int[] stats = new int[8];
     // stats[0]: Health regen
     // stats[1]: Max health
     // stats[2]: Body damage
@@ -31,8 +27,8 @@ public class Tank extends Entity {
     // stats[5]: Bullet damage
     // stats[6]: Reload speed
     // stats[7]: Movement speed
-
-    // Derived combat stats
+    private int[] stats = new int[8];
+    private float healthRegen;
     private float bulletSpeed;
     private float bulletPenetration;
     private float bulletDamage;
@@ -45,12 +41,14 @@ public class Tank extends Entity {
     private float levelProgress;
     private final int[] levelXP = {4,9,15,22,28,35,44,54,64,75,87,101,117,132,161,161,192,215,251,259,299,322,388,398,450,496,546,600,659,723,791,839,889,942,999,1059,1093,1190,1261,1337,1417,1502,1593,1687, 0};
     private int skillPoints;
-    private boolean levelUp = true;
     private boolean upgradeSkill = false;
 
     // Game statistics
     private float timeAlive;
-    private float numShapesKilled;
+    private int numShapesKilled;
+
+    // Upgrade
+    public boolean upgradeTank;
 
     // Constructor
     public Tank(float centerX, float centerY, float angle, Texture texture) {
@@ -58,19 +56,19 @@ public class Tank extends Entity {
         this.texture = texture;
         this.color = newColor(24, 158, 140, 255);
         for (int i = 0; i < 8; i++) {
-            stats[i] = 0;
+            this.stats[i] = 0;
         }
         this.alive = true;
         this.level = 1;
         this.score = 0;
         this.levelScore = 0;
-        this.skillPoints = 30;
+        this.skillPoints = 0;
         this.levelProgress = 0f;
-        updateStats();
         this.health = maxHealth;
         this.baseRadius = radius;
         this.timeAlive = 0;
         this.numShapesKilled = 0;
+        this.upgradeTank = false;
     }
 
     // Recalculates actual stats based on stat levels and player level
@@ -82,30 +80,34 @@ public class Tank extends Entity {
         bulletSpeed = 200 + 20 * stats[3];
         bulletPenetration = 8 + 6 * stats[4];
         bulletDamage = (7 + 3 * stats[5]);
-        reloadSpeed = 0.6f - (0.04f * stats[6]);
-        speed = 150 + (10 * stats[7]);
-
-        if (levelUp) {
-            if (!isDamage) {
-                if (health == maxHealth) health = maxHealth;
-            }
-            levelUp = false; // Tank radius scaling: sizeFactor = 1.01 ^ (lvl - 1)
-            radius = baseRadius * (float) Math.pow(1.01f, level - 1);
-//            Graphics.zoomLevel = 1f - (0.016f * (level - 1));
-            width = radius;
-            height = radius;
+        for (Barrel b : barrels) {
+            b.reloadSpeed = b.baseReloadSpeed - 0.04f * stats[6];
         }
+        speed = 150 + (10 * stats[7]);
+        width = radius;
+        height = radius;
+        Graphics.zoomLevel  = Graphics.defaultZoom * (float) Math.pow(0.995f, level - 1);
+        health = maxHealth * healthRatio;
 
         // Update barrel dimensions and recoil based on the new radius
-        if (barrels != null) updateDimensions();
+        updateDimensions();
+
+        // Update delay
+        updateDelay();
     }
 
     // Update barrel dimensions and recoil - can be overridden by subclasses
     protected void updateDimensions() {
-        for (Barrel barrel : barrels) {
-            barrel.setBarrelW(barrel.originalBarrelW * (float) Math.pow(1.01f, level - 1));
-            barrel.setBarrelH(barrel.originalBarrelH * (float) Math.pow(1.01f, level - 1));
-            barrel.setRecoil(barrel.originalRecoil * (float) Math.pow(1.01f, level - 1));
+        for (Barrel b : barrels) {
+            b.setBarrelW(b.originalBarrelW * (float) Math.pow(1.01f, level - 1));
+            b.setBarrelH(b.originalBarrelH * (float) Math.pow(1.01f, level - 1));
+            b.setRecoil(b.originalRecoil * (float) Math.pow(1.01f, level - 1));
+        }
+    }
+
+    protected void updateDelay() {
+        for (Barrel b : barrels) {
+            b.delay = b.reloadSpeed * b.originalDelay / b.baseReloadSpeed;
         }
     }
 
@@ -115,12 +117,9 @@ public class Tank extends Entity {
         timeAlive += EntityManager.dt;
 
         // Update each barrel's timer
-        for (Barrel barrel : barrels) {
-            barrel.update();
+        for (Barrel b : barrels) {
+            b.update();
         }
-
-        // Reload timer
-        if (reloadTimer > 0) reloadTimer -= EntityManager.dt;
 
         // Movement input & velocity
         handleInput();
@@ -128,13 +127,15 @@ public class Tank extends Entity {
         // Passive regen
         regenHealth(EntityManager.dt);
 
+        // Update health ratio
+        healthRatio = health / maxHealth;
+
         // Damage cooldown
         if (timeSinceLastHit > 0.02) isDamage = false;
 
         if (!alive) timeSinceDeath += EntityManager.dt;
 
-        // Update combat stats (health, barrel sizes, etc.)
-        updateStats();
+
     }
 
     // Handle input
@@ -226,15 +227,13 @@ public class Tank extends Entity {
 
     // Check if the turrets can fire
     public boolean canFire() {
-        if (reloadTimer > 0) return false;
-        if (barrels == null) return false;
         for (Barrel b : barrels) {
-            if (b.canShoot()) return true;
+            if (b.canShoot) return true;
         }
         return false;
     }
 
-    // Draw circular hitbox
+    // Draw a circular hitbox
     public void drawHitBox() {
         DrawCircleLinesV(new Vector2().x(centerX).y(centerY), radius / 2, hitboxColor);
     }
@@ -295,7 +294,6 @@ public class Tank extends Entity {
     }
 
     public void levelUp() {
-        levelUp = true;
         levelScore -= levelXP[level - 1];
         level++;
         levelProgress = (float) levelScore / levelXP[level - 1];
@@ -305,6 +303,12 @@ public class Tank extends Entity {
             skillPoints++;
             upgradeSkill = true;
         }
+
+        if (level == 5 || level == 30 || level == 45) {
+            upgradeTank = true;
+        }
+
+        radius = baseRadius * (float) Math.pow(1.01f, level - 1);
     }
 
     public void upgradeStat(int index) {
@@ -333,5 +337,22 @@ public class Tank extends Entity {
 
     public void updateNumShapesKilled() {
         this.numShapesKilled++;
+    }
+
+    public int getNumShapesKilled() {
+        return numShapesKilled;
+    }
+
+    public float getTimeAlive() {
+        return timeAlive;
+    }
+
+    public void copyStats(Tank tank) {
+        this.level = tank.level;
+        this.levelScore = tank.levelScore;
+        this.skillPoints = tank.skillPoints;
+        this.upgradeSkill = tank.upgradeSkill;
+        this.score = tank.score;
+        this.stats = tank.stats.clone();
     }
 }
