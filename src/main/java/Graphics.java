@@ -94,7 +94,7 @@ public class Graphics {
     // Camera and viewport bounds
     public static Camera2D camera = new Camera2D();
     public static float camLeft, camRight, camTop, camBottom;
-    public static float zoomLevel = 2f;
+    public static float zoomLevel = 1f;
 
     // Lerp constants for smooth transitions
     public static final float movementLerp = 0.1f;
@@ -110,9 +110,11 @@ public class Graphics {
         camera.target().x(camera.target().x() + (desiredTarget.x() - camera.target().x()) * movementLerp);
         camera.target().y(camera.target().y() + (desiredTarget.y() - camera.target().y()) * movementLerp);
 
+//        System.out.println((camRight - camLeft) + " " + (camBottom - camTop));
+
         // Zoom only when settings are closed
         if (!showSettings) {
-//            getZoomLevel();
+            getZoomLevel();
             float desiredZoom = zoomLevel;
             camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
         }
@@ -193,27 +195,44 @@ public class Graphics {
     // Gamescreen drawing methods
 
     public static void drawWorld() {
-        // Draw vertical border grid lines
-        for (int x = - EntityManager.borderSize; x <= EntityManager.worldW + EntityManager.borderSize; x += tileSize) {
-            if (x >= camLeft && x <= camRight) DrawLine(x, -EntityManager.borderSize, x, EntityManager.worldH + EntityManager.borderSize, borderGridLineColour);
-        }
 
-        // Draw horizontal border grid lines
-        for (int y = - EntityManager.borderSize; y <= EntityManager.worldH + EntityManager.borderSize; y += tileSize) {
-            if (y >= camTop && y <= camBottom) DrawLine(-EntityManager.borderSize, y, EntityManager.worldW + EntityManager.borderSize, y, borderGridLineColour);
-        }
+        float drawLeft = Math.max(0, camLeft);
+        float drawTop = Math.max(0, camTop);
+        float drawRight = Math.min(EntityManager.worldW, camRight);
+        float drawBottom = Math.min(EntityManager.worldH, camBottom);
+
+        // Draw border
+        DrawRectangleV(new Vector2().x(camLeft).y(camTop), new Vector2().x(camRight - camLeft).y(camBottom - camTop), borderGridColour);
 
         // Draw world background
-        DrawRectangle(0, 0, EntityManager.worldW, EntityManager.worldH, worldGridColour);
+        DrawRectangleV(new Vector2().x(drawLeft).y(drawTop), new Vector2().x(drawRight - drawLeft).y(drawBottom - drawTop), worldGridColour);
 
-        // Draw vertical grid lines inside the world
-        for (int x = 0; x <= EntityManager.worldW; x += tileSize) {
-            if (x >= camLeft && x <= camRight) DrawLine(x, 0, x, EntityManager.worldH, worldGridLineColour);
+        // Vertical grid lines
+        int startX = (int) Math.floor(camLeft / tileSize) * tileSize;
+        int endX = (int)Math.ceil(camRight / tileSize) * tileSize;
+
+        for (int x = startX; x <= endX; x += tileSize) {
+            if (x < drawLeft || x > drawRight) {
+                DrawLineV(new Vector2().x(x).y(camTop), new Vector2().x(x).y(camBottom), borderGridLineColour);
+            } else {
+                DrawLineV(new Vector2().x(x).y(camTop), new Vector2().x(x).y(drawTop), borderGridLineColour);
+                DrawLineV(new Vector2().x(x).y(drawTop), new Vector2().x(x).y(drawBottom), worldGridLineColour);
+                DrawLineV(new Vector2().x(x).y(drawBottom), new Vector2().x(x).y(camBottom), borderGridLineColour);
+            }
         }
 
-        // Draw horizontal grid lines inside the world
-        for (int y = 0; y <= EntityManager.worldH; y += tileSize) {
-            if (y >= camTop && y <= camBottom) DrawLine(0, y, EntityManager.worldW, y, worldGridLineColour);
+        // Horizontal grid liens
+        int startY = (int) Math.floor(camTop / tileSize) * tileSize;
+        int endY = (int)Math.ceil(camBottom / tileSize) * tileSize;
+
+        for (int y = startY; y <= endY; y += tileSize) {
+            if (y < drawTop || y > drawBottom) {
+                DrawLineV(new Vector2().x(camLeft).y(y), new Vector2().x(camRight).y(y), borderGridLineColour);
+            } else {
+                DrawLineV(new Vector2().x(camLeft).y(y), new Vector2().x(drawLeft).y(y), borderGridLineColour);
+                DrawLineV(new Vector2().x(drawLeft).y(y), new Vector2().x(drawRight).y(y), worldGridLineColour);
+                DrawLineV(new Vector2().x(drawRight).y(y), new Vector2().x(camRight).y(y), borderGridLineColour);
+            }
         }
     }
 
@@ -313,6 +332,8 @@ public class Graphics {
             DrawText(String.valueOf(i + 1), (int) (x + upgradeMenuWidth - padding), (int) y + 3, 12, locked ? DARKGRAY : GRAY);
 
             // Draw highlight if hovered
+            if (showSettings) continue;
+
             if (CheckCollisionPointRec(GetMousePosition(), rect)) {
                 DrawRectangleRoundedLines(rect, 0.4f, 20, locked ? GRAY : WHITE);
             }
@@ -351,6 +372,8 @@ public class Graphics {
         DrawRectangle(0, 0, GameState.screenW, GameState.screenH, newColor(0, 0, 0, 75));
         DrawText("You DIED!", GetScreenWidth() / 2 - MeasureText("You DIED!", 40) / 2, GetScreenHeight() / 2 - 40, 40, RED);
         DrawText("Press R to respawn!", GetScreenWidth() / 2 - MeasureText("Press R to respawn!", 40) / 2, GetScreenHeight() / 2 + 10, 40, WHITE);
+        DrawText("Press ESC to return to the main menu", GetScreenWidth() / 2 - MeasureText("Press ESC to return to the main menu", 20) / 2, GetScreenHeight() / 2 + 60, 20, WHITE);
+        DrawText("Statistics", GetScreenWidth() / 2 - MeasureText("Statistics", 30) / 2, GetScreenHeight() - 300, 30, WHITE);
     }
 
     // Menu-screen drawing methods

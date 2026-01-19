@@ -7,8 +7,8 @@ import static com.raylib.Helpers.newColor;
 public class EntityManager {
 
     // World dimensions
-    public static final int worldW = 4000;
-    public static final int worldH = 4000;
+    public static final int worldW = 800;
+    public static final int worldH = 800;
     public static final int borderSize = 5000;
 
     // Game state flags
@@ -45,7 +45,21 @@ public class EntityManager {
     // Add shapes
     public static void addShape() {
         // Generate a random shape type
-        int type = (int) (Math.random() * 3);
+        double rand = Math.random();
+        int type;
+        if (rand < 0.3) {
+            type = 0;
+        } else if (rand < 0.7) {
+            type = 1;
+        } else if (rand < 0.85) {
+            type = 2;
+        } else if (rand < 0.95){
+            type = 3;
+        } else if (rand < 0.99){
+            type = 4;
+        } else {
+            type = 5;
+        }
 
         // Generate a random position that is NOT on top of the player and in world boundaries
         float orbitX;
@@ -59,9 +73,12 @@ public class EntityManager {
         } while (Math.hypot(orbitX - playerTank.getCenterX(), orbitY - playerTank.getCenterY()) < safeDistance);
 
         switch (type) {
-            case 0 -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 10));
-            case 1 -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 25));
-            default -> shapes.add(new Shape(orbitX, orbitY, orbitRadius, 0,5, 100, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 100));
+            case 0 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0,3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 25));
+            case 1 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0,4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 10));
+            case 2 -> shapes.add(new Shape(orbitX, orbitY, 25, orbitRadius, 0,5, 100, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 100));
+            case 3 -> shapes.add(new Shape(orbitX, orbitY, 30, orbitRadius, 0,6, 180, 16, newColor(75, 227, 217, 255), newColor(62, 184, 176, 255), 200));
+            case 4 -> shapes.add(new Shape(orbitX, orbitY, 40, orbitRadius, 0,7, 250, 20, newColor(53, 219, 105, 255), newColor(39, 168, 79, 255), 200));
+            default -> shapes.add(new Shape(orbitX, orbitY, 45, orbitRadius, 0,8, 350, 30, newColor(209, 144, 23, 255), newColor(181, 127, 27, 255), 200));
         }
     }
 
@@ -158,6 +175,7 @@ public class EntityManager {
                     // Award XP
                     if (!s.isAlive()) {
                         playerTank.addScore(s.getXp());
+                        playerTank.updateNumShapesKilled();
                     }
                 }
             }
@@ -179,6 +197,7 @@ public class EntityManager {
 
                 if (!s.isAlive()) {
                     playerTank.addScore(s.getXp());
+                    playerTank.updateNumShapesKilled();
                 }
             }
         }

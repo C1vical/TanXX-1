@@ -174,8 +174,8 @@ public class GameScreen extends GameState {
     // Drawing
     @Override
     public void draw() {
-        // Clear screen with border grid color
-        ClearBackground(Graphics.borderGridColour);
+        // Clear screen
+        ClearBackground(WHITE);
 
         // Begin camera-based rendering
         BeginMode2D(Graphics.camera);
@@ -198,14 +198,17 @@ public class GameScreen extends GameState {
         // Draw UI elements that are not affected by the camera
         Graphics.drawSettings();
         Graphics.drawUpgradeMenu();
-        Graphics.drawLevelBar();
-        Graphics.drawMiniMap();
-        if (Graphics.showSettings) Graphics.drawSettingsMenu();
 
-        // Draw death overlay if the player is dead
-        if (EntityManager.deathScreen) {
+        if (!EntityManager.deathScreen) {
+            Graphics.drawLevelBar();
+            Graphics.drawMiniMap();
+            if (Graphics.showSettings) Graphics.drawSettingsMenu();
+        } else {
+            // Draw death overlay if the player is dead
             Graphics.drawDeathScreen();
         }
+
+
     }
 
     // Unload resources

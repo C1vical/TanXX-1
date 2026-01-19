@@ -29,15 +29,15 @@ public abstract class Entity {
     protected boolean alive;
     protected boolean isDamage;
 
-    protected float timeSinceLastHit = 0f;
-    protected float timeSinceDeath = 0f;
+    protected float timeSinceLastHit;
+    protected float timeSinceDeath;
 
     // Health bar dimensions
     float healthBarX, healthBarY, healthBarWidth, healthBarHeight;
 
     // Physics fields
-    protected float velocityX = 0f;
-    protected float velocityY = 0f;
+    protected float velocityX;
+    protected float velocityY;
     protected float decay = 6.0f;
 
     // Constructor
@@ -45,7 +45,11 @@ public abstract class Entity {
         this.centerX = centerX;
         this.centerY = centerY;
         this.angle = angle;
-        isDamage = false;
+        this.isDamage = false;
+        this.timeSinceLastHit = 0f;
+        this.timeSinceDeath = 0f;
+        this.velocityX = 0f;
+        this.velocityY = 0f;
     }
 
     // Abstract methods to be implemented by subclasses
@@ -82,20 +86,6 @@ public abstract class Entity {
     public void addVelocity(float vx, float vy) {
         velocityX += vx;
         velocityY += vy;
-    }
-
-    // Passive health regeneration
-    public void regenHealth(float dt) {
-        timeSinceLastHit += dt;
-
-        if (alive && health < maxHealth) {
-            if (timeSinceLastHit >= 30f) {
-                health += (healthRegen + 0.1f) * maxHealth * dt;
-            } else {
-                health += healthRegen * maxHealth * dt;
-            }
-            if (health > maxHealth) health = maxHealth;
-        }
     }
 
     // Drawing the health bar below the entity

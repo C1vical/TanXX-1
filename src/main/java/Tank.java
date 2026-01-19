@@ -64,7 +64,7 @@ public class Tank extends Entity {
         this.level = 1;
         this.score = 0;
         this.levelScore = 0;
-        this.skillPoints = 0;
+        this.skillPoints = 30;
         this.levelProgress = 0f;
         updateStats();
         this.health = maxHealth;
@@ -76,7 +76,7 @@ public class Tank extends Entity {
     // Recalculates actual stats based on stat levels and player level
     public void updateStats() {
         // Some formulas are taken from the actual Diep.io game, others are created to fit ours
-        healthRegen = 0.05f + (0.04f * stats[0]);
+        healthRegen = 0.001f + (0.005f * (float) Math.pow(1.67,stats[0]));
         maxHealth = 50 + 2 * (level - 1) + 20 * stats[1];
         bodyDamage = (20 + 4 * stats[2]);
         bulletSpeed = 200 + 20 * stats[3];
@@ -91,7 +91,7 @@ public class Tank extends Entity {
             }
             levelUp = false; // Tank radius scaling: sizeFactor = 1.01 ^ (lvl - 1)
             radius = baseRadius * (float) Math.pow(1.01f, level - 1);
-            Graphics.zoomLevel = 2f - (0.016f * (level - 1));
+//            Graphics.zoomLevel = 1f - (0.016f * (level - 1));
             width = radius;
             height = radius;
         }
@@ -112,6 +112,8 @@ public class Tank extends Entity {
     // Main update loop for the tank
     @Override
     public void update() {
+        timeAlive += EntityManager.dt;
+
         // Update each barrel's timer
         for (Barrel barrel : barrels) {
             barrel.update();
@@ -193,7 +195,6 @@ public class Tank extends Entity {
     // Draw the tank and its barrel
     @Override
     public void draw() {
-
         for (Barrel barrel : barrels) {
             barrel.draw();
         }
@@ -264,6 +265,20 @@ public class Tank extends Entity {
         return stats;
     }
 
+    // Passive health regeneration
+    public void regenHealth(float dt) {
+        timeSinceLastHit += dt;
+
+        if (alive && health < maxHealth) {
+            if (timeSinceLastHit >= 30f) {
+                health += (healthRegen + 0.1f) * maxHealth * dt;
+            } else {
+                health += healthRegen * maxHealth * dt;
+            }
+            if (health > maxHealth) health = maxHealth;
+        }
+    }
+
     public void addScore(int amount) {
         score += amount;
         levelScore += amount;
@@ -314,5 +329,9 @@ public class Tank extends Entity {
 
     public void setUpgradeSkill(boolean upgradeSkill) {
         this.upgradeSkill = upgradeSkill;
+    }
+
+    public void updateNumShapesKilled() {
+        this.numShapesKilled++;
     }
 }

@@ -1,6 +1,8 @@
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
 
+
+// Build a zip command:     .\gradlew.bat distZIp
 public class Main {
     // Default screen dimensions
     public static final int DEFAULT_SCREEN_W = 1920;

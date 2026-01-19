@@ -22,9 +22,9 @@ public class Shape extends Entity {
 
     protected int xp;
 
-    public Shape(float orbitX, float orbitY, float orbitRadius, float angle, int sides, float maxHealth, float bodyDamage, Color color, Color stroke, int xp) {
+    public Shape(float orbitX, float orbitY, float radius, float orbitRadius, float angle, int sides, float maxHealth, float bodyDamage, Color color, Color stroke, int xp) {
         super(0, 0, angle);
-        this.radius = 25;
+        this.radius = radius;
         this.width = radius * 2;
         this.height = radius * 2;
         this.orbitX = orbitX;
@@ -134,4 +134,15 @@ public class Shape extends Entity {
     }
 
     public int getXp() { return xp; }
+
+    public void regenHealth(float dt) {
+        timeSinceLastHit += dt;
+
+        if (alive && health < maxHealth) {
+            if (timeSinceLastHit >= 30f) {
+                health += 0.1f * maxHealth * dt;
+                if (health > maxHealth) health = maxHealth;
+            }
+        }
+    }
 }
