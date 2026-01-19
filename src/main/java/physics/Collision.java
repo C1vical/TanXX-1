@@ -1,4 +1,6 @@
-import static com.raylib.Raylib.*;
+package physics;
+
+import static com.raylib.Raylib.Vector2;
 
 public class Collision {
 
@@ -11,10 +13,9 @@ public class Collision {
         if (checkPolygonAxes(a, b)) return false;
 
         // Check all axes of polygon B against A
-        if (checkPolygonAxes(b, a)) return false;
+        return !checkPolygonAxes(b, a);
 
         // If there is no separating axis found, polygons must overlap
-        return true;
     }
 
     // Checks all of the edge normals of polygon a against polygon b
@@ -68,7 +69,8 @@ public class Collision {
     // Check if a circle collides with a polygon using the Separating Axis Theorem as well
     public static boolean circlePolygonCollision(float circleX, float circleY, float radius, Polygon poly) {
         // First, perform a simple check using bounding boxes
-        if (circleX + radius < poly.minX || circleX - radius > poly.maxX || circleY + radius < poly.minY || circleY - radius > poly.maxY) return false;
+        if (circleX + radius < poly.minX || circleX - radius > poly.maxX || circleY + radius < poly.minY || circleY - radius > poly.maxY)
+            return false;
 
         // Same as the polygon-polygon collision check, but with a circle instead of a polygon
         Vector2[] vertices = poly.vertices;

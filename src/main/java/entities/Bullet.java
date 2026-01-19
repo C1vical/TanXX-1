@@ -1,8 +1,12 @@
+package entities;
+
+import core.EntityManager;
+
 import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Raylib.*;
 
-// Bullet class represents a projectile fired by tanks
+// entities.Bullet class represents a projectile fired by tanks
 // Inherits from the entity superclass, so it has position, velocity, and basic rendering
 public class Bullet extends Entity {
     private float lifeTime;     // How long the bullet exists before disappearing
@@ -16,7 +20,7 @@ public class Bullet extends Entity {
         this.height = radius;
         this.speed = bulletSpeed;
         this.color = newColor(24, 158, 140, 255);
-        this.maxHealth = bulletPenetration;     // Bullet penetration is the same as bullet health
+        this.maxHealth = bulletPenetration;     // entities.Bullet penetration is the same as bullet health
         this.health = maxHealth;
         this.bodyDamage = bulletDamage;
         this.lifeTime = 2f; // Lifetime in seconds

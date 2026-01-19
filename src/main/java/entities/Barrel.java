@@ -1,22 +1,24 @@
-import static com.raylib.Raylib.*;
+package entities;
+
+import core.EntityManager;
+
 import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
+import static com.raylib.Raylib.*;
 
 public class Barrel {
-    private float barrelW;
-    private float barrelH;
-    private float offset;
     private final float turretAngle;
-    private float recoil;
+    private final Texture barrelTexture;
+    private final Color barrelColor = newColor(100, 99, 107, 255);
+    private final Color barrelStrokeColor = newColor(57, 56, 59, 255);
+    private final int strokeWidth = 5;
 
     // Reload
-    float reloadSpeed;
-    float reloadTimer;
-
+    public float reloadSpeed;
+    public float reloadTimer;
     // Reload
-    float delay;
-    float delayTimer;
-
+    public float delay;
+    public float delayTimer;
     // Saved base stats
     float baseBarrelW;
     float baseBarrelH;
@@ -24,13 +26,14 @@ public class Barrel {
     float baseRecoil;
     float baseReloadSpeed;
     float baseDelay;
-
+    private float barrelW;
+    private float barrelH;
+    private float offset;
+    private float recoil;
     // Booleans
     private boolean canShoot;
     private boolean isShoot;
 
-    private final Texture barrelTexture;
-    private final Color barrelColor = newColor(100, 99, 107, 255);
 
     public Barrel(float barrelW, float barrelH, float offset, float turretAngle, float delay, float reloadSpeed, float recoil, Texture barrelTexture) {
         this.barrelW = barrelW;
@@ -73,42 +76,66 @@ public class Barrel {
             delayTimer = delay;
         }
 
-        // Barrel can shoot if both timers are done
+        // entities.Barrel can shoot if both timers are done
         canShoot = delayTimer <= 0f && reloadTimer <= 0f;
     }
 
     public void draw() {
         float angle = EntityManager.playerTank.angle + turretAngle * (float) Math.PI / 180f;
 
-        float offsetX = -(float)Math.sin(angle) * offset;
-        float offsetY = (float)Math.cos(angle) * offset;
+        float offsetX = -(float) Math.sin(angle) * offset;
+        float offsetY = (float) Math.cos(angle) * offset;
 
         Rectangle source = newRectangle(0, 0, barrelTexture.width(), barrelTexture.height());
         Rectangle dest = newRectangle(EntityManager.playerTank.centerX + offsetX, EntityManager.playerTank.centerY + offsetY, barrelW, barrelH);
-
         Vector2 origin = new Vector2().x(0).y(barrelH / 2f);
 
-        DrawTexturePro( barrelTexture, source, dest, origin, angle * (180f / (float)Math.PI), barrelColor);
+        DrawTexturePro(barrelTexture, source, dest, origin, angle * (180f / (float) Math.PI), barrelStrokeColor);
+        
+        dest = newRectangle(EntityManager.playerTank.centerX + offsetX, EntityManager.playerTank.centerY + offsetY, barrelW, barrelH);
+        origin = new Vector2().x(0).y(barrelH / 2f);;
+
+        DrawTexturePro(barrelTexture, source, dest, origin, angle * (180f / (float) Math.PI), barrelColor);
     }
 
-    public float getBarrelW() { return barrelW; }
-    public float getBarrelH() { return barrelH; }
-    public float getTurretAngle() { return turretAngle; }
-    public float getRecoil() { return recoil; }
+    public float getBarrelW() {
+        return barrelW;
+    }
+
+    public void setBarrelW(float barrelW) {
+        this.barrelW = barrelW;
+    }
+
+    public float getBarrelH() {
+        return barrelH;
+    }
+
+    public void setBarrelH(float barrelH) {
+        this.barrelH = barrelH;
+    }
+
+    public float getTurretAngle() {
+        return turretAngle;
+    }
+
+    public float getRecoil() {
+        return recoil;
+    }
+
+    public void setRecoil(float recoil) {
+        this.recoil = recoil;
+    }
 
     public float getOffset() {
         return offset;
     }
 
+    public void setOffset(float offset) {
+        this.offset = offset;
+    }
+
     public boolean canShoot() {
         return canShoot;
     }
-
-
-
-    public void setBarrelW(float barrelW) { this.barrelW = barrelW; }
-    public void setBarrelH(float barrelH) { this.barrelH = barrelH; }
-    public void setOffset(float offset) { this.offset = offset; }
-    public void setRecoil(float recoil) { this.recoil = recoil; }
 
 }

@@ -1,9 +1,16 @@
-import static com.raylib.Raylib.*;
+package core;
+
+import entities.Bullet;
+import entities.Shape;
+import entities.Tank;
+import screens.GameScreen;
+
 import static com.raylib.Colors.*;
 import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
+import static com.raylib.Raylib.*;
 
-// Graphics class centralizes all drawing and UI layout logic
+// core.Graphics class centralizes all drawing and UI layout logic
 public class Graphics {
 
     // Color when a button is hovered
@@ -16,10 +23,47 @@ public class Graphics {
     public static final Color borderGridLineColour = newColor(45, 45, 45, 255);
     public static final int tileSize = 20;
 
+    // Minimap properties
+    public static float miniMapX;
+    public static float miniMapY;
+    public static final float miniMapW = 200;
+    public static final float miniMapH = 200;
+    public static final Color miniMapColour = newColor(148, 148, 148, 200);
+    public static final Color miniMapBorderColour = newColor(71, 71, 71, 200);
+
+    // Stats menu properties
+    public static final String[] statNames = {
+            "Health Regen", "Max Health", "Body Damage", "Bullet Speed",
+            "Bullet Penetration", "Bullet Damage", "Reload Speed", "Movement Speed"
+    };
+    public static final Color[] statColors = {
+            newColor(252, 173, 118, 255),
+            newColor(249, 67, 255, 255),
+            newColor(133, 67, 255, 255),
+            newColor(67, 127, 255, 255),
+            newColor(255, 222, 67, 255),
+            newColor(255, 67, 67, 255),
+            newColor(130, 255, 67, 255),
+            newColor(67, 255, 249, 255)
+    };
+
+    public static final float statsMenuW = 200;
+    public static final float statsItemH = 25;
+    public static final float statsMenuH = statNames.length * (statsItemH + 5);
+    public static float startY;
+    public static float statsMenuAnim = 0f; // 0 = collapsed, 1 = expanded
+    public static float statsMenuTimer = 0f; // Time to keep the menu open after keypress
+    public static final float hiddenX = -statsMenuW - 5;
+    public static final float skillTextX = 15;
+
+    // Lerp constants for smooth transitions
+    public static final float movementLerp = 0.1f;
+    public static final float zoomLerp = 0.1f;
+
     // Display properties
     public static float padding = 15;
 
-    // Settings UI properties
+    // Settings properties
     public static int settingsSize = 75;
     public static Rectangle settingsRect;
     public static boolean settingsHover = false;
@@ -35,10 +79,10 @@ public class Graphics {
     // Score bar properties
     public static float scoreBarW = 250;
     public static float scoreBarH = 20;
-    public static float margin = 10;
     public static float scoreBarX;
     public static float scoreBarY;
     public static int scoreTextFont = 15;
+    public static float margin = 10;
 
     // Player name display properties
     public static String nameText = "Player 1";
@@ -46,46 +90,20 @@ public class Graphics {
     public static float nameTextX;
     public static float nameTextY;
 
-    // Minimap properties
-    public static final float miniMapW = 200;
-    public static final float miniMapH = 200;
-    public static float miniMapX;
-    public static float miniMapY;
-    public static final Color miniMapColour = newColor(148, 148, 148, 200);
-    public static final Color miniMapBorderColour = newColor(71, 71, 71, 200);
+    // Upgraded menu properties
+    public static float upgradeMenuX = padding;
+    public static float upgradeMenuY = padding;
+    public static float upgradeMenuW = 400f;
+    public static float upgradeMenuYH= 400f;
 
-    // Upgrade Menu configuration
-    public static final String[] statNames = {
-            "Health Regen", "Max Health", "Body Damage", "Bullet Speed",
-            "Bullet Penetration", "Bullet Damage", "Reload Speed", "Movement Speed"
-    };
-    public static final Color[] statColors = {
-            newColor(252, 173, 118, 255),
-            newColor(249, 67, 255, 255),
-            newColor(133, 67, 255, 255),
-            newColor(67, 127, 255, 255),
-            newColor(255, 222, 67, 255),
-            newColor(255, 67, 67, 255),
-            newColor(130, 255, 67, 255),
-            newColor(67, 255, 249, 255)
-    };
-    public static final float upgradeMenuWidth = 200;
-    public static final float upgradeItemHeight = 25;
-    public static final float menuH = statNames.length * (upgradeItemHeight + 5);
-    public static float startY;
-    public static final float hiddenX = -upgradeMenuWidth - 5;
-    public static float upgradeMenuAnim = 0f; // 0 = collapsed, 1 = expanded
-    public static float upgradeMenuTimer = 0f; // Time to keep the menu open after keypress
-    public static final float skillTextX = 15;
-
-    // MenuScreen UI layout rectangles
+    // Menu screen layout rectangles
     public static Rectangle backgroundRect;
     public static Rectangle logoRect;
     public static Rectangle playRect;
     public static Rectangle creditsRect;
     public static Rectangle exitRect;
 
-    // MenuScreen UI states
+    // Menu screen states
     public static boolean showCredits = false;
     public static boolean playHover = false;
     public static boolean creditsHover = false;
@@ -94,14 +112,10 @@ public class Graphics {
     // Camera and viewport bounds
     public static Camera2D camera = new Camera2D();
     public static float camLeft, camRight, camTop, camBottom;
-    public static final float defaultZoom = 1.5f;
     public static float zoomLevel = 1.5f;
+    public static final float defaultZoom = 1.5f;
 
-    // Lerp constants for smooth transitions
-    public static final float movementLerp = 0.1f;
-    public static final float zoomLerp = 0.1f;
-
-    // Updates camera position and zoom based on player position and mouse scroll
+    // Updates camera position and zoom based on player position
     public static void updateCamera(Tank playerTank) {
         // Center camera
         camera.offset(new Vector2().x(GetScreenWidth() / 2f).y(GetScreenHeight() / 2f));
@@ -111,14 +125,9 @@ public class Graphics {
         camera.target().x(camera.target().x() + (desiredTarget.x() - camera.target().x()) * movementLerp);
         camera.target().y(camera.target().y() + (desiredTarget.y() - camera.target().y()) * movementLerp);
 
-//        System.out.println((camRight - camLeft) + " " + (camBottom - camTop));
-
-        // Zoom only when settings are closed
-        if (!showSettings) {
-//            getZoomLevel();
-            float desiredZoom = zoomLevel * playerTank.zoomFactor;
-            camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
-        }
+        // Zoom
+        float desiredZoom = zoomLevel * playerTank.zoomFactor;
+        camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
     }
 
     public static void getZoomLevel() {
@@ -151,10 +160,13 @@ public class Graphics {
         nameTextX = GameState.screenW / 2f - (float) MeasureText(nameText, nameTextFont) / 2;
         nameTextY = scoreBarY - margin - nameTextFont;
 
-        startY = GameState.screenH - menuH - 50;
+        startY = GameState.screenH - statsMenuH - 50;
 
         miniMapX = GameState.screenW - miniMapW - padding * ratioW;
         miniMapY = padding * ratioH;
+
+        upgradeMenuX = padding * ratioW;
+        upgradeMenuY = padding * ratioH;
     }
 
     // Update menu layout based on screen radius
@@ -166,20 +178,10 @@ public class Graphics {
         float ratioH = GameState.screenH / (float) GameState.DEFAULT_SCREEN_H;
 
         backgroundRect = newRectangle(0, 0, GameState.screenW, GameState.screenH);
-
-        float logoW = 950 * ratioW;
-        float logoH = 375 * ratioH;
-        logoRect = newRectangle(GameState.screenW / 2f - logoW / 2, 125 * ratioH, logoW, logoH);
-
-        float playW = 900 * ratioW;
-        float playH = 360 * ratioH;
-        playRect = newRectangle(GameState.screenW / 2f - playW / 2, GameState.screenH / 2f, playW, playH);
-
-        float credW = 300f * ratioW;
-        float credH = 120f * ratioH;
-        creditsRect = newRectangle(padding * ratioW, GameState.screenH - credH - padding * ratioH, credW, credH);
-
-        exitRect = newRectangle(GameState.screenW - credW - padding * ratioW, GameState.screenH - credH - padding * ratioH, credW, credH);
+        logoRect = newRectangle(GameState.screenW / 2f - 950 * ratioW / 2, 125 * ratioH, 950 * ratioW, 375 * ratioH);
+        playRect = newRectangle(GameState.screenW / 2f - 900 * ratioW / 2, GameState.screenH / 2f, 900 * ratioW, 360 *  ratioH);
+        creditsRect = newRectangle(padding * ratioW, GameState.screenH - 120f * ratioH - padding * ratioH, 300f * ratioW, 120f * ratioH);
+        exitRect = newRectangle(GameState.screenW - 300f * ratioW - padding * ratioW, GameState.screenH - 120f * ratioH - padding * ratioH, 300f * ratioW, 120f * ratioH);
     }
 
     // Draw a texture with scaling applied to a destination rectangle
@@ -209,7 +211,7 @@ public class Graphics {
 
         // Vertical grid lines
         int startX = (int) Math.floor(camLeft / tileSize) * tileSize;
-        int endX = (int)Math.ceil(camRight / tileSize) * tileSize;
+        int endX = (int) Math.ceil(camRight / tileSize) * tileSize;
 
         for (int x = startX; x <= endX; x += tileSize) {
             if (x < drawLeft || x > drawRight) {
@@ -221,9 +223,9 @@ public class Graphics {
             }
         }
 
-        // Horizontal grid liens
+        // Horizontal grid lines
         int startY = (int) Math.floor(camTop / tileSize) * tileSize;
-        int endY = (int)Math.ceil(camBottom / tileSize) * tileSize;
+        int endY = (int) Math.ceil(camBottom / tileSize) * tileSize;
 
         for (int y = startY; y <= endY; y += tileSize) {
             if (y < drawTop || y > drawBottom) {
@@ -276,11 +278,11 @@ public class Graphics {
         DrawText(nameText, (int) nameTextX, (int) nameTextY, nameTextFont, WHITE);
     }
 
-    public static void drawUpgradeMenu() {
+    public static void drawStatsMenu() {
         if (EntityManager.deathScreen) return;
 
         // Animated X position
-        float x = hiddenX + (padding - hiddenX) * upgradeMenuAnim;
+        float x = hiddenX + (padding - hiddenX) * statsMenuAnim;
 
         // Locked state visuals
         boolean locked = false;
@@ -297,8 +299,8 @@ public class Graphics {
         DrawText("x" + EntityManager.playerTank.getSkillPoints(), (int) skillTextX, (int) startY - 30, 25, skillTextColor);
 
         for (int i = 0; i < statNames.length; i++) {
-            float y = startY + i * (upgradeItemHeight + 5);
-            Rectangle rect = newRectangle(x, y, upgradeMenuWidth, upgradeItemHeight);
+            float y = startY + i * (statsItemH + 5);
+            Rectangle rect = newRectangle(x, y, statsMenuW, statsItemH);
 
             // Draw background
             DrawRectangleRounded(rect, 0.4f, 20, bgColor);
@@ -308,7 +310,7 @@ public class Graphics {
             // Gap between segments
             float segmentGap = 2;
             // Width of each segment
-            float segmentWidth = (upgradeMenuWidth - 10 - (7 * segmentGap)) / 7f;
+            float segmentWidth = (statsMenuW - 10 - (7 * segmentGap)) / 7f;
 
             // Draw stat level segments
             for (int j = 0; j < 7; j++) {
@@ -326,10 +328,10 @@ public class Graphics {
             }
 
             // Draw the stat name
-            DrawText(statNames[i], (int) x + 10, (int) y  + 3, 12, statTextColor);
+            DrawText(statNames[i], (int) x + 10, (int) y + 3, 12, statTextColor);
 
             // Draw the hotkey number
-            DrawText(String.valueOf(i + 1), (int) (x + upgradeMenuWidth - padding), (int) y + 3, 12, locked ? DARKGRAY : GRAY);
+            DrawText(String.valueOf(i + 1), (int) (x + statsMenuW - padding), (int) y + 3, 12, locked ? DARKGRAY : GRAY);
 
             // Draw highlight if hovered
             if (showSettings) continue;
@@ -354,7 +356,7 @@ public class Graphics {
         DrawRectangleRoundedLines(rect, 0.2f, 10, DARKGRAY);
 
         DrawText("Settings", boxX + boxW / 2 - MeasureText("Settings", 50) / 2, boxY + 20, 50, BLACK);
-        DrawText("Press SPACE to close", boxX + boxW / 2 - MeasureText("Press SPACE to close", 20) / 2,  boxY + 165, 20, BLACK);
+        DrawText("Press SPACE to close", boxX + boxW / 2 - MeasureText("Press SPACE to close", 20) / 2, boxY + 165, 20, BLACK);
     }
 
     public static void drawMiniMap() {
@@ -368,9 +370,8 @@ public class Graphics {
         DrawCircleV(new Vector2().x(miniMapX + miniMapW * x).y(miniMapY + miniMapH * y), 5, RED);
     }
 
-    public static void drawUpgradeScreen() {
-        DrawRectangle(0, 0, GameState.screenW, GameState.screenH, newColor(0, 0, 0, 180));
-        int boxW = 1000, boxH = 600, boxX = (GameState.screenW - boxW) / 2, boxY = (GameState.screenH - boxH) / 2;
+    public static void drawUpgradeMenu() {
+        DrawRectangleV(new Vector2().x(padding).y(padding), new Vector2().x(400).y(400), newColor(140, 140, 140, 150));
     }
 
     public static void drawDeathScreen() {

@@ -1,6 +1,11 @@
+package screens;
+
+import core.GameState;
+import core.Graphics;
+import core.ScreenType;
+
+import static com.raylib.Colors.WHITE;
 import static com.raylib.Raylib.*;
-import static com.raylib.Colors.*;
-import static com.raylib.Helpers.newRectangle;
 
 public class MenuScreen extends GameState {
 
@@ -32,9 +37,9 @@ public class MenuScreen extends GameState {
     public void update() {
         // Mouse handling
         Vector2 mouse = GetMousePosition();
-        Graphics.playHover = isHover(Graphics.playRect, mouse);
-        Graphics.creditsHover = isHover(Graphics.creditsRect, mouse);
-        Graphics.exitHover = isHover(Graphics.exitRect, mouse);
+        Graphics.playHover = CheckCollisionPointRec(mouse, Graphics.playRect);
+        Graphics.creditsHover = CheckCollisionPointRec(mouse, Graphics.creditsRect);
+        Graphics.exitHover = CheckCollisionPointRec(mouse, Graphics.exitRect);
 
         // Handle mouse clicks (only when credits are NOT open)
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !Graphics.showCredits) {

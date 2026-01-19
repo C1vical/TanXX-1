@@ -1,4 +1,9 @@
-import static com.raylib.Raylib.*;
+package tanks.tier1;
+
+import entities.Barrel;
+import entities.Tank;
+
+import static com.raylib.Raylib.Texture;
 
 // The Basic class is a simple, standard type of Tank
 // Inherits all behavior from the Tank superclass
@@ -14,7 +19,7 @@ public class Basic extends Tank {
         this.bulletSpeedFactor = 1f;
         this.zoomFactor = 1f;
         Barrel barrel1 = new Barrel(radius, radius / 2, 0, 0, 0, 0.6f, 50, barrelTexture);
-        this.barrels = new Barrel[] {barrel1};
+        this.barrels = new Barrel[]{barrel1};
         updateStats(); // Ensure initial radius and stats are calculated now that barrels exist
     }
 }

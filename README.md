@@ -13,7 +13,7 @@ Right-click on the example and select `run`.
 
 ## Use it as the basis of your own game.
 
-Edit `Main.java` with your own code.  (You can delete the examples.)  Then
+Edit `core.Main.java` with your own code.  (You can delete the examples.)  Then
 
 ## Sharing your game
 

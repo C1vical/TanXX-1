@@ -1,11 +1,20 @@
+package entities;
+
+import core.EntityManager;
+import core.Graphics;
+
 import static com.raylib.Colors.RAYWHITE;
 import static com.raylib.Colors.RED;
 import static com.raylib.Helpers.newColor;
-import static com.raylib.Raylib.*;
 import static com.raylib.Helpers.newRectangle;
+import static com.raylib.Raylib.*;
 
-// Tank class represents the player or any AI-controlled tanks
+// Tank class represents the player
 public class Tank extends Entity {
+    private final int[] levelXP = {4, 9, 15, 22, 28, 35, 44, 54, 64, 75, 87, 101, 117, 132, 161, 161, 192, 215, 251, 259, 299, 322, 388, 398, 450, 496, 546, 600, 659, 723, 791, 839, 889, 942, 999, 1059, 1093, 1190, 1261, 1337, 1417, 1502, 1593, 1687, 0};
+    // Upgrade
+    public boolean upgradeTank;
+
     // Movement and physics properties
     protected float bounceStrength = 0.8f;
     protected float inputVelX = 0;
@@ -13,18 +22,20 @@ public class Tank extends Entity {
     protected float baseRadius = 50f;
 
     // Barrel properties
-    protected Barrel[] barrels;
+    public Barrel[] barrels;
     protected Color barrelColor = newColor(100, 99, 107, 255);
     protected Color barrelStrokeColor = newColor(55, 55, 55, 255);
+    protected float bulletSpeedFactor;
+    public float zoomFactor;
 
     // Stats
     // Stat levels (0-8 for each stat)
     // stats[0]: Health regen
     // stats[1]: Max health
     // stats[2]: Body damage
-    // stats[3]: Bullet speed
-    // stats[4]: Bullet penetration
-    // stats[5]: Bullet damage
+    // stats[3]: entities.Bullet speed
+    // stats[4]: entities.Bullet penetration
+    // stats[5]: entities.Bullet damage
     // stats[6]: Reload speed
     // stats[7]: Movement speed
     private int[] stats = new int[8];
@@ -39,21 +50,15 @@ public class Tank extends Entity {
     private int levelScore;
     private int level;
     private float levelProgress;
-    private final int[] levelXP = {4,9,15,22,28,35,44,54,64,75,87,101,117,132,161,161,192,215,251,259,299,322,388,398,450,496,546,600,659,723,791,839,889,942,999,1059,1093,1190,1261,1337,1417,1502,1593,1687, 0};
     private int skillPoints;
     private boolean upgradeSkill = false;
 
     // Game statistics
     private float timeAlive;
+
     private int numShapesKilled;
-
-    // Upgrade
-    public boolean upgradeTank;
-
     // Tank specific factors
     private float sizeFactor;
-    protected float bulletSpeedFactor;
-    protected float zoomFactor;
 
     // Constructor
     public Tank(float centerX, float centerY, float angle, Texture texture) {
@@ -80,7 +85,7 @@ public class Tank extends Entity {
     // Recalculates actual stats based on stat levels and player level
     public void updateStats() {
         // Some formulas are taken from the actual Diep.io game, others are created to fit ours
-        healthRegen = 0.001f + (0.005f * (float) Math.pow(1.67,stats[0]));
+        healthRegen = 0.001f + (0.005f * (float) Math.pow(1.67, stats[0]));
         maxHealth = 50 + 2 * (level - 1) + 20 * stats[1];
         bodyDamage = (20 + 4 * stats[2]);
         bulletSpeed = (200 + 20 * stats[3]) * bulletSpeedFactor;
@@ -90,7 +95,7 @@ public class Tank extends Entity {
             b.reloadSpeed = b.baseReloadSpeed - 0.04f * stats[6];
         }
         speed = 150 + (10 * stats[7]);
-        Graphics.zoomLevel  = Graphics.defaultZoom * (float) Math.pow(0.995f, level - 1);
+        Graphics.zoomLevel = Graphics.defaultZoom * (float) Math.pow(0.995f, level - 1);
         health = maxHealth * healthRatio;
 
         // Update delay
@@ -117,7 +122,7 @@ public class Tank extends Entity {
         }
     }
 
-    // Main update loop for the tank
+    // core.Main update loop for the tank
     @Override
     public void update() {
         timeAlive += EntityManager.dt;
@@ -151,7 +156,7 @@ public class Tank extends Entity {
 
         if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) moveY += 1;
         if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) moveY -= 1;
-        if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT))  moveX -= 1;
+        if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) moveX -= 1;
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) moveX += 1;
 
         // Diagonal normalization
@@ -183,7 +188,7 @@ public class Tank extends Entity {
             velocityX = -(inputVelX + velocityX) * bounceStrength - inputVelX;
         }
 
-        if (centerX > EntityManager.worldW  && (inputVelX + velocityX) > 0) {
+        if (centerX > EntityManager.worldW && (inputVelX + velocityX) > 0) {
             centerX = EntityManager.worldW;
             velocityX = -(inputVelX + velocityX) * bounceStrength - inputVelX;
         }
@@ -213,8 +218,8 @@ public class Tank extends Entity {
             currentColor = RED;
         }
 
-        // Tank body
-        Rectangle source = newRectangle(0, 0, texture.width() , texture.height());
+        // entities.Tank body
+        Rectangle source = newRectangle(0, 0, texture.width(), texture.height());
         Rectangle dest = newRectangle(centerX, centerY, width, height);
         Vector2 origin = new Vector2().x(width / 2).y(height / 2);
         DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), currentColor);
@@ -244,11 +249,17 @@ public class Tank extends Entity {
         DrawCircleLinesV(new Vector2().x(centerX).y(centerY), radius / 2, hitboxColor);
     }
 
-    public float getBulletSpeed() { return bulletSpeed; }
+    public float getBulletSpeed() {
+        return bulletSpeed;
+    }
 
-    public float getBulletDamage() { return bulletDamage; }
+    public float getBulletDamage() {
+        return bulletDamage;
+    }
 
-    public float getBulletPenetration() { return bulletPenetration; }
+    public float getBulletPenetration() {
+        return bulletPenetration;
+    }
 
     public int getLevel() {
         return level;

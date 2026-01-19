@@ -1,9 +1,19 @@
-import static com.raylib.Raylib.*;
-import static com.raylib.Colors.*;
+package entities;
 
-// Shape class for all shapes in the game, extends off entity class
+import core.EntityManager;
+import physics.Polygon;
+
+import static com.raylib.Colors.RAYWHITE;
+import static com.raylib.Colors.RED;
+import static com.raylib.Raylib.*;
+
+// entities.Shape class for all shapes in the game, extends off entity class
 
 public class Shape extends Entity {
+    public Polygon polygon;
+    public Color color;     // Fill color
+    public Color stroke;    // Stroke color
+    protected int xp;
     // Rotation and orbit variables
     float rotationSpeed;
     float orbitAngle;
@@ -11,16 +21,9 @@ public class Shape extends Entity {
     float orbitRadius;
     float orbitX;
     float orbitY;
-
     int sides;  // Number of sides
     float step; // Angle between vertices
     Vector2[] vertices; // Vertices of the shape
-    public Polygon polygon;
-
-    public Color color;     // Fill color
-    public Color stroke;    // Stroke color
-
-    protected int xp;
 
     public Shape(float orbitX, float orbitY, float radius, float orbitRadius, float angle, int sides, float maxHealth, float bodyDamage, Color color, Color stroke, int xp) {
         super(0, 0, angle);
@@ -135,7 +138,9 @@ public class Shape extends Entity {
         DrawPolyLines(new Vector2().x(centerX).y(centerY), sides, radius, angle * (180f / (float) Math.PI), hitboxColor);
     }
 
-    public int getXp() { return xp; }
+    public int getXp() {
+        return xp;
+    }
 
     public void regenHealth(float dt) {
         timeSinceLastHit += dt;

@@ -1,6 +1,15 @@
-import static com.raylib.Raylib.*;
-import static com.raylib.Colors.*;
+package screens;
+
+import core.EntityManager;
+import core.GameState;
+import core.Graphics;
+import core.ScreenType;
+import tanks.tier1.*;
+import tanks.tier2.FlankGuard;
+
+import static com.raylib.Colors.WHITE;
 import static com.raylib.Helpers.newRectangle;
+import static com.raylib.Raylib.*;
 
 public class GameScreen extends GameState {
 
@@ -18,7 +27,7 @@ public class GameScreen extends GameState {
 
         float randX = EntityManager.worldW * (float) Math.random();
         float randY = EntityManager.worldH * (float) Math.random();
-        EntityManager.playerTank = new Basic(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+        EntityManager.playerTank = new FlankGuard(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
 
         Graphics.camera = new Camera2D();
         Graphics.camera.target(new Vector2().x(EntityManager.playerTank.getCenterX()).y(EntityManager.playerTank.getCenterY()));
@@ -29,6 +38,25 @@ public class GameScreen extends GameState {
         EntityManager.spawnShapes();
 
         Graphics.updateGameLayout();
+    }
+
+    public static void upgradeMenuAnimate(Vector2 mouseScreen) {
+        if (!EntityManager.deathScreen) {
+            if (Graphics.statsMenuTimer > 0) Graphics.statsMenuTimer -= EntityManager.dt;
+
+            // The hover area expands as the menu pops out
+            float hoverWidth = 50 + (Graphics.statsMenuW) * Graphics.statsMenuAnim;
+            Rectangle hoverArea = newRectangle(0, Graphics.startY - 50, hoverWidth, Graphics.statsMenuH + 50);
+            if (CheckCollisionPointRec(mouseScreen, hoverArea) || Graphics.statsMenuTimer > 0 || EntityManager.playerTank.isUpgradeSkill()) {
+                Graphics.statsMenuAnim += 8f * EntityManager.dt;
+            } else {
+                Graphics.statsMenuAnim -= 8f * EntityManager.dt;
+            }
+        } else {
+            Graphics.statsMenuAnim -= 8f * EntityManager.dt;
+        }
+        if (Graphics.statsMenuAnim > 1f) Graphics.statsMenuAnim = 1f;
+        if (Graphics.statsMenuAnim < 0f) Graphics.statsMenuAnim = 0f;
     }
 
     // Update loop
@@ -64,7 +92,7 @@ public class GameScreen extends GameState {
         }
 
         // Settings buttons hover and click
-        if (isHover(Graphics.settingsRect, mouseScreen)) {
+        if (CheckCollisionPointRec(mouseScreen, Graphics.settingsRect)) {
             Graphics.settingsHover = true;
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                 Graphics.showSettings = true;
@@ -78,26 +106,6 @@ public class GameScreen extends GameState {
             Graphics.showSettings = false;
         }
     }
-
-    public static void upgradeMenuAnimate(Vector2 mouseScreen) {
-        if (!EntityManager.deathScreen) {
-            if (Graphics.upgradeMenuTimer > 0) Graphics.upgradeMenuTimer -= EntityManager.dt;
-
-            // The hover area expands as the menu pops out
-            float hoverWidth = 50 + (Graphics.upgradeMenuWidth) * Graphics.upgradeMenuAnim;
-            Rectangle hoverArea = newRectangle(0, Graphics.startY - 50, hoverWidth, Graphics.menuH + 50);
-            if (CheckCollisionPointRec(mouseScreen, hoverArea) || Graphics.upgradeMenuTimer > 0 || EntityManager.playerTank.isUpgradeSkill()) {
-                Graphics.upgradeMenuAnim += 8f * EntityManager.dt;
-            } else {
-                Graphics.upgradeMenuAnim -= 8f * EntityManager.dt;
-            }
-        } else {
-            Graphics.upgradeMenuAnim -= 8f * EntityManager.dt;
-        }
-        if (Graphics.upgradeMenuAnim > 1f) Graphics.upgradeMenuAnim = 1f;
-        if (Graphics.upgradeMenuAnim < 0f) Graphics.upgradeMenuAnim = 0f;
-    }
-
 
     // Input handling
     private void handleInput(Vector2 mouseScreen) {
@@ -116,24 +124,48 @@ public class GameScreen extends GameState {
 
         // Upgrade handling
         // Animated X position for interaction
-        float hiddenX = -Graphics.upgradeMenuWidth - 5;
+        float hiddenX = -Graphics.statsMenuW - 5;
         float targetX = Graphics.padding;
-        float x = hiddenX + (targetX - hiddenX) * Graphics.upgradeMenuAnim;
+        float x = hiddenX + (targetX - hiddenX) * Graphics.statsMenuAnim;
 
         // Hotkeys 1-8 for upgrading stats
-        if (IsKeyPressed(KEY_ONE)) { EntityManager.playerTank.upgradeStat(0); Graphics.upgradeMenuTimer = 2.0f; }
-        if (IsKeyPressed(KEY_TWO)) { EntityManager.playerTank.upgradeStat(1); Graphics.upgradeMenuTimer = 2.0f; }
-        if (IsKeyPressed(KEY_THREE)) { EntityManager.playerTank.upgradeStat(2); Graphics.upgradeMenuTimer = 2.0f; }
-        if (IsKeyPressed(KEY_FOUR)) { EntityManager.playerTank.upgradeStat(3); Graphics.upgradeMenuTimer = 2.0f; }
-        if (IsKeyPressed(KEY_FIVE)) { EntityManager.playerTank.upgradeStat(4); Graphics.upgradeMenuTimer = 2.0f; }
-        if (IsKeyPressed(KEY_SIX)) { EntityManager.playerTank.upgradeStat(5); Graphics.upgradeMenuTimer = 2.0f; }
-        if (IsKeyPressed(KEY_SEVEN)) { EntityManager.playerTank.upgradeStat(6); Graphics.upgradeMenuTimer = 2.0f; }
-        if (IsKeyPressed(KEY_EIGHT)) { EntityManager.playerTank.upgradeStat(7); Graphics.upgradeMenuTimer = 2.0f; }
+        if (IsKeyPressed(KEY_ONE)) {
+            EntityManager.playerTank.upgradeStat(0);
+            Graphics.statsMenuTimer = 2.0f;
+        }
+        if (IsKeyPressed(KEY_TWO)) {
+            EntityManager.playerTank.upgradeStat(1);
+            Graphics.statsMenuTimer = 2.0f;
+        }
+        if (IsKeyPressed(KEY_THREE)) {
+            EntityManager.playerTank.upgradeStat(2);
+            Graphics.statsMenuTimer = 2.0f;
+        }
+        if (IsKeyPressed(KEY_FOUR)) {
+            EntityManager.playerTank.upgradeStat(3);
+            Graphics.statsMenuTimer = 2.0f;
+        }
+        if (IsKeyPressed(KEY_FIVE)) {
+            EntityManager.playerTank.upgradeStat(4);
+            Graphics.statsMenuTimer = 2.0f;
+        }
+        if (IsKeyPressed(KEY_SIX)) {
+            EntityManager.playerTank.upgradeStat(5);
+            Graphics.statsMenuTimer = 2.0f;
+        }
+        if (IsKeyPressed(KEY_SEVEN)) {
+            EntityManager.playerTank.upgradeStat(6);
+            Graphics.statsMenuTimer = 2.0f;
+        }
+        if (IsKeyPressed(KEY_EIGHT)) {
+            EntityManager.playerTank.upgradeStat(7);
+            Graphics.statsMenuTimer = 2.0f;
+        }
 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             for (int i = 0; i < Graphics.statNames.length; i++) {
-                float y = Graphics.startY + i * (Graphics.upgradeItemHeight + 5);
-                Rectangle rect = newRectangle(x, y, Graphics.upgradeMenuWidth, Graphics.upgradeItemHeight);
+                float y = Graphics.startY + i * (Graphics.statsItemH + 5);
+                Rectangle rect = newRectangle(x, y, Graphics.statsMenuW, Graphics.statsItemH);
                 if (CheckCollisionPointRec(mouseScreen, rect)) {
                     EntityManager.playerTank.upgradeStat(i);
                     return; // Don't fire
@@ -142,9 +174,10 @@ public class GameScreen extends GameState {
         }
 
         // Manual firing
-        if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT)) && EntityManager.playerTank.canFire() && !isHover(Graphics.settingsRect, mouseScreen)) {
+        if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT)) && EntityManager.playerTank.canFire() && !CheckCollisionPointRec(mouseScreen, Graphics.settingsRect)) {
             EntityManager.fireBullet();
         }
+
         // Toggle features
         if (IsKeyPressed(KEY_Q)) EntityManager.addShape();            // Add shape
         if (IsKeyPressed(KEY_B)) EntityManager.hitbox = !EntityManager.hitbox;      // Toggle hitbox
@@ -196,7 +229,11 @@ public class GameScreen extends GameState {
 
         // Draw UI elements that are not affected by the camera
         Graphics.drawSettings();
-        Graphics.drawUpgradeMenu();
+        Graphics.drawStatsMenu();
+
+        if (EntityManager.playerTank.upgradeTank) {
+            Graphics.drawUpgradeMenu();
+        }
 
         if (!EntityManager.deathScreen) {
             Graphics.drawLevelBar();

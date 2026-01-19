@@ -1,7 +1,11 @@
+package physics;
+
+import entities.Shape;
+
 import java.util.ArrayList;
 import java.util.List;
 
-// SpatialGrid is used for optimized collision detection
+// physics.SpatialGrid is used for optimized collision detection
 // It divides the world into a grid of cells, so we only check collisions between entities in nearby cells
 public class SpatialGrid {
     private final int cellSize;

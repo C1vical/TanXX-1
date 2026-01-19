@@ -1,5 +1,10 @@
+package core;
+
+import screens.GameScreen;
+import screens.MenuScreen;
+
+import static com.raylib.Colors.RAYWHITE;
 import static com.raylib.Raylib.*;
-import static com.raylib.Colors.*;
 
 
 // Build a zip command:     .\gradlew.bat distZIp
@@ -11,7 +16,7 @@ public class Main {
     // Keeps track of which screen should currently be shown (Menu, Game, or Exit)
     public static ScreenType currentScreenType = ScreenType.MENU;
 
-    // The active screen object (MenuScreen or GameScreen)
+    // The active screen object (screens.MenuScreen or screens.GameScreen)
     public static GameState currentScreen;
 
     public static void main(String[] args) {
@@ -41,7 +46,7 @@ public class Main {
         // Begin on the menu screen
         currentScreen = new MenuScreen();
 
-        // Main game loop
+        // core.Main game loop
         while (!WindowShouldClose() && currentScreenType != ScreenType.EXIT) {
 
             // Update current screen
@@ -61,7 +66,8 @@ public class Main {
                         EntityManager.resetGame();
                         currentScreen = new GameScreen();
                     }
-                    case EXIT -> {}
+                    case EXIT -> {
+                    }
                 }
 
                 currentScreenType = requested;

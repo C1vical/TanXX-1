@@ -1,15 +1,17 @@
-import static com.raylib.Colors.*;
+package entities;
+
+import static com.raylib.Colors.DARKGRAY;
+import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Raylib.*;
-import static com.raylib.Helpers.newColor;
 
-// Entity class is the base class for all objects in the game world (Tanks, Shapes, Bullets)
+// entities.Entity class is the base class for all objects in the game world (Tanks, Shapes, Bullets)
 // It contains common properties like position, health, and basic movement logic
 public abstract class Entity {
     // Position and movement fields
     protected float centerX;
     protected float centerY;
-    protected float angle;
+    public float angle;
     protected float speed;
     protected float radius;
     protected float width;
@@ -32,14 +34,12 @@ public abstract class Entity {
     protected float timeSinceDeath;
 
     protected float healthRatio;
-
-    // Health bar dimensions
-    float healthBarX, healthBarY, healthBarWidth, healthBarHeight;
-
     // Physics fields
     protected float velocityX;
     protected float velocityY;
     protected float decay = 6.0f;
+    // Health bar dimensions
+    float healthBarX, healthBarY, healthBarWidth, healthBarHeight;
 
     // Constructor
     public Entity(float centerX, float centerY, float angle) {
@@ -56,19 +56,45 @@ public abstract class Entity {
 
     // Abstract methods to be implemented by subclasses
     abstract void update();
+
     abstract void draw();
 
     // Getters and Setters
-    public float getCenterX() { return centerX; }
-    public float getCenterY() { return centerY; }
-    public void setAngle(float angle) { this.angle = angle; }
-    public float getRadius() { return radius; }
-    public float getWidth() { return width; }
-    public boolean isAlive() { return alive; }
+    public float getCenterX() {
+        return centerX;
+    }
 
-    public float getHealth() { return health; }
-    public float getMaxHealth() { return maxHealth; }
-    public float getBodyDamage() { return bodyDamage; }
+    public float getCenterY() {
+        return centerY;
+    }
+
+    public void setAngle(float angle) {
+        this.angle = angle;
+    }
+
+    public float getRadius() {
+        return radius;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public float getHealth() {
+        return health;
+    }
+
+    public float getMaxHealth() {
+        return maxHealth;
+    }
+
+    public float getBodyDamage() {
+        return bodyDamage;
+    }
 
     // Logic for taking damage
     public void takeDamage(float amount) {
@@ -110,5 +136,7 @@ public abstract class Entity {
         return timeSinceDeath;
     }
 
-    public void setColour(Color color){ this.color = color;}
+    public void setColour(Color color) {
+        this.color = color;
+    }
 }

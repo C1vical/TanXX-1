@@ -1,4 +1,9 @@
-import static com.raylib.Raylib.*;
+package tanks.tier4;
+
+import entities.Barrel;
+import entities.Tank;
+
+import static com.raylib.Raylib.Texture;
 
 // The Annihilator class is a specialized type of Tank
 // It inherits all properties and methods from the Tank superclass
@@ -8,8 +13,8 @@ public class Annihilator extends Tank {
     public Annihilator(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
         this.baseRadius = 50;
-        this.barrels = new Barrel[] {
-            new Barrel(radius, radius, 0, 0, 1.0f, 1.2f, 100, barrelTexture)
+        this.barrels = new Barrel[]{
+                new Barrel(radius, radius, 0, 0, 1.0f, 1.2f, 100, barrelTexture)
         };
         updateStats();
     }

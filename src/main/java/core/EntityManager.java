@@ -1,42 +1,45 @@
+package core;
+
+import entities.*;
+import physics.Collision;
+import physics.SpatialGrid;
+import tanks.tier1.Basic;
+import tanks.tier2.Sniper;
+
 import java.util.ArrayList;
 import java.util.List;
-import static com.raylib.Raylib.*;
-import static com.raylib.Helpers.newColor;
 
-// EntityManager class handles the spawning, updating, and collision detection for all entities in the game world
+import static com.raylib.Helpers.newColor;
+import static com.raylib.Raylib.Texture;
+
+// core.EntityManager class handles the spawning, updating, and collision detection for all entities in the game world
 public class EntityManager {
 
     // World dimensions
     public static final int worldW = 4000;
     public static final int worldH = 4000;
-
+    public static final int startShapes = 100;
+    // Default stats
+    private static final float DEFAULT_RECOIL = 50f;
     // Game state flags
     public static float dt;     // Delta time (seconds per frame)
     public static boolean deathScreen = false;
     public static boolean hitbox = false;
     public static boolean autoFire = false;
     public static boolean autoSpin = false;
-
     // Lists storing all active entities
     public static List<Bullet> bullets = new ArrayList<>();
     public static List<Shape> shapes = new ArrayList<>();
-
     // Spacial partitioning (for collisions)
     public static SpatialGrid spatialGrid = new SpatialGrid(worldW, worldH, 100);
     public static List<Shape> potentialShapes = new ArrayList<>();
     public static float MAX_SHAPE_RADIUS = 50f;
-    public static final int startShapes = 100;
-
     // Player and textures
     public static Tank playerTank;
     public static float angle;
     public static Texture tank;
     public static Texture barrel;
     public static Texture bullet;
-
-    // Default stats
-    private static final float DEFAULT_RECOIL = 50f;
-
 
     // Spawn shapes
     public static void spawnShapes() {
@@ -56,9 +59,9 @@ public class EntityManager {
             type = 1;
         } else if (rand < 0.85) {
             type = 2;
-        } else if (rand < 0.95){
+        } else if (rand < 0.95) {
             type = 3;
-        } else if (rand < 0.99){
+        } else if (rand < 0.99) {
             type = 4;
         } else {
             type = 5;
@@ -76,12 +79,18 @@ public class EntityManager {
         } while (Math.hypot(orbitX - playerTank.getCenterX(), orbitY - playerTank.getCenterY()) < safeDistance);
 
         switch (type) {
-            case 0 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0,3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 25));
-            case 1 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0,4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 10));
-            case 2 -> shapes.add(new Shape(orbitX, orbitY, 25, orbitRadius, 0,5, 100, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 100));
-            case 3 -> shapes.add(new Shape(orbitX, orbitY, 30, orbitRadius, 0,6, 180, 16, newColor(75, 227, 217, 255), newColor(62, 184, 176, 255), 200));
-            case 4 -> shapes.add(new Shape(orbitX, orbitY, 40, orbitRadius, 0,7, 250, 20, newColor(53, 219, 105, 255), newColor(39, 168, 79, 255), 200));
-            default -> shapes.add(new Shape(orbitX, orbitY, 45, orbitRadius, 0,8, 350, 30, newColor(209, 144, 23, 255), newColor(181, 127, 27, 255), 200));
+            case 0 ->
+                    shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 25));
+            case 1 ->
+                    shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 10));
+            case 2 ->
+                    shapes.add(new Shape(orbitX, orbitY, 25, orbitRadius, 0, 5, 100, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 100));
+            case 3 ->
+                    shapes.add(new Shape(orbitX, orbitY, 30, orbitRadius, 0, 6, 180, 16, newColor(75, 227, 217, 255), newColor(62, 184, 176, 255), 200));
+            case 4 ->
+                    shapes.add(new Shape(orbitX, orbitY, 40, orbitRadius, 0, 7, 250, 20, newColor(53, 219, 105, 255), newColor(39, 168, 79, 255), 200));
+            default ->
+                    shapes.add(new Shape(orbitX, orbitY, 45, orbitRadius, 0, 8, 350, 30, newColor(209, 144, 23, 255), newColor(181, 127, 27, 255), 200));
         }
     }
 
@@ -152,6 +161,7 @@ public class EntityManager {
         EntityManager.autoSpin = false;
         EntityManager.autoFire = false;
     }
+
     // Check all collisions
     public static void checkCollisions() {
         checkBulletShapeCollisions();
@@ -275,11 +285,11 @@ public class EntityManager {
             b.update();
         }
 
-        if (playerTank.upgradeTank) {
-            Sniper newTank = new Sniper(playerTank.getCenterX(), playerTank.getCenterY(), angle, tank, barrel);
-            newTank.copyStats(playerTank);  // copy all previous stats
-            playerTank = newTank;
-        }
+//        if (playerTank.upgradeTank) {
+//            Sniper newTank = new Sniper(playerTank.getCenterX(), playerTank.getCenterY(), angle, tank, barrel);
+//            newTank.copyStats(playerTank);  // copy all previous stats
+//            playerTank = newTank;
+//        }
 
         // Update player tank
         if (!deathScreen) {
