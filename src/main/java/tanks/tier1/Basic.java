@@ -18,7 +18,7 @@ public class Basic extends Tank {
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1f;
         this.zoomFactor = 1f;
-        Barrel barrel1 = new Barrel(radius, radius / 2, 0, 0, 0, 0.6f, 50, barrelTexture);
+        Barrel barrel1 = new Barrel(radius, radius / 2, 0, 0, 0, 0.6f, defaultRecoil, barrelTexture);
         this.barrels = new Barrel[]{barrel1};
         updateStats(); // Ensure initial radius and stats are calculated now that barrels exist
     }

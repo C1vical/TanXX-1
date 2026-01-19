@@ -12,19 +12,14 @@ public class Annihilator extends Tank {
     // Constructor sets much larger radius and barrel dimensions for the annihilator tank
     public Annihilator(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
+        this.radius = 50;
+        this.width = radius;
+        this.height = radius;
         this.baseRadius = 50;
-        this.barrels = new Barrel[]{
-                new Barrel(radius, radius, 0, 0, 1.0f, 1.2f, 100, barrelTexture)
-        };
+        this.bulletSpeedFactor = 1f;
+        this.zoomFactor = 0.91f;
+        Barrel barrel1 = new Barrel(radius, radius, 0, 0, 0, 1.2f, defaultRecoil * 2, barrelTexture);
+        this.barrels = new Barrel[] {barrel1};
         updateStats();
-    }
-
-    @Override
-    protected void updateDimensions() {
-        for (int i = 0; i < barrels.length; i++) {
-            barrels[i].setBarrelW(radius - 10);
-            barrels[i].setBarrelH(radius - 10);
-            barrels[i].setRecoil(barrels[i].getBarrelH() * 1.8f);
-        }
     }
 }

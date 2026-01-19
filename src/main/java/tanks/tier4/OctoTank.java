@@ -13,7 +13,7 @@ public class OctoTank extends Tank {
         this.height = radius;
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1f;
-        this.zoomFactor = 1f;
+        this.zoomFactor = 0.91f;
         Barrel barrel1 = new Barrel(radius, radius / 2, 0, 45, 0, 0.6f, 50, barrelTexture);
         Barrel barrel2 = new Barrel(radius, radius / 2, 0, 135, 0, 0.6f, 50, barrelTexture);
         Barrel barrel3 = new Barrel(radius, radius / 2, 0, 225, 0, 0.6f, 50, barrelTexture);

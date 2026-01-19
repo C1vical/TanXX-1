@@ -33,9 +33,9 @@ public class Tank extends Entity {
     // stats[0]: Health regen
     // stats[1]: Max health
     // stats[2]: Body damage
-    // stats[3]: entities.Bullet speed
-    // stats[4]: entities.Bullet penetration
-    // stats[5]: entities.Bullet damage
+    // stats[3]: Bullet speed
+    // stats[4]: Bullet penetration
+    // stats[5]: Bullet damage
     // stats[6]: Reload speed
     // stats[7]: Movement speed
     private int[] stats = new int[8];
@@ -57,8 +57,12 @@ public class Tank extends Entity {
     private float timeAlive;
 
     private int numShapesKilled;
+
     // Tank specific factors
     private float sizeFactor;
+
+    // Default stats
+    protected static final float defaultRecoil = 50f;
 
     // Constructor
     public Tank(float centerX, float centerY, float angle, Texture texture) {
@@ -218,7 +222,7 @@ public class Tank extends Entity {
             currentColor = RED;
         }
 
-        // entities.Tank body
+        // Tank body
         Rectangle source = newRectangle(0, 0, texture.width(), texture.height());
         Rectangle dest = newRectangle(centerX, centerY, width, height);
         Vector2 origin = new Vector2().x(width / 2).y(height / 2);

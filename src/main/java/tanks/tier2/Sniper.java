@@ -14,7 +14,7 @@ public class Sniper extends Tank {
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1.4f;
         this.zoomFactor = 0.8f;
-        Barrel barrel1 = new Barrel(radius * 1.2f, radius / 2, 0, 0, 0, 0.6f * 5 / 3, 50, barrelTexture);
+        Barrel barrel1 = new Barrel(radius * 1.2f, radius / 2, 0, 0, 0, 0.6f * 5 / 3, defaultRecoil, barrelTexture);
         this.barrels = new Barrel[]{barrel1};
         updateStats(); // Ensure initial radius and stats are calculated now that barrels exist
     }

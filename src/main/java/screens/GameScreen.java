@@ -6,6 +6,11 @@ import core.Graphics;
 import core.ScreenType;
 import tanks.tier1.*;
 import tanks.tier2.FlankGuard;
+import tanks.tier3.TripleShot;
+import tanks.tier3.TwinFlank;
+import tanks.tier4.OctoTank;
+import tanks.tier4.PentaShot;
+import tanks.tier4.TripleTwin;
 
 import static com.raylib.Colors.WHITE;
 import static com.raylib.Helpers.newRectangle;
@@ -27,7 +32,7 @@ public class GameScreen extends GameState {
 
         float randX = EntityManager.worldW * (float) Math.random();
         float randY = EntityManager.worldH * (float) Math.random();
-        EntityManager.playerTank = new FlankGuard(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+        EntityManager.playerTank = new PentaShot(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
 
         Graphics.camera = new Camera2D();
         Graphics.camera.target(new Vector2().x(EntityManager.playerTank.getCenterX()).y(EntityManager.playerTank.getCenterY()));

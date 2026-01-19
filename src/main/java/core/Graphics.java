@@ -374,6 +374,20 @@ public class Graphics {
         DrawRectangleV(new Vector2().x(padding).y(padding), new Vector2().x(400).y(400), newColor(140, 140, 140, 150));
     }
 
+    public static void drawUpgradeBox(float x, float y, float w, float h, String text) {
+        // Box background
+        DrawRectangleRec(newRectangle(x, y, w, h), newColor(90, 90, 90, 200));
+
+        // Box outline
+        DrawRectangleLinesEx(newRectangle(x, y, w, h), 3, RAYWHITE);
+
+        // Centered text
+        int fontSize = 20;
+        int textW = MeasureText(text, fontSize);
+
+        DrawText(text, (int)(x + w / 2 - textW / 2), (int)(y + h / 2 - fontSize / 2), fontSize, RAYWHITE);
+    }
+
     public static void drawDeathScreen() {
         DrawRectangle(0, 0, GameState.screenW, GameState.screenH, newColor(0, 0, 0, 75));
         DrawText("YOU DIED!", GetScreenWidth() / 2 - MeasureText("YOU DIED!", 40) / 2, GetScreenHeight() / 2 - 40, 40, RED);

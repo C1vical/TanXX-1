@@ -11,7 +11,6 @@ public class Barrel {
     private final Texture barrelTexture;
     private final Color barrelColor = newColor(100, 99, 107, 255);
     private final Color barrelStrokeColor = newColor(57, 56, 59, 255);
-    private final int strokeWidth = 5;
 
     // Reload
     public float reloadSpeed;
@@ -84,19 +83,56 @@ public class Barrel {
         float angle = EntityManager.playerTank.angle + turretAngle * (float) Math.PI / 180f;
 
         float offsetX = -(float) Math.sin(angle) * offset;
-        float offsetY = (float) Math.cos(angle) * offset;
+        float offsetY =  (float) Math.cos(angle) * offset;
+
+        float pivotX = EntityManager.playerTank.centerX + offsetX;
+        float pivotY = EntityManager.playerTank.centerY + offsetY;
 
         Rectangle source = newRectangle(0, 0, barrelTexture.width(), barrelTexture.height());
-        Rectangle dest = newRectangle(EntityManager.playerTank.centerX + offsetX, EntityManager.playerTank.centerY + offsetY, barrelW, barrelH);
-        Vector2 origin = new Vector2().x(0).y(barrelH / 2f);
 
-        DrawTexturePro(barrelTexture, source, dest, origin, angle * (180f / (float) Math.PI), barrelStrokeColor);
-        
-        dest = newRectangle(EntityManager.playerTank.centerX + offsetX, EntityManager.playerTank.centerY + offsetY, barrelW, barrelH);
-        origin = new Vector2().x(0).y(barrelH / 2f);;
+        float rotation = angle * (180f / (float) Math.PI);
 
-        DrawTexturePro(barrelTexture, source, dest, origin, angle * (180f / (float) Math.PI), barrelColor);
+        // ───────── Outer stroke ─────────
+        Rectangle outerDest = newRectangle(pivotX, pivotY, barrelW, barrelH);
+        Vector2 outerOrigin = new Vector2().x(0).y(barrelH / 2f);
+
+        DrawTexturePro(
+                barrelTexture,
+                source,
+                outerDest,
+                outerOrigin,
+                rotation,
+                barrelStrokeColor
+        );
+
+        // ───────── Inner barrel ─────────
+        int strokeWidth = 3;
+        float innerW = barrelW - strokeWidth * 2f;
+        float innerH = barrelH - strokeWidth * 2f;
+
+        // 🔧 FIX: offset ALONG barrel direction, not screen X
+        float innerOffsetX = (float) Math.cos(angle) * strokeWidth;
+        float innerOffsetY = (float) Math.sin(angle) * strokeWidth;
+
+        Rectangle innerDest = newRectangle(
+                pivotX + innerOffsetX,
+                pivotY + innerOffsetY,
+                innerW,
+                innerH
+        );
+
+        Vector2 innerOrigin = new Vector2().x(0).y(innerH / 2f);
+
+        DrawTexturePro(
+                barrelTexture,
+                source,
+                innerDest,
+                innerOrigin,
+                rotation,
+                barrelColor
+        );
     }
+
 
     public float getBarrelW() {
         return barrelW;
