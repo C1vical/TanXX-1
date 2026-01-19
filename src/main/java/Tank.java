@@ -50,6 +50,11 @@ public class Tank extends Entity {
     // Upgrade
     public boolean upgradeTank;
 
+    // Tank specific factors
+    private float sizeFactor;
+    protected float bulletSpeedFactor;
+    protected float zoomFactor;
+
     // Constructor
     public Tank(float centerX, float centerY, float angle, Texture texture) {
         super(centerX, centerY, angle);
@@ -69,6 +74,7 @@ public class Tank extends Entity {
         this.timeAlive = 0;
         this.numShapesKilled = 0;
         this.upgradeTank = false;
+        this.sizeFactor = 1f;
     }
 
     // Recalculates actual stats based on stat levels and player level
@@ -77,20 +83,15 @@ public class Tank extends Entity {
         healthRegen = 0.001f + (0.005f * (float) Math.pow(1.67,stats[0]));
         maxHealth = 50 + 2 * (level - 1) + 20 * stats[1];
         bodyDamage = (20 + 4 * stats[2]);
-        bulletSpeed = 200 + 20 * stats[3];
+        bulletSpeed = (200 + 20 * stats[3]) * bulletSpeedFactor;
         bulletPenetration = 8 + 6 * stats[4];
         bulletDamage = (7 + 3 * stats[5]);
         for (Barrel b : barrels) {
             b.reloadSpeed = b.baseReloadSpeed - 0.04f * stats[6];
         }
         speed = 150 + (10 * stats[7]);
-        width = radius;
-        height = radius;
         Graphics.zoomLevel  = Graphics.defaultZoom * (float) Math.pow(0.995f, level - 1);
         health = maxHealth * healthRatio;
-
-        // Update barrel dimensions and recoil based on the new radius
-        updateDimensions();
 
         // Update delay
         updateDelay();
@@ -98,16 +99,21 @@ public class Tank extends Entity {
 
     // Update barrel dimensions and recoil - can be overridden by subclasses
     protected void updateDimensions() {
+        sizeFactor = (float) Math.pow(1.01f, level - 1);
+        radius = baseRadius * sizeFactor;
+        width = radius;
+        height = radius;
         for (Barrel b : barrels) {
-            b.setBarrelW(b.originalBarrelW * (float) Math.pow(1.01f, level - 1));
-            b.setBarrelH(b.originalBarrelH * (float) Math.pow(1.01f, level - 1));
-            b.setRecoil(b.originalRecoil * (float) Math.pow(1.01f, level - 1));
+            b.setBarrelW(b.baseBarrelW * sizeFactor);
+            b.setBarrelH(b.baseBarrelH * sizeFactor);
+            b.setOffset(b.baseOffset * sizeFactor);
+            b.setRecoil(b.baseRecoil * sizeFactor);
         }
     }
 
     protected void updateDelay() {
         for (Barrel b : barrels) {
-            b.delay = b.reloadSpeed * b.originalDelay / b.baseReloadSpeed;
+            b.delay = b.reloadSpeed * b.baseDelay / b.baseReloadSpeed;
         }
     }
 
@@ -228,7 +234,7 @@ public class Tank extends Entity {
     // Check if the turrets can fire
     public boolean canFire() {
         for (Barrel b : barrels) {
-            if (b.canShoot) return true;
+            if (b.canShoot()) return true;
         }
         return false;
     }
@@ -308,7 +314,10 @@ public class Tank extends Entity {
             upgradeTank = true;
         }
 
-        radius = baseRadius * (float) Math.pow(1.01f, level - 1);
+        updateStats();
+
+        // Update tank dimensions and recoil
+        updateDimensions();
     }
 
     public void upgradeStat(int index) {
@@ -354,5 +363,7 @@ public class Tank extends Entity {
         this.upgradeSkill = tank.upgradeSkill;
         this.score = tank.score;
         this.stats = tank.stats.clone();
+        updateStats();
+        updateDimensions();
     }
 }

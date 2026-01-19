@@ -9,7 +9,7 @@ public class Annihilator extends Tank {
         super(centerX, centerY, angle, bodyTexture);
         this.baseRadius = 50;
         this.barrels = new Barrel[] {
-            new Barrel(radius, radius, 0, 0, 1.0f, 1.2f, barrelTexture)
+            new Barrel(radius, radius, 0, 0, 1.0f, 1.2f, 100, barrelTexture)
         };
         updateStats();
     }

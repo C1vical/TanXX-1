@@ -116,7 +116,7 @@ public class Graphics {
         // Zoom only when settings are closed
         if (!showSettings) {
 //            getZoomLevel();
-            float desiredZoom = zoomLevel;
+            float desiredZoom = zoomLevel * playerTank.zoomFactor;
             camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
         }
     }

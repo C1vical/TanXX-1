@@ -1,6 +1,4 @@
 import static com.raylib.Raylib.*;
-import static com.raylib.Colors.*;
-import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 
 // GameState is an abstract base class for different screens (Menu, Game, etc.)

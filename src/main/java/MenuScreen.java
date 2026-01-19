@@ -1,6 +1,5 @@
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
-import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 
 public class MenuScreen extends GameState {

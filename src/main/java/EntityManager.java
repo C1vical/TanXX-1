@@ -34,6 +34,10 @@ public class EntityManager {
     public static Texture barrel;
     public static Texture bullet;
 
+    // Default stats
+    private static final float DEFAULT_RECOIL = 50f;
+
+
     // Spawn shapes
     public static void spawnShapes() {
         for (int i = 0; i < EntityManager.startShapes - EntityManager.shapes.size(); i++) {
@@ -86,7 +90,7 @@ public class EntityManager {
         for (Barrel b : playerTank.barrels) {
 
             // Only fire if the barrel can shoot
-            if (!b.canShoot) continue;
+            if (!b.canShoot()) continue;
 
             // Spawn bullet
             float baseAngle = playerTank.angle;
@@ -94,8 +98,8 @@ public class EntityManager {
             float finalAngle = baseAngle + turretAngle;
 
             // Offset
-            float offsetX = -(float) Math.sin(baseAngle) * b.offset;
-            float offsetY = (float) Math.cos(baseAngle) * b.offset;
+            float offsetX = -(float) Math.sin(baseAngle) * b.getOffset();
+            float offsetY = (float) Math.cos(baseAngle) * b.getOffset();
 
             // Forward spawn distance
             float bulletRadius = b.getBarrelH();
@@ -272,7 +276,7 @@ public class EntityManager {
         }
 
         if (playerTank.upgradeTank) {
-            Twin newTank = new Twin(playerTank.getCenterX(), playerTank.getCenterY(), angle, tank, barrel);
+            Sniper newTank = new Sniper(playerTank.getCenterX(), playerTank.getCenterY(), angle, tank, barrel);
             newTank.copyStats(playerTank);  // copy all previous stats
             playerTank = newTank;
         }
@@ -299,5 +303,9 @@ public class EntityManager {
     public static void resetGame() {
         shapes.clear();
         bullets.clear();
+        if (deathScreen) {
+            respawnPlayer();
+            deathScreen = false;
+        }
     }
 }

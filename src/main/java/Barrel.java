@@ -1,48 +1,63 @@
 import static com.raylib.Raylib.*;
-
 import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 
 public class Barrel {
     private float barrelW;
     private float barrelH;
-    float originalBarrelW;
-    float originalBarrelH;
-    float originalRecoil;
-    float offset;
+    private float offset;
     private final float turretAngle;
     private float recoil;
+
+    // Reload
+    float reloadSpeed;
+    float reloadTimer;
+
+    // Reload
     float delay;
-    float originalDelay;
     float delayTimer;
-    boolean canShoot;
-    boolean isShoot;
+
+    // Saved base stats
+    float baseBarrelW;
+    float baseBarrelH;
+    float baseOffset;
+    float baseRecoil;
+    float baseReloadSpeed;
+    float baseDelay;
+
+    // Booleans
+    private boolean canShoot;
+    private boolean isShoot;
+
     private final Texture barrelTexture;
     private final Color barrelColor = newColor(100, 99, 107, 255);
 
-    float reloadSpeed;
-    float baseReloadSpeed;
-    float reloadTimer;
-
-    public Barrel(float barrelW, float barrelH, float offset, float turretAngle, float delay, float reloadSpeed, Texture barrelTexture) {
+    public Barrel(float barrelW, float barrelH, float offset, float turretAngle, float delay, float reloadSpeed, float recoil, Texture barrelTexture) {
         this.barrelW = barrelW;
         this.barrelH = barrelH;
         this.offset = offset;
         this.turretAngle = turretAngle;
         this.delay = delay;
-        this.originalDelay = delay;
         this.delayTimer = delay;
         this.reloadSpeed = reloadSpeed;
-        this.baseReloadSpeed = reloadSpeed;
         this.reloadTimer = 0f;
-        this.recoil = barrelH * 1.8f;
+        this.recoil = recoil;
         this.barrelTexture = barrelTexture;
+
+        // Set booleans to false
         this.isShoot = false;
         this.canShoot = !(delayTimer > 0f);
 
-        originalBarrelW = barrelW;
-        originalBarrelH = barrelH;
-        originalRecoil = recoil;
+        saveBaseStats();
+    }
+
+    public void saveBaseStats() {
+        baseBarrelW = barrelW;
+        baseBarrelH = barrelH;
+        baseOffset = offset;
+        baseRecoil = recoil;
+        baseReloadSpeed = reloadSpeed;
+        baseDelay = delay;
     }
 
     public void update() {
@@ -81,8 +96,19 @@ public class Barrel {
     public float getTurretAngle() { return turretAngle; }
     public float getRecoil() { return recoil; }
 
+    public float getOffset() {
+        return offset;
+    }
+
+    public boolean canShoot() {
+        return canShoot;
+    }
+
+
+
     public void setBarrelW(float barrelW) { this.barrelW = barrelW; }
     public void setBarrelH(float barrelH) { this.barrelH = barrelH; }
+    public void setOffset(float offset) { this.offset = offset; }
     public void setRecoil(float recoil) { this.recoil = recoil; }
 
 }

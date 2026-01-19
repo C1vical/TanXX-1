@@ -1,8 +1,5 @@
-import java.util.Random;
-
 import static com.raylib.Raylib.*;
 import static com.raylib.Colors.*;
-import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 
 public class GameScreen extends GameState {
@@ -112,7 +109,6 @@ public class GameScreen extends GameState {
             if (IsKeyPressed(KEY_R)) {
                 EntityManager.respawnPlayer();
             } else if (IsKeyPressed(KEY_SPACE)) { // Go back to the menu screen
-                EntityManager.deathScreen = false;
                 requestedScreen = ScreenType.MENU;
             }
             return;

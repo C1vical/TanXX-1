@@ -10,7 +10,6 @@ public class SpatialGrid {
     private final List<Shape>[][] grid;
 
     // Initializes spatial grid with the given world dimensions and cell radius
-    @SuppressWarnings("unchecked")
     public SpatialGrid(int worldW, int worldH, int cellSize) {
         this.cellSize = cellSize;
         this.cols = (int) Math.ceil((double) worldW / cellSize);
