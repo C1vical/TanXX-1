@@ -3,14 +3,9 @@ package screens;
 import core.*;
 import entities.Tank;
 import tanks.tier1.*;
-import tanks.tier2.FlankGuard;
-import tanks.tier2.Sniper;
-import tanks.tier2.Twin;
-import tanks.tier3.TripleShot;
-import tanks.tier3.TwinFlank;
-import tanks.tier4.OctoTank;
-import tanks.tier4.PentaShot;
-import tanks.tier4.TripleTwin;
+import tanks.tier2.*;
+import tanks.tier3.*;
+import tanks.tier4.*;
 
 import static com.raylib.Colors.WHITE;
 import static com.raylib.Helpers.newRectangle;
@@ -32,7 +27,7 @@ public class GameScreen extends GameState {
 
         float randX = EntityManager.worldW * (float) Math.random();
         float randY = EntityManager.worldH * (float) Math.random();
-        EntityManager.playerTank = new Basic(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+        EntityManager.playerTank = new Streamliner(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
         EntityManager.playerTankType = TankType.BASIC;
         EntityManager.requestedTank = TankType.BASIC;
 
@@ -69,7 +64,6 @@ public class GameScreen extends GameState {
     // Update loop
     @Override
     public void update() {
-
         TankType requestedTank = EntityManager.requestedTank;
         if (EntityManager.playerTankType != requestedTank) {
             Tank newTank = new Tank(0, 0, 0, EntityManager.tank);

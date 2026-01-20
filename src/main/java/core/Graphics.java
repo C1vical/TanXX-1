@@ -130,7 +130,7 @@ public class Graphics {
         camera.target().y(camera.target().y() + (desiredTarget.y() - camera.target().y()) * movementLerp);
 
         // Zoom
-        float desiredZoom = zoomLevel * playerTank.zoomFactor;
+        float desiredZoom = zoomLevel * playerTank.getZoomFactor();
         camera.zoom(camera.zoom() + (desiredZoom - camera.zoom()) * zoomLerp);
     }
 
@@ -200,7 +200,6 @@ public class Graphics {
     }
 
     // Gamescreen drawing methods
-
     public static void drawWorld() {
         float drawLeft = Math.max(0, camLeft);
         float drawTop = Math.max(0, camTop);

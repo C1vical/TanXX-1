@@ -14,8 +14,8 @@ public class FlankGuard extends Tank {
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1f;
         this.zoomFactor = 0.97f;
-        Barrel barrel1 = new Barrel(radius, radius / 2, 0, 0, 0, 0.6f, defaultRecoil, barrelTexture);
-        Barrel barrel2 = new Barrel(radius, radius / 2, 0, 180, 0, 0.6f, defaultRecoil, barrelTexture);
+        Barrel barrel1 = new Barrel(50, 25, 0, 0, 0, defaultReload, defaultRecoil, barrelTexture);
+        Barrel barrel2 = new Barrel(40, 25, 0, 180, 0, defaultReload, defaultRecoil, barrelTexture);
         this.barrels = new Barrel[]{barrel1, barrel2};
         updateStats(); // Ensure initial radius and stats are calculated now that barrels exist
     }

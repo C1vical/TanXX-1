@@ -14,9 +14,9 @@ public class TripleShot extends Tank{
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1f;
         this.zoomFactor = 0.94f;
-        Barrel barrel1 = new Barrel(radius, radius / 2, 0, 0, 0, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel2 = new Barrel(radius, radius / 2, 0, 50, 0, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel3 = new Barrel(radius, radius / 2, 0, -50, 0, 0.6f, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel1 = new Barrel(50, 25, 0, 0, 0, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel2 = new Barrel(50, 25, 0, 50, 0, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel3 = new Barrel(50, 25, 0, -50, 0, defaultReload, defaultRecoil * 0.25f, barrelTexture);
 
         this.barrels = new Barrel[]{barrel1, barrel2, barrel3};
 

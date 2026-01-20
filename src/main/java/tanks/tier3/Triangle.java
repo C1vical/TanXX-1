@@ -13,11 +13,10 @@ public class Triangle extends Tank {
         this.height = radius;
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1f;
-        this.zoomFactor = 0.91f;
-        Barrel barrel1 = new Barrel(radius * 0.95f, radius / 2, 0, 0, 0, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel2 = new Barrel(radius * 0.72f, radius / 2, 0, 135, 0.3f, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-
-        Barrel barrel3 = new Barrel(radius * 0.72f, radius / 2, 0, -44.5f, 0.3f, 0.6f, defaultRecoil * 0.25f, barrelTexture);
+        this.zoomFactor = 0.94f;
+        Barrel barrel1 = new Barrel(45, 25, 0, 0, 0, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel2 = new Barrel(40, 25, 0, 148, 0.2f, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel3 = new Barrel(40, 25, 0, -148, 0.2f, defaultReload, defaultRecoil * 0.25f, barrelTexture);
 
         this.barrels = new Barrel[]{barrel1, barrel2, barrel3};
 

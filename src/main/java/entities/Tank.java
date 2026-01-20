@@ -10,10 +10,7 @@ import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Raylib.*;
 
 // Tank class represents the player
-public class Tank extends Entity implements Cloneable {
-    private final int[] levelXP = {4, 9, 15, 22, 28, 35, 44, 54, 64, 75, 87, 101, 117, 132, 161, 161, 192, 215, 251, 259, 299, 322, 388, 398, 450, 496, 546, 600, 659, 723, 791, 839, 889, 942, 999, 1059, 1093, 1190, 1261, 1337, 1417, 1502, 1593, 1687, 0};
-    // Upgrade
-    public boolean upgradeTank;
+public class Tank extends Entity {
 
     // Movement and physics properties
     protected float bounceStrength = 0.8f;
@@ -21,12 +18,8 @@ public class Tank extends Entity implements Cloneable {
     protected float inputVelY = 0;
     protected float baseRadius = 50f;
 
-    // Barrel properties
+    // Barrel
     public Barrel[] barrels;
-    protected Color barrelColor = newColor(100, 99, 107, 255);
-    protected Color barrelStrokeColor = newColor(55, 55, 55, 255);
-    protected float bulletSpeedFactor;
-    public float zoomFactor;
 
     // Stats
     // Stat levels (0-8 for each stat)
@@ -51,18 +44,24 @@ public class Tank extends Entity implements Cloneable {
     private int level;
     private float levelProgress;
     private int skillPoints;
+    private final int[] levelXP = {4, 9, 15, 22, 28, 35, 44, 54, 64, 75, 87, 101, 117, 132, 161, 161, 192, 215, 251, 259, 299, 322, 388, 398, 450, 496, 546, 600, 659, 723, 791, 839, 889, 942, 999, 1059, 1093, 1190, 1261, 1337, 1417, 1502, 1593, 1687, 0};
     private boolean upgradeSkill = false;
+    public boolean upgradeTank;
 
     // Game statistics
     private float timeAlive;
-
     private int numShapesKilled;
 
     // Tank specific factors
-    private float sizeFactor;
-
+    protected float sizeFactor;
+    protected float zoomFactor;
+    protected float bulletSpeedFactor;
+    protected float damageFactor;
+    
     // Default stats
+    protected static final float defaultReload = 0.6f;
     protected static final float defaultRecoil = 50f;
+
 
     // Constructor
     public Tank(float centerX, float centerY, float angle, Texture texture) {
@@ -141,11 +140,6 @@ public class Tank extends Entity implements Cloneable {
 
         // Passive regen
         regenHealth(EntityManager.dt);
-
-        // Check if upgrade tank
-        if (level == 5 || level == 30 || level == 45) {
-            upgradeTank = true;
-        }
 
         // Update health ratio
         healthRatio = health / maxHealth;
@@ -286,6 +280,10 @@ public class Tank extends Entity implements Cloneable {
 
     public int[] getStats() {
         return stats;
+    }
+
+    public float getZoomFactor() {
+        return zoomFactor;
     }
 
     // Passive health regeneration

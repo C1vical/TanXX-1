@@ -14,7 +14,7 @@ public class Ranger extends Tank {
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1.5f;
         this.zoomFactor = 0.62f;
-        Barrel barrel1 = new Barrel(radius * 1.45f, radius / 2.05f, 0, 0, 0, 0.52f * 1.8f, defaultRecoil, barrelTexture);
+        Barrel barrel1 = new Barrel(65, 25, 0, 0, 0, defaultReload * 2f, defaultRecoil, barrelTexture);
         this.barrels = new Barrel[]{barrel1};
         updateStats(); // Ensure initial radius and stats are calculated now that barrels exist
     }

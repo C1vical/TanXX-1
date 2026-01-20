@@ -14,10 +14,10 @@ public class QuadTank extends Tank {
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1f;
         this.zoomFactor = 0.94f;
-        Barrel barrel1 = new Barrel(radius, radius / 2, 0, 0, 0, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel2 = new Barrel(radius, radius / 2, 0, 90, 0, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel3 = new Barrel(radius, radius / 2, 0, 180, 0, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel4 = new Barrel(radius, radius / 2, 0, 270, 0, 0.6f, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel1 = new Barrel(50, 25, 0, 0, 0, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel2 = new Barrel(50, 25, 0, 90, 0, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel3 = new Barrel(50, 25, 0, 180, 0, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel4 = new Barrel(50, 25, 0, 270, 0, defaultReload, defaultRecoil * 0.25f, barrelTexture);
 
         this.barrels = new Barrel[]{barrel1, barrel2, barrel3, barrel4};
 

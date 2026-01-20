@@ -14,11 +14,11 @@ public class Fighter extends Tank {
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1f;
         this.zoomFactor = 0.91f;
-        Barrel barrel1 = new Barrel(radius * 0.95f, radius / 2, 0, 0, 0, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel2 = new Barrel(radius * 0.72f, radius / 2, 0, 90, 0.3f, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel3 = new Barrel(radius * 0.78f, radius / 2, 0, 155, 0.1f, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel4 = new Barrel(radius * 0.72f, radius / 2, 0, 90, 0.3f, 0.6f, defaultRecoil * 0.25f, barrelTexture);
-        Barrel barrel5 = new Barrel(radius * 0.78f, radius / 2, 0, -25, 0.1f, 0.6f, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel1 = new Barrel(45, 25, 0, 0, 0, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel2 = new Barrel(40, 25, 0, 90, 0f, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel3 = new Barrel(40, 25, 0, -90, 0f, defaultReload, defaultRecoil * 0.25f, barrelTexture);
+        Barrel barrel4 = new Barrel(40, 25, 0, 148, 0.3f, defaultReload, defaultRecoil * 0.4f, barrelTexture);
+        Barrel barrel5 = new Barrel(40, 25, 0, -148, 0.3f, defaultReload, defaultRecoil * 0.4f, barrelTexture);
         this.barrels = new Barrel[]{barrel1, barrel2, barrel3, barrel4, barrel5};
 
         updateStats(); // Ensure initial radius and stats are calculated now that barrels exist

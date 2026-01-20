@@ -1,17 +1,24 @@
 package core;
 
 public enum TankType {
-    BASIC,
-    TWIN,
+    BASIC,  // T1
+    FLANKGUARD,   // T2
+    POUNDER,
     SNIPER,
-    MACHINEGUN,
-    FLANKGUARD,
+    TWIN,
+    ASSASSIN,   // T3
+    DESTROYER,
     QUADTANK,
+    TRIANGLE,
     TRIPLESHOT,
     TWINFLANK,
-    ANNIHILATOR,
+    ANNIHILATOR,    // T4
     BOOSTER,
+    FIGHTER,
     OCTOTANK,
     PENTASHOT,
+    RANGER,
+    STREAMLINER,
+    TRIPLET,
     TRIPLETWIN
 }
