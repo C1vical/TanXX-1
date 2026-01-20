@@ -7,7 +7,9 @@ import tanks.tier2.*;
 import tanks.tier3.*;
 import tanks.tier4.*;
 
+import static com.raylib.Colors.RAYWHITE;
 import static com.raylib.Colors.WHITE;
+import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Raylib.*;
 
@@ -23,7 +25,6 @@ public class GameScreen extends GameState {
         EntityManager.tank = LoadTexture("resources/game/tank.png");
         EntityManager.barrel = LoadTexture("resources/game/barrel.png");
         EntityManager.bullet = LoadTexture("resources/game/bullet.png");
-        settings = LoadTexture("resources/game/settings.png");
 
         float randX = EntityManager.worldW * (float) Math.random();
         float randY = EntityManager.worldH * (float) Math.random();
@@ -70,42 +71,29 @@ public class GameScreen extends GameState {
         // Mouse coordinates
         Vector2 mouseScreen = GetMousePosition();
 
+        if (IsKeyPressed(KEY_P)) {
+            Graphics.pauseGame = !Graphics.pauseGame;
+        }
+
+        if (Graphics.pauseGame) return;
+
         // Update the camera
         Graphics.updateCamera(EntityManager.playerTank);
 
-        // Pause gameplay while settings are open
-        if (!Graphics.showSettings) {
+        // Handle input
+        handleInput(mouseScreen);
 
-            // Handle input
-            handleInput(mouseScreen);
+        // Upgrade menu animation
+        upgradeMenuAnimate(mouseScreen);
 
-            // Upgrade menu animation
-            upgradeMenuAnimate(mouseScreen);
+        // Spawn shapes if needed
+        EntityManager.spawnShapes();
 
-            // Spawn shapes if needed
-            EntityManager.spawnShapes();
+        // Update all entities
+        EntityManager.updateEntities();
 
-            // Update all entities
-            EntityManager.updateEntities();
-
-            // Handle all collisions
-            EntityManager.checkCollisions();
-        }
-
-        // Settings buttons hover and click
-        if (CheckCollisionPointRec(mouseScreen, Graphics.settingsRect)) {
-            Graphics.settingsHover = true;
-            if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                Graphics.showSettings = true;
-            }
-        } else {
-            Graphics.settingsHover = false;
-        }
-
-        // Close settings with space
-        if (IsKeyPressed(KEY_SPACE)) {
-            Graphics.showSettings = false;
-        }
+        // Handle all collisions
+        EntityManager.checkCollisions();
     }
 
     // Input handling
@@ -180,16 +168,16 @@ public class GameScreen extends GameState {
         }
 
         // Manual firing
-        if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT)) && EntityManager.playerTank.canFire() && !CheckCollisionPointRec(mouseScreen, Graphics.settingsRect)) {
+        if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT)) && EntityManager.playerTank.canFire()) {
             EntityManager.fireBullet();
         }
 
         // Toggle features
-        if (IsKeyPressed(KEY_Q)) EntityManager.addShape();            // Add shape
+//        if (IsKeyPressed(KEY_Q)) EntityManager.addShape();            // Add shape
         if (IsKeyPressed(KEY_B)) EntityManager.hitbox = !EntityManager.hitbox;      // Toggle hitbox
         if (IsKeyPressed(KEY_E)) EntityManager.autoFire = !EntityManager.autoFire;  // Autofire
         if (IsKeyPressed(KEY_C)) EntityManager.autoSpin = !EntityManager.autoSpin;  // Auto spin
-        if (IsKeyPressed(KEY_K)) EntityManager.deathScreen = true;    // Force death
+//        if (IsKeyPressed(KEY_K)) EntityManager.deathScreen = true;    // Force death
 
         // Autofire logic
         if (EntityManager.autoFire && EntityManager.playerTank.canFire()) {
@@ -258,7 +246,6 @@ public class GameScreen extends GameState {
         }
 
         // Draw UI elements that are not affected by the camera
-        Graphics.drawSettings();
         Graphics.drawStatsMenu();
 
 //        if (Graphics.showUpgradeChoices) {
@@ -273,7 +260,11 @@ public class GameScreen extends GameState {
 
         Graphics.drawLevelBar();
         Graphics.drawMiniMap();
-        if (Graphics.showSettings) Graphics.drawSettingsMenu();
+
+        if (Graphics.pauseGame) {
+            DrawRectangle(0, 0, GameState.screenW, GameState.screenH, newColor(0, 0, 0, 180));
+            DrawText("GAME PAUSED", screenW / 2 - MeasureText("GAME PAUSED", 40) / 2, screenH / 2 - 20, 40, RAYWHITE);
+        }
     }
 
     // Unload resources
@@ -282,7 +273,6 @@ public class GameScreen extends GameState {
         UnloadTexture(EntityManager.tank);
         UnloadTexture(EntityManager.barrel);
         UnloadTexture(EntityManager.bullet);
-        UnloadTexture(settings);
     }
 
     // Screen switching

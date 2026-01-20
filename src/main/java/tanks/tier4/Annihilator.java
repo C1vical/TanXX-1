@@ -16,7 +16,7 @@ public class Annihilator extends Tank {
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1f;
         this.zoomFactor = 0.91f;
-        Barrel barrel1 = new Barrel(50, 48, 0, 0, 0, defaultReload * 2f, defaultRecoil * 2, barrelTexture);
+        Barrel barrel1 = new Barrel(50, 48, 0, 0, 0, defaultReload * 2f, defaultRecoil * 2.6f, barrelTexture);
         this.barrels = new Barrel[] {barrel1};
 
         updateStats();

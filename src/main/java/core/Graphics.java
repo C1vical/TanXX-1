@@ -65,12 +65,6 @@ public class Graphics {
     // Display properties
     public static float padding = 15;
 
-    // Settings properties
-    public static int settingsSize = 75;
-    public static Rectangle settingsRect;
-    public static boolean settingsHover = false;
-    public static boolean showSettings = false;
-
     // Level bar properties
     public static float levelBarW = 350;
     public static float levelBarH = 25;
@@ -92,12 +86,12 @@ public class Graphics {
     public static float nameTextX;
     public static float nameTextY;
 
-    // Upgraded menu properties
-    public static boolean showUpgradeChoices = false;
-
     // Upgrade UI
     public static List<Rectangle> upgradeRects = new ArrayList<>();
     public static List<TankType> upgradeOptions = new ArrayList<>();
+
+    // Game screen states
+    public static boolean pauseGame = false;
 
     // Menu screen layout rectangles
     public static Rectangle backgroundRect;
@@ -149,10 +143,6 @@ public class Graphics {
 
         float ratioW = GameState.screenW / (float) GameState.DEFAULT_SCREEN_W;
         float ratioH = GameState.screenH / (float) GameState.DEFAULT_SCREEN_H;
-
-        float settingsW = settingsSize * ratioW;
-        float settingsH = settingsSize * ratioH;
-        settingsRect = newRectangle(GameState.screenW - settingsW - padding * ratioW, GameState.screenH - settingsH - padding * ratioH, settingsW, settingsH);
 
         levelBarX = GameState.screenW / 2f - levelBarW / 2;
         levelBarY = GameState.screenH - padding - levelBarH;
@@ -331,18 +321,7 @@ public class Graphics {
 
             // Draw the hotkey number
             DrawText(String.valueOf(i + 1), (int) (x + statsMenuW - padding), (int) y + 3, 12, locked ? DARKGRAY : GRAY);
-
-            // Draw highlight if hovered
-            if (showSettings) continue;
-
-            if (CheckCollisionPointRec(GetMousePosition(), rect)) {
-                DrawRectangleRoundedLines(rect, 0.4f, 20, locked ? GRAY : WHITE);
-            }
         }
-    }
-
-    public static void drawSettings() {
-        drawButton(GameScreen.settings, settingsRect, settingsHover, showSettings);
     }
 
     public static void drawSettingsMenu() {

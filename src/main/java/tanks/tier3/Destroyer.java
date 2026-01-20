@@ -16,7 +16,7 @@ public class Destroyer extends Tank {
         this.baseRadius = 50;
         this.bulletSpeedFactor = 1f;
         this.zoomFactor = 0.95f;
-        Barrel barrel1 = new Barrel(50, 36, 0, 0, 0, defaultReload * 2f, defaultRecoil * 1.5f, barrelTexture);
+        Barrel barrel1 = new Barrel(50, 36, 0, 0, 0, defaultReload * 2f, defaultRecoil * 2f, barrelTexture);
         this.barrels = new Barrel[] {barrel1};
 
         updateStats();
