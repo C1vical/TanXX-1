@@ -6,11 +6,9 @@ import entities.Tank;
 
 import static com.raylib.Raylib.Texture;
 
-// The Basic class is a simple, standard type of Tank
-// Inherits all behavior from the Tank superclass
-
+// Subclass for different tanks. This code is also used for the rest of the tanks, just with specific numbers for each
 public class Basic extends Tank {
-    // Constructor sets default radius and barrel dimensions for the basic tank
+    // Constructor sets dimensions, barrels, and stats for the basic tank
     public Basic(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
         this.type = TankType.BASIC;
@@ -22,6 +20,6 @@ public class Basic extends Tank {
         this.zoomFactor = 1f;
         Barrel barrel1 = new Barrel(50, 25, 0, 0, 0, defaultReload, defaultRecoil, barrelTexture);
         this.barrels = new Barrel[]{barrel1};
-        updateStats(); // Ensure initial radius and stats are calculated now that barrels exist
+        updateStats();
     }
 }

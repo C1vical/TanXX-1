@@ -6,68 +6,69 @@ import static com.raylib.Helpers.newColor;
 import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Raylib.*;
 
-// entities.Bullet class represents a projectile fired by tanks
-// Inherits from the entity superclass, so it has position, velocity, and basic rendering
+// Bullet class represents a projectile fired by tanks
+// Inherits from Entity, so it has position, velocity, and basic rendering
 public class Bullet extends Entity {
-    private float lifeTime;     // How long the bullet exists before disappearing
+    private float lifeTime;     // How long the bullet exists before disappearing (seconds)
 
-    // Constructor
+    // Constructor: initialize bullet with position, angle, texture, size, damage, speed, and penetration
     public Bullet(float centerX, float centerY, float angle, Texture texture, float radius, float bulletDamage, float bulletSpeed, float bulletPenetration) {
-        super(centerX, centerY, angle);
-        this.texture = texture;
-        this.radius = radius;
-        this.width = radius;
-        this.height = radius;
-        this.speed = bulletSpeed;
-        this.color = newColor(24, 158, 140, 255);
-        this.maxHealth = bulletPenetration;     // entities.Bullet penetration is the same as bullet health
-        this.health = maxHealth;
-        this.bodyDamage = bulletDamage;
-        this.lifeTime = 2f; // Lifetime in seconds
-        this.alive = true;
+        super(centerX, centerY, angle);  // Call Entity constructor
+        this.texture = texture;          // Texture used to draw bullet
+        this.radius = radius;            // Radius for collision
+        this.width = radius;             // Width for drawing
+        this.height = radius;            // Height for drawing
+        this.speed = bulletSpeed;        // Movement speed of the bullet
+        this.color = newColor(24, 158, 140, 255);  // Visual color
+        this.maxHealth = bulletPenetration;        // Bullet penetration = health
+        this.health = maxHealth;                    // Start with full health
+        this.bodyDamage = bulletDamage;             // Damage bullet deals on collision
+        this.lifeTime = 2f;                         // Bullet exists for 2 seconds by default
+        this.alive = true;                          // Bullet starts alive
     }
 
-    // Update the bullet's position, velocity, and lifetime each frame
+    // Update bullet position, velocity, and lifetime each frame
     public void update() {
-        if (!alive) timeSinceDeath += EntityManager.dt;
-        // Apply decay to velocity
+        if (!alive) timeSinceDeath += EntityManager.dt;  // Track time since death if dead
+
+        // Apply velocity decay (friction or resistance)
         velocityX -= velocityX * decay * EntityManager.dt;
         velocityY -= velocityY * decay * EntityManager.dt;
 
-        // Move the bullet in the direction it's facing plus any velocity (from recoil, knockback, etc.)
+        // Move the bullet forward in its angle direction plus any additional velocity (e.g., from recoil)
         centerX += (float) (Math.cos(angle) * speed * EntityManager.dt) + velocityX * EntityManager.dt;
         centerY += (float) (Math.sin(angle) * speed * EntityManager.dt) + velocityY * EntityManager.dt;
 
-        // Stop the bullet from moving if velocity is very small
+        // Stop movement if velocity is very small to prevent jitter
         if (Math.abs(velocityX) < 0.5f) velocityX = 0f;
         if (Math.abs(velocityY) < 0.5f) velocityY = 0f;
 
         // Reduce lifetime
         lifeTime -= EntityManager.dt;
-        if (lifeTime <= 0f) alive = false;
+        if (lifeTime <= 0f) alive = false;  // Bullet dies if lifetime ends
 
-        // Remove the bullet if health is less than 0
+        // Remove bullet if health is depleted (e.g., penetration used up)
         if (health <= 0f) alive = false;
     }
 
     // Draw the bullet
     public void draw() {
+        // Define source and destination rectangles for texture drawing
         Rectangle source = newRectangle(0, 0, texture.width(), texture.height());
         Rectangle dest = newRectangle(centerX, centerY, width, height);
+
+        // Set origin for rotation (center of the bullet)
         Vector2 origin = new Vector2().x(width / 2).y(height / 2);
+
+        // Draw texture rotated according to bullet angle
         DrawTexturePro(texture, source, dest, origin, angle * (180f / (float) Math.PI), color);
 
-        // Draw hitbox if boolean is true
+        // Optionally draw hitbox if enabled
         if (EntityManager.hitbox) drawHitBox();
     }
 
-    // Draw bullet hitbox
+    // Draw the bullet's collision hitbox for debugging
     public void drawHitBox() {
         DrawCircleLinesV(new Vector2().x(centerX).y(centerY), radius / 2, hitboxColor);
-    }
-
-    // Getter for bullet damage
-    public float getBodyDamage() {
-        return bodyDamage;
     }
 }

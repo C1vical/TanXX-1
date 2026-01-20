@@ -1,15 +1,15 @@
 package core;
 
 import entities.Tank;
-import tanks.tier1.*;
-import tanks.tier2.*;
+import tanks.tier1.Basic;
+import tanks.tier2.FlankGuard;
+import tanks.tier2.Pounder;
+import tanks.tier2.Sniper;
+import tanks.tier2.Twin;
 import tanks.tier3.*;
 import tanks.tier4.*;
 
 public final class TankFactory {
-
-    private TankFactory() {} // prevent instantiation
-
     public static Tank create(TankType type,  float x, float y, float angle) {
         return switch (type) {
             // Tier 1

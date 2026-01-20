@@ -3,8 +3,6 @@ package core;
 import entities.*;
 import physics.Collision;
 import physics.SpatialGrid;
-import tanks.tier1.Basic;
-import tanks.tier2.Sniper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,34 +10,31 @@ import java.util.List;
 import static com.raylib.Helpers.newColor;
 import static com.raylib.Raylib.Texture;
 
-// core.EntityManager class handles the spawning, updating, and collision detection for all entities in the game world
+// EntityManager handles all entities in the game: tanks, bullets, shapes, and collisions
 public class EntityManager {
 
-    // World dimensions
+    // World size and initial shape count
     public static final int worldW = 4000;
     public static final int worldH = 4000;
     public static final int startShapes = 100;
 
-    // Default stats
-    private static final float DEFAULT_RECOIL = 50f;
-
-    // Game state flags
-    public static float dt;     // Delta time (seconds per frame)
+    // Game flags
+    public static float dt;     // Delta time per frame
     public static boolean deathScreen = false;
     public static boolean hitbox = false;
     public static boolean autoFire = false;
     public static boolean autoSpin = false;
 
-    // Lists storing all active entities
+    // Entity lists
     public static List<Bullet> bullets = new ArrayList<>();
     public static List<Shape> shapes = new ArrayList<>();
 
-    // Spacial grid (for collisions)
+    // Spatial grid for collision checks
     public static SpatialGrid spatialGrid = new SpatialGrid(worldW, worldH, 100);
     public static List<Shape> potentialShapes = new ArrayList<>();
     public static float MAX_SHAPE_RADIUS = 50f;
 
-    // Player and textures
+    // Player info
     public static Tank playerTank;
     public static TankType playerTankType;
     public static TankType requestedTank;
@@ -48,35 +43,28 @@ public class EntityManager {
     public static Texture barrel;
     public static Texture bullet;
 
-    // Spawn shapes
+    // Spawn enough shapes to maintain startShapes
     public static void spawnShapes() {
-        for (int i = 0; i < EntityManager.startShapes - EntityManager.shapes.size(); i++) {
+        for (int i = 0; i < startShapes - shapes.size(); i++) {
             addShape();
         }
     }
 
-    // Add shapes
+    // Add a single shape at a random safe position
     public static void addShape() {
-        // Generate a random shape type
+        // Determine random type
         double rand = Math.random();
         int type;
-        if (rand < 0.3) {
-            type = 0;
-        } else if (rand < 0.7) {
-            type = 1;
-        } else if (rand < 0.85) {
-            type = 2;
-        } else if (rand < 0.95) {
-            type = 3;
-        } else if (rand < 0.99) {
-            type = 4;
-        } else {
-            type = 5;
-        }
+        if (rand < 0.3) type = 0;
+        else if (rand < 0.7) type = 1;
+        else if (rand < 0.90) type = 2;
+        else if (rand < 0.96) type = 3;
+        else if (rand < 0.99) type = 4;
+        else if (rand < 0.998) type = 5;
+        else type = 6;
 
-        // Generate a random position that is NOT on top of the player and in world boundaries
-        float orbitX;
-        float orbitY;
+        // Generate a random position far enough from player
+        float orbitX, orbitY;
         float orbitRadius = 30 + (float) (Math.random() * 70);
         float safeDistance = playerTank.getWidth() / 2 + 150;
 
@@ -85,39 +73,30 @@ public class EntityManager {
             orbitY = (float) (Math.random() * (worldH - 2 * orbitRadius)) + orbitRadius;
         } while (Math.hypot(orbitX - playerTank.getCenterX(), orbitY - playerTank.getCenterY()) < safeDistance);
 
+        // Add shape based on type
         switch (type) {
-            case 0 ->
-                    shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 25));
-            case 1 ->
-                    shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 10));
-            case 2 ->
-                    shapes.add(new Shape(orbitX, orbitY, 25, orbitRadius, 0, 5, 100, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 100));
-            case 3 ->
-                    shapes.add(new Shape(orbitX, orbitY, 30, orbitRadius, 0, 6, 180, 16, newColor(75, 227, 217, 255), newColor(62, 184, 176, 255), 200));
-            case 4 ->
-                    shapes.add(new Shape(orbitX, orbitY, 40, orbitRadius, 0, 7, 250, 20, newColor(53, 219, 105, 255), newColor(39, 168, 79, 255), 200));
-            default ->
-                    shapes.add(new Shape(orbitX, orbitY, 45, orbitRadius, 0, 8, 350, 30, newColor(209, 144, 23, 255), newColor(181, 127, 27, 255), 200));
+            case 0 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 2500));
+            case 1 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 1000));
+            case 2 -> shapes.add(new Shape(orbitX, orbitY, 25, orbitRadius, 0, 5, 150, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 8000));
+            case 3 -> shapes.add(new Shape(orbitX, orbitY, 30, orbitRadius, 0, 6, 250, 18, newColor(75, 227, 217, 255), newColor(62, 184, 176, 255), 150));
+            case 4 -> shapes.add(new Shape(orbitX, orbitY, 40, orbitRadius, 0, 7, 500, 30, newColor(53, 219, 105, 255), newColor(39, 168, 79, 255), 400));
+            case 5 -> shapes.add(new Shape(orbitX, orbitY, 45, orbitRadius, 0, 8, 1000, 50, newColor(209, 144, 23, 255), newColor(181, 127, 27, 255), 1000));
+            default -> shapes.add(new Shape(orbitX, orbitY, 45, orbitRadius, 0, 10, 3000, 150, newColor(27, 27, 27, 255), newColor(17, 17, 17, 255), 5000));
         }
     }
 
-    // Fire bullet
+    // Fire bullets from the player tank
     public static void fireBullet() {
         for (Barrel b : playerTank.barrels) {
-
-            // Only fire if the barrel can shoot
             if (!b.canShoot()) continue;
 
-            // Spawn bullet
             float baseAngle = playerTank.angle;
             float turretAngle = b.getTurretAngle() * (float) Math.PI / 180f;
             float finalAngle = baseAngle + turretAngle;
 
-            // Offset
             float offsetX = -(float) Math.sin(baseAngle) * b.getOffset();
             float offsetY = (float) Math.cos(baseAngle) * b.getOffset();
 
-            // Forward spawn distance
             float bulletRadius = b.getBarrelH();
             float forward = b.getBarrelW() + bulletRadius * 0.5f;
 
@@ -126,35 +105,32 @@ public class EntityManager {
 
             bullets.add(new Bullet(bulletX, bulletY, finalAngle, bullet, bulletRadius, playerTank.getBulletDamage(), playerTank.getBulletSpeed(), playerTank.getBulletPenetration()));
 
-            // Reset timers
             b.reloadTimer = b.reloadSpeed;
             b.delayTimer = b.delay;
         }
+
         playerTank.applyRecoil();
     }
 
-
-    // Respawn player
+    // Respawn the player tank at a safe location
     public static void respawnPlayer() {
-        EntityManager.deathScreen = false;
+        deathScreen = false;
 
         float randX, randY;
         float safeDistance = 100;
-
-        // Keep picking a position until it's far enough from all shapes
         boolean safe;
+
         do {
-            randX = EntityManager.worldW * (float) Math.random();
-            randY = EntityManager.worldH * (float) Math.random();
+            randX = worldW * (float) Math.random();
+            randY = worldH * (float) Math.random();
             safe = true;
 
-            // Check distance to all shapes
-            for (Shape s : EntityManager.shapes) {
+            for (Shape s : shapes) {
                 float dx = randX - s.getCenterX();
                 float dy = randY - s.getCenterY();
                 if (Math.hypot(dx, dy) < safeDistance) {
                     safe = false;
-                    break; // Too close to a shape, pick a new position
+                    break;
                 }
             }
         } while (!safe);
@@ -162,46 +138,37 @@ public class EntityManager {
         int newLevel = Math.max(playerTank.getLevel() / 2, 1);
         int newScore = playerTank.getTotalScore(newLevel);
 
-        // Create brand new basic tank
-        playerTank = TankFactory.create(TankType.BASIC, randX, randY, 0f);
-
-        // Reset all upgrade state
+        playerTank = TankFactory.create(TankType.BASIC, randX, randY, angle);
         playerTankType = TankType.BASIC;
         requestedTank = TankType.BASIC;
-
         playerTank.addScore(newScore);
 
-        EntityManager.autoSpin = false;
-        EntityManager.autoFire = false;
+        playerTank.pendingUpgradeLevels.clear();
+        playerTank.checkUpgradeLevels();
+
+        autoSpin = false;
+        autoFire = false;
     }
 
-    // Check all collisions
+    // Check all collisions between bullets, shapes, and the tank
     public static void checkCollisions() {
         checkBulletShapeCollisions();
         checkShapeShapeCollisions();
         if (!deathScreen) checkTankShapeCollisions();
     }
 
-    // Check collision between bullets and shapes
+    // Bullet vs Shape collisions
     public static void checkBulletShapeCollisions() {
-        // Loop through every bullet entity
         for (Bullet b : bullets) {
-            // Find nearby shapes for collision testing usng the spatial grid
             spatialGrid.getPotentialCollisions(b.getCenterX(), b.getCenterY(), b.getWidth() / 2f, MAX_SHAPE_RADIUS, potentialShapes);
 
-            // Then, loop through the list of potential shapes instead of all shapes (much more efficient)
             for (Shape s : potentialShapes) {
-                // Only collide with living shapes
                 if (s.isAlive() && Collision.circlePolygonCollision(b.getCenterX(), b.getCenterY(), b.getWidth() / 2f, s.polygon)) {
-                    if (s.isAlive()) s.setDamage(true);
-                    if (b.isAlive()) b.setDamage(true);
-                    // Resolve damage exchange between bullet and shape
+                    s.setDamage(true);
+                    b.setDamage(true);
                     resolveCollision(b, s, b.getBodyDamage(), s.getBodyDamage());
-
-                    // Apply knockback after damage
                     applyKnockback(b, s, 10, 10);
 
-                    // Award XP
                     if (!s.isAlive()) {
                         playerTank.addScore(s.getXp());
                         playerTank.updateNumShapesKilled();
@@ -211,17 +178,16 @@ public class EntityManager {
         }
     }
 
-    // Check collision between tanks and shapes (same concept as above)
+    // Tank vs Shape collisions
     public static void checkTankShapeCollisions() {
         spatialGrid.getPotentialCollisions(playerTank.getCenterX(), playerTank.getCenterY(), playerTank.getWidth() / 2f, MAX_SHAPE_RADIUS, potentialShapes);
+
         for (Shape s : potentialShapes) {
             if (s.isAlive() && Collision.circlePolygonCollision(playerTank.getCenterX(), playerTank.getCenterY(), playerTank.getWidth() / 2f, s.polygon)) {
-                if (s.isAlive()) s.setDamage(true);
-                if (playerTank.isAlive()) playerTank.setDamage(true);
+                s.setDamage(true);
+                playerTank.setDamage(true);
 
                 resolveCollision(playerTank, s, playerTank.getBodyDamage(), s.getBodyDamage());
-
-                // Apply knockback after damage
                 applyKnockback(s, playerTank, 50, 50);
 
                 if (!s.isAlive()) {
@@ -232,53 +198,41 @@ public class EntityManager {
         }
     }
 
-    // Check collision between shapes (again, same concept as above)
+    // Shape vs Shape collisions
     public static void checkShapeShapeCollisions() {
         for (Shape a : shapes) {
             spatialGrid.getPotentialCollisions(a.getCenterX(), a.getCenterY(), a.getWidth() / 2f, MAX_SHAPE_RADIUS, potentialShapes);
+
             for (Shape b : potentialShapes) {
-                if (a == b) continue;
-                if (!b.isAlive()) continue;
-                if (!shapes.contains(b)) continue;
+                if (a == b || !b.isAlive() || !shapes.contains(b)) continue;
+
                 if (Collision.polygonPolygonCollision(a.polygon, b.polygon)) {
-                    // Shapes don't deal damage to each other, but they do apply knockback
                     applyKnockback(a, b, 8, 8);
                 }
             }
         }
     }
 
-    // Resolves a collision using proportional damage (partial damage if one dies early)
+    // Apply proportional damage to two colliding entities
     public static void resolveCollision(Entity a, Entity b, float damageA, float damageB) {
-        // Maximum possible damage this frame
-        float potentialA = damageA * dt;
-        float potentialB = damageB * dt;
-
-        // Clamp damage so entities cannot deal more damage than remaining health allows
-        float ratioA = (potentialA > b.getHealth()) ? (b.getHealth() / potentialA) : 1.0f;
-        float ratioB = (potentialB > a.getHealth()) ? (a.getHealth() / potentialB) : 1.0f;
-
-        // Use the smaller ratio so both sides scale consistently
+        float ratioA = Math.min(1.0f, damageA * dt > b.getHealth() ? b.getHealth() / (damageA * dt) : 1.0f);
+        float ratioB = Math.min(1.0f, damageB * dt > a.getHealth() ? a.getHealth() / (damageB * dt) : 1.0f);
         float ratio = Math.min(ratioA, ratioB);
 
-        // Apply scaled damage to both entities
         a.takeDamage(damageB * ratio);
         b.takeDamage(damageA * ratio);
     }
 
-    // Applies a simple knockback force to separate two colliding entities
+    // Apply knockback to two entities
     public static void applyKnockback(Entity a, Entity b, float knockbackStrengthA, float knockbackStrengthB) {
         float dx = b.getCenterX() - a.getCenterX();
         float dy = b.getCenterY() - a.getCenterY();
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
 
-        // Avoid division by zero
         if (dist != 0) {
-            // Normalize direction vector
             dx /= dist;
             dy /= dist;
 
-            // Push entities away from each other
             a.addVelocity(-dx * knockbackStrengthA, -dy * knockbackStrengthA);
             b.addVelocity(dx * knockbackStrengthB, dy * knockbackStrengthB);
         }
@@ -286,40 +240,33 @@ public class EntityManager {
 
     // Update all entities
     public static void updateEntities() {
-        // Update shapes
         spatialGrid.clear();
+
         for (Shape s : shapes) {
             s.update();
             spatialGrid.addShape(s);
         }
 
-        // Update bullets
-        for (Bullet b : bullets) {
-            b.update();
-        }
+        for (Bullet b : bullets) b.update();
 
-        // Update player tank
-        if (!deathScreen) {
-            playerTank.update(); // This now handles barrels and shooting
-        }
+        if (!deathScreen) playerTank.update();
 
-        // Check if dead
-        if (!playerTank.isAlive()) {
-            deathScreen = true;
-        }
+        if (!playerTank.isAlive()) deathScreen = true;
 
-        // Remove dead entities
         removeEntities();
     }
 
+    // Remove dead bullets and shapes
     public static void removeEntities() {
         bullets.removeIf(b -> !b.isAlive() && b.getTimeSinceDeath() > 0.08);
         shapes.removeIf(s -> !s.isAlive() && s.getTimeSinceDeath() > 0.08);
     }
 
+    // Reset game state
     public static void resetGame() {
         shapes.clear();
         bullets.clear();
+
         if (deathScreen) {
             respawnPlayer();
             deathScreen = false;

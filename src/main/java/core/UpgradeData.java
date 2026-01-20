@@ -46,7 +46,4 @@ public final class UpgradeData {
         // Twin flank
         UPGRADES.put(TankType.TWINFLANK, List.of(TankType.TRIPLETWIN));
     }
-
-    private UpgradeData() {
-    } // prevent instantiation
 }

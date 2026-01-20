@@ -2,7 +2,7 @@ package core;
 
 // Enum for tracking which screen the game is currently on
 public enum ScreenType {
-    MENU,  // core.Main menu
-    GAME,  // Game
+    MENU,  // Main menu
+    GAME,  // Game menu
     EXIT   // Close game
 }

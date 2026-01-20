@@ -2,7 +2,7 @@ package physics;
 
 import static com.raylib.Raylib.Vector2;
 
-// physics.Polygon class for collision and rendering
+// Polygon class for collision and rendering
 public class Polygon {
     // Array of vertices of the shape
     public final Vector2[] vertices;
