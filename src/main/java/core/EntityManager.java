@@ -19,23 +19,30 @@ public class EntityManager {
     public static final int worldW = 4000;
     public static final int worldH = 4000;
     public static final int startShapes = 100;
+
     // Default stats
     private static final float DEFAULT_RECOIL = 50f;
+
     // Game state flags
     public static float dt;     // Delta time (seconds per frame)
     public static boolean deathScreen = false;
     public static boolean hitbox = false;
     public static boolean autoFire = false;
     public static boolean autoSpin = false;
+
     // Lists storing all active entities
     public static List<Bullet> bullets = new ArrayList<>();
     public static List<Shape> shapes = new ArrayList<>();
-    // Spacial partitioning (for collisions)
+
+    // Spacial grid (for collisions)
     public static SpatialGrid spatialGrid = new SpatialGrid(worldW, worldH, 100);
     public static List<Shape> potentialShapes = new ArrayList<>();
     public static float MAX_SHAPE_RADIUS = 50f;
+
     // Player and textures
     public static Tank playerTank;
+    public static TankType playerTankType;
+    public static TankType requestedTank;
     public static float angle;
     public static Texture tank;
     public static Texture barrel;
@@ -284,12 +291,6 @@ public class EntityManager {
         for (Bullet b : bullets) {
             b.update();
         }
-
-//        if (playerTank.upgradeTank) {
-//            Sniper newTank = new Sniper(playerTank.getCenterX(), playerTank.getCenterY(), angle, tank, barrel);
-//            newTank.copyStats(playerTank);  // copy all previous stats
-//            playerTank = newTank;
-//        }
 
         // Update player tank
         if (!deathScreen) {

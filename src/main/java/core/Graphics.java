@@ -29,7 +29,7 @@ public class Graphics {
     public static final float miniMapW = 200;
     public static final float miniMapH = 200;
     public static final Color miniMapColour = newColor(148, 148, 148, 200);
-    public static final Color miniMapBorderColour = newColor(71, 71, 71, 200);
+    public static final Color miniMapBorderColour = newColor(20, 20, 20, 200);
 
     // Stats menu properties
     public static final String[] statNames = {
@@ -95,6 +95,10 @@ public class Graphics {
     public static float upgradeMenuY = padding;
     public static float upgradeMenuW = 400f;
     public static float upgradeMenuYH= 400f;
+    public static Rectangle twinRect;
+    public static Rectangle sniperRect ;
+    public static Rectangle machineGunRect;
+    public static Rectangle flankGuardRect;
 
     // Menu screen layout rectangles
     public static Rectangle backgroundRect;
@@ -362,7 +366,7 @@ public class Graphics {
     public static void drawMiniMap() {
         Rectangle rect = newRectangle(miniMapX, miniMapY, miniMapW, miniMapH);
         DrawRectangleRounded(rect, 0.05f, 10, miniMapColour);
-        DrawRectangleRoundedLines(rect, 0.05f, 10, miniMapBorderColour);
+        DrawRectangleRoundedLinesEx(rect, 0.05f, 10, 8, miniMapBorderColour);
 
         float x = EntityManager.playerTank.getCenterX() / EntityManager.worldW;
         float y = EntityManager.playerTank.getCenterY() / EntityManager.worldH;
@@ -371,21 +375,46 @@ public class Graphics {
     }
 
     public static void drawUpgradeMenu() {
-        DrawRectangleV(new Vector2().x(padding).y(padding), new Vector2().x(400).y(400), newColor(140, 140, 140, 150));
+        float panelX = padding;
+        float panelY = padding;
+        float panelW = 400;
+        float panelH = 400;
+
+        // Background panel
+        DrawRectangleV(new Vector2().x(panelX).y(panelY), new Vector2().x(panelW).y(panelH), newColor(90, 90, 90, 200));
+
+        // Box sizes
+        float boxW = 160;
+        float boxH = 120;
+        float gap = 20;
+
+        float startX = panelX + 30;
+        float startY = panelY + 30;
+
+        // Upgrade boxes
+        twinRect = newRectangle(startX, startY, boxW, boxH);
+        sniperRect = newRectangle(startX + boxW + gap, startY, boxW, boxH);
+        machineGunRect = newRectangle(startX, startY + boxH + gap, boxW, boxH);
+        flankGuardRect =newRectangle(startX + boxW + gap, startY + boxH + gap, boxW, boxH);
+
+        drawUpgradeBox(twinRect, "Twin");
+        drawUpgradeBox(sniperRect, "Sniper");
+        drawUpgradeBox(machineGunRect, "Machine Gun");
+        drawUpgradeBox(flankGuardRect, "Flank Guard");
     }
 
-    public static void drawUpgradeBox(float x, float y, float w, float h, String text) {
+    public static void drawUpgradeBox(Rectangle rect, String text) {
         // Box background
-        DrawRectangleRec(newRectangle(x, y, w, h), newColor(90, 90, 90, 200));
+        DrawRectangleRec(rect, newColor(90, 90, 90, 200));
 
         // Box outline
-        DrawRectangleLinesEx(newRectangle(x, y, w, h), 3, RAYWHITE);
+        DrawRectangleLinesEx(rect, 3, RAYWHITE);
 
         // Centered text
         int fontSize = 20;
         int textW = MeasureText(text, fontSize);
 
-        DrawText(text, (int)(x + w / 2 - textW / 2), (int)(y + h / 2 - fontSize / 2), fontSize, RAYWHITE);
+        DrawText(text, (int)(rect.x() + rect.width() / 2 - textW / 2f), (int)(rect.y() + rect.height() / 2 - fontSize / 2f), fontSize, RAYWHITE);
     }
 
     public static void drawDeathScreen() {

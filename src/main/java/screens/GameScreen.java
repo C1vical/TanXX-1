@@ -1,11 +1,11 @@
 package screens;
 
-import core.EntityManager;
-import core.GameState;
-import core.Graphics;
-import core.ScreenType;
+import core.*;
+import entities.Tank;
 import tanks.tier1.*;
 import tanks.tier2.FlankGuard;
+import tanks.tier2.Sniper;
+import tanks.tier2.Twin;
 import tanks.tier3.TripleShot;
 import tanks.tier3.TwinFlank;
 import tanks.tier4.OctoTank;
@@ -32,7 +32,9 @@ public class GameScreen extends GameState {
 
         float randX = EntityManager.worldW * (float) Math.random();
         float randY = EntityManager.worldH * (float) Math.random();
-        EntityManager.playerTank = new PentaShot(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+        EntityManager.playerTank = new Basic(randX, randY, EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+        EntityManager.playerTankType = TankType.BASIC;
+        EntityManager.requestedTank = TankType.BASIC;
 
         Graphics.camera = new Camera2D();
         Graphics.camera.target(new Vector2().x(EntityManager.playerTank.getCenterX()).y(EntityManager.playerTank.getCenterY()));
@@ -67,6 +69,30 @@ public class GameScreen extends GameState {
     // Update loop
     @Override
     public void update() {
+
+        TankType requestedTank = EntityManager.requestedTank;
+        if (EntityManager.playerTankType != requestedTank) {
+            Tank newTank = new Tank(0, 0, 0, EntityManager.tank);
+            if (requestedTank == TankType.TWIN) {
+                newTank = new Twin(EntityManager.playerTank.getCenterX(), EntityManager.playerTank.getCenterY(), EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+                newTank.copyStats(EntityManager.playerTank);  // copy all previous stats
+                EntityManager.playerTankType = TankType.TWIN;
+            } else if (requestedTank == TankType.SNIPER) {
+                newTank = new Sniper(EntityManager.playerTank.getCenterX(), EntityManager.playerTank.getCenterY(), EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+                newTank.copyStats(EntityManager.playerTank);  // copy all previous stats
+                EntityManager.playerTankType = TankType.SNIPER;
+            } else if (requestedTank == TankType.MACHINEGUN) {
+//                 newTank = new Twin(EntityManager.playerTank.getCenterX(), EntityManager.playerTank.getCenterY(), EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+//                newTank.copyStats(EntityManager.playerTank);  // copy all previous stats
+//                EntityManager.playerTankType = TankType.MACHINEGUN;
+            } else if (requestedTank == TankType.FLANKGUARD) {
+                newTank = new FlankGuard(EntityManager.playerTank.getCenterX(), EntityManager.playerTank.getCenterY(), EntityManager.angle, EntityManager.tank, EntityManager.barrel);
+                newTank.copyStats(EntityManager.playerTank);  // copy all previous stats
+                EntityManager.playerTankType = TankType.FLANKGUARD;
+            }
+            EntityManager.playerTank = newTank;
+            EntityManager.playerTank.upgradeTank = false;
+        }
 
         // Time since last frame
         EntityManager.dt = GetFrameTime();
@@ -178,6 +204,12 @@ public class GameScreen extends GameState {
             }
         }
 
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && EntityManager.playerTank.upgradeTank) {
+            checkUpgrade(mouseScreen);
+            return;
+        }
+
+
         // Manual firing
         if ((IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonDown(MOUSE_BUTTON_LEFT)) && EntityManager.playerTank.canFire() && !CheckCollisionPointRec(mouseScreen, Graphics.settingsRect)) {
             EntityManager.fireBullet();
@@ -205,8 +237,20 @@ public class GameScreen extends GameState {
 
         // Set player tank angle
         EntityManager.playerTank.setAngle(EntityManager.angle);
-
     }
+
+    public void checkUpgrade(Vector2 mouseScreen) {
+        if (CheckCollisionPointRec(mouseScreen, Graphics.twinRect)) {
+            EntityManager.requestedTank = TankType.TWIN;
+        } else if (CheckCollisionPointRec(mouseScreen, Graphics.sniperRect)) {
+            EntityManager.requestedTank = TankType.SNIPER;
+        } else if (CheckCollisionPointRec(mouseScreen, Graphics.machineGunRect)) {
+            EntityManager.requestedTank = TankType.MACHINEGUN;
+        } else if (CheckCollisionPointRec(mouseScreen, Graphics.flankGuardRect)) {
+            EntityManager.requestedTank = TankType.FLANKGUARD;
+        }
+    }
+
 
     // Drawing
     @Override
@@ -248,8 +292,6 @@ public class GameScreen extends GameState {
             // Draw death overlay if the player is dead
             Graphics.drawDeathScreen();
         }
-
-
     }
 
     // Unload resources

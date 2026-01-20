@@ -4,6 +4,7 @@ import screens.GameScreen;
 import screens.MenuScreen;
 
 import static com.raylib.Colors.RAYWHITE;
+import static com.raylib.Helpers.newColor;
 import static com.raylib.Raylib.*;
 
 
@@ -42,6 +43,11 @@ public class Main {
 
         // Set the target fps of our game to 60
         SetTargetFPS(60);
+
+        // Graphic styles
+        GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(newColor(70, 70, 70, 255)));
+        GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(newColor(110, 110, 110, 255)));
+        GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(RAYWHITE));
 
         // Begin on the menu screen
         currentScreen = new MenuScreen();

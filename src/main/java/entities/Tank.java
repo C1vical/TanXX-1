@@ -10,7 +10,7 @@ import static com.raylib.Helpers.newRectangle;
 import static com.raylib.Raylib.*;
 
 // Tank class represents the player
-public class Tank extends Entity {
+public class Tank extends Entity implements Cloneable {
     private final int[] levelXP = {4, 9, 15, 22, 28, 35, 44, 54, 64, 75, 87, 101, 117, 132, 161, 161, 192, 215, 251, 259, 299, 322, 388, 398, 450, 496, 546, 600, 659, 723, 791, 839, 889, 942, 999, 1059, 1093, 1190, 1261, 1337, 1417, 1502, 1593, 1687, 0};
     // Upgrade
     public boolean upgradeTank;
@@ -142,6 +142,11 @@ public class Tank extends Entity {
         // Passive regen
         regenHealth(EntityManager.dt);
 
+        // Check if upgrade tank
+        if (level == 5 || level == 30 || level == 45) {
+            upgradeTank = true;
+        }
+
         // Update health ratio
         healthRatio = health / maxHealth;
 
@@ -149,8 +154,6 @@ public class Tank extends Entity {
         if (timeSinceLastHit > 0.02) isDamage = false;
 
         if (!alive) timeSinceDeath += EntityManager.dt;
-
-
     }
 
     // Handle input
@@ -325,6 +328,7 @@ public class Tank extends Entity {
             upgradeSkill = true;
         }
 
+        // Check if upgrade tank
         if (level == 5 || level == 30 || level == 45) {
             upgradeTank = true;
         }
@@ -372,13 +376,23 @@ public class Tank extends Entity {
     }
 
     public void copyStats(Tank tank) {
+        // Core progression
         this.level = tank.level;
         this.levelScore = tank.levelScore;
         this.skillPoints = tank.skillPoints;
-        this.upgradeSkill = tank.upgradeSkill;
-        this.score = tank.score;
         this.stats = tank.stats.clone();
+
+        this.score = tank.score;
+        this.timeAlive = tank.timeAlive;
+        this.numShapesKilled = tank.numShapesKilled;
+
+        // Flags
+        this.upgradeTank = tank.upgradeTank;
+        this.alive = tank.alive;
+
+        // Recalculate everything derived from stats
         updateStats();
         updateDimensions();
     }
+
 }

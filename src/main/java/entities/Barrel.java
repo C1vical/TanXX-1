@@ -63,7 +63,7 @@ public class Barrel {
     }
 
     public void update() {
-        // Update the reload timers
+        // Update the reloadaw timers
         if (reloadTimer > 0f) reloadTimer -= EntityManager.dt;
 
         // Check if player is holding the mouse button
@@ -92,45 +92,25 @@ public class Barrel {
 
         float rotation = angle * (180f / (float) Math.PI);
 
-        // ───────── Outer stroke ─────────
+        // Outer
         Rectangle outerDest = newRectangle(pivotX, pivotY, barrelW, barrelH);
         Vector2 outerOrigin = new Vector2().x(0).y(barrelH / 2f);
 
-        DrawTexturePro(
-                barrelTexture,
-                source,
-                outerDest,
-                outerOrigin,
-                rotation,
-                barrelStrokeColor
-        );
+        DrawTexturePro(barrelTexture, source, outerDest, outerOrigin, rotation, barrelStrokeColor);
 
-        // ───────── Inner barrel ─────────
+        // Inner barrel
         int strokeWidth = 3;
         float innerW = barrelW - strokeWidth * 2f;
         float innerH = barrelH - strokeWidth * 2f;
 
-        // 🔧 FIX: offset ALONG barrel direction, not screen X
+        // Offset
         float innerOffsetX = (float) Math.cos(angle) * strokeWidth;
         float innerOffsetY = (float) Math.sin(angle) * strokeWidth;
 
-        Rectangle innerDest = newRectangle(
-                pivotX + innerOffsetX,
-                pivotY + innerOffsetY,
-                innerW,
-                innerH
-        );
-
+        Rectangle innerDest = newRectangle(pivotX + innerOffsetX, pivotY + innerOffsetY, innerW, innerH);
         Vector2 innerOrigin = new Vector2().x(0).y(innerH / 2f);
 
-        DrawTexturePro(
-                barrelTexture,
-                source,
-                innerDest,
-                innerOrigin,
-                rotation,
-                barrelColor
-        );
+        DrawTexturePro(barrelTexture, source, innerDest, innerOrigin, rotation, barrelColor);
     }
 
 
@@ -172,6 +152,10 @@ public class Barrel {
 
     public boolean canShoot() {
         return canShoot;
+    }
+
+    public Texture getBarrelTexture() {
+        return barrelTexture;
     }
 
 }
