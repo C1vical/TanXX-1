@@ -6,7 +6,7 @@ import java.util.Map;
 
 public final class UpgradeData {
 
-    // MAIN upgrade map
+    // The main upgrade map utilizing a hash map and arraylist
     public static final Map<TankType, List<TankType>> UPGRADES = new HashMap<>();
 
     static {
@@ -27,6 +27,7 @@ public final class UpgradeData {
         // Twin
         UPGRADES.put(TankType.TWIN, List.of(TankType.QUADTANK, TankType.TRIPLESHOT, TankType.TWINFLANK));
 
+        // Tier 3
         // Assassin
         UPGRADES.put(TankType.ASSASSIN, List.of(TankType.RANGER, TankType.STREAMLINER));
 
@@ -40,7 +41,7 @@ public final class UpgradeData {
         UPGRADES.put(TankType.TRIANGLE, List.of(TankType.BOOSTER, TankType.FIGHTER));
 
         // Triple shot
-        UPGRADES.put(TankType.TRIPLESHOT, List.of(TankType.PENTASHOT, TankType.TRIPLETWIN));
+        UPGRADES.put(TankType.TRIPLESHOT, List.of(TankType.PENTASHOT, TankType.TRIPLET));
 
         // Twin flank
         UPGRADES.put(TankType.TWINFLANK, List.of(TankType.TRIPLETWIN));

@@ -162,7 +162,13 @@ public class EntityManager {
         int newLevel = Math.max(playerTank.getLevel() / 2, 1);
         int newScore = playerTank.getTotalScore(newLevel);
 
-        playerTank = new Basic(randX, randY, angle, tank, barrel);
+        // Create brand new basic tank
+        playerTank = TankFactory.create(TankType.BASIC, randX, randY, 0f);
+
+        // Reset all upgrade state
+        playerTankType = TankType.BASIC;
+        requestedTank = TankType.BASIC;
+
         playerTank.addScore(newScore);
 
         EntityManager.autoSpin = false;

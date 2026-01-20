@@ -1,5 +1,6 @@
 package tanks.tier2;
 
+import core.TankType;
 import entities.Barrel;
 import entities.Tank;
 
@@ -8,6 +9,7 @@ import static com.raylib.Raylib.Texture;
 public class Twin extends Tank {
     public Twin(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
+        this.type = TankType.TWIN;
         this.radius = 50;
         this.width = radius;
         this.height = radius;

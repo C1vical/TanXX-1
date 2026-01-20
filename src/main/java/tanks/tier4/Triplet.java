@@ -1,12 +1,14 @@
 package tanks.tier4;
 
 import com.raylib.Raylib;
+import core.TankType;
 import entities.Barrel;
 import entities.Tank;
 
 public class Triplet extends Tank {
     public Triplet(float centerX, float centerY, float angle, Raylib.Texture bodyTexture, Raylib.Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
+        this.type = TankType.TRIPLET;
         this.radius = 50;
         this.width = radius;
         this.height = radius;

@@ -1,5 +1,6 @@
 package tanks.tier4;
 
+import core.TankType;
 import entities.Barrel;
 import entities.Tank;
 
@@ -8,6 +9,7 @@ import static com.raylib.Raylib.Texture;
 public class Booster extends Tank {
     public Booster(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
+        this.type = TankType.BOOSTER;
         this.radius = 50;
         this.width = radius;
         this.height = radius;

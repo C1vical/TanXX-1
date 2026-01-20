@@ -1,5 +1,6 @@
 package tanks.tier4;
 
+import core.TankType;
 import entities.Barrel;
 import entities.Tank;
 
@@ -12,6 +13,7 @@ public class Streamliner extends Tank {
     // Constructor sets default radius and barrel dimensions for the basic tank
     public Streamliner(float centerX, float centerY, float angle, Texture bodyTexture, Texture barrelTexture) {
         super(centerX, centerY, angle, bodyTexture);
+        this.type = TankType.STREAMLINER;
         this.radius = 50;
         this.width = radius;
         this.height = radius;

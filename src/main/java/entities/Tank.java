@@ -2,6 +2,7 @@ package entities;
 
 import core.EntityManager;
 import core.Graphics;
+import core.TankType;
 
 import static com.raylib.Colors.RAYWHITE;
 import static com.raylib.Colors.RED;
@@ -22,6 +23,7 @@ public class Tank extends Entity {
     public Barrel[] barrels;
 
     // Stats
+    private int[] stats = new int[8];
     // Stat levels (0-8 for each stat)
     // stats[0]: Health regen
     // stats[1]: Max health
@@ -31,7 +33,6 @@ public class Tank extends Entity {
     // stats[5]: Bullet damage
     // stats[6]: Reload speed
     // stats[7]: Movement speed
-    private int[] stats = new int[8];
     private float healthRegen;
     private float bulletSpeed;
     private float bulletPenetration;
@@ -62,6 +63,8 @@ public class Tank extends Entity {
     protected static final float defaultReload = 0.6f;
     protected static final float defaultRecoil = 50f;
 
+    // Tank type
+    protected TankType type;
 
     // Constructor
     public Tank(float centerX, float centerY, float angle, Texture texture) {
@@ -286,6 +289,10 @@ public class Tank extends Entity {
         return zoomFactor;
     }
 
+    public TankType getType() {
+        return type;
+    }
+
     // Passive health regeneration
     public void regenHealth(float dt) {
         timeSinceLastHit += dt;
@@ -327,7 +334,7 @@ public class Tank extends Entity {
         }
 
         // Check if upgrade tank
-        if (level == 5 || level == 30 || level == 45) {
+        if (level == 5 || level == 10 || level == 15) {
             upgradeTank = true;
         }
 

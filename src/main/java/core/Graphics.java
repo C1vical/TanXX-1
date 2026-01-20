@@ -4,6 +4,8 @@ import entities.Bullet;
 import entities.Shape;
 import entities.Tank;
 import screens.GameScreen;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.raylib.Colors.*;
 import static com.raylib.Helpers.newColor;
@@ -91,14 +93,11 @@ public class Graphics {
     public static float nameTextY;
 
     // Upgraded menu properties
-    public static float upgradeMenuX = padding;
-    public static float upgradeMenuY = padding;
-    public static float upgradeMenuW = 400f;
-    public static float upgradeMenuYH= 400f;
-    public static Rectangle twinRect;
-    public static Rectangle sniperRect ;
-    public static Rectangle machineGunRect;
-    public static Rectangle flankGuardRect;
+    public static boolean showUpgradeChoices = false;
+
+    // Upgrade UI
+    public static List<Rectangle> upgradeRects = new ArrayList<>();
+    public static List<TankType> upgradeOptions = new ArrayList<>();
 
     // Menu screen layout rectangles
     public static Rectangle backgroundRect;
@@ -168,9 +167,6 @@ public class Graphics {
 
         miniMapX = GameState.screenW - miniMapW - padding * ratioW;
         miniMapY = padding * ratioH;
-
-        upgradeMenuX = padding * ratioW;
-        upgradeMenuY = padding * ratioH;
     }
 
     // Update menu layout based on screen radius
@@ -373,48 +369,48 @@ public class Graphics {
         DrawCircleV(new Vector2().x(miniMapX + miniMapW * x).y(miniMapY + miniMapH * y), 5, RED);
     }
 
-    public static void drawUpgradeMenu() {
-        float panelX = padding;
-        float panelY = padding;
-        float panelW = 400;
-        float panelH = 400;
+    public static void drawUpgradeMenu(TankType currentType) {
+        upgradeRects.clear();
+        upgradeOptions.clear();
 
-        // Background panel
-        DrawRectangleV(new Vector2().x(panelX).y(panelY), new Vector2().x(panelW).y(panelH), newColor(90, 90, 90, 200));
+        List<TankType> upgrades = UpgradeData.UPGRADES.get(currentType);
+        if (upgrades == null || upgrades.isEmpty()) return;
 
-        // Box sizes
-        float boxW = 160;
-        float boxH = 120;
+        float boxW = 140;
+        float boxH = 90;
         float gap = 20;
 
-        float startX = panelX + 30;
-        float startY = panelY + 30;
+        float totalW = upgrades.size() * boxW + (upgrades.size() - 1) * gap;
+        float startX = (GetScreenWidth() - totalW) / 2f;
+        float y = 80;
 
-        // Upgrade boxes
-        twinRect = newRectangle(startX, startY, boxW, boxH);
-        sniperRect = newRectangle(startX + boxW + gap, startY, boxW, boxH);
-        machineGunRect = newRectangle(startX, startY + boxH + gap, boxW, boxH);
-        flankGuardRect =newRectangle(startX + boxW + gap, startY + boxH + gap, boxW, boxH);
+        for (int i = 0; i < upgrades.size(); i++) {
+            float x = startX + i * (boxW + gap);
 
-        drawUpgradeBox(twinRect, "Twin");
-        drawUpgradeBox(sniperRect, "Sniper");
-        drawUpgradeBox(machineGunRect, "Machine Gun");
-        drawUpgradeBox(flankGuardRect, "Flank Guard");
+            Rectangle rect = newRectangle(x, y, boxW, boxH);
+            upgradeRects.add(rect);
+            upgradeOptions.add(upgrades.get(i));
+
+            drawUpgradeBox(rect, upgrades.get(i).name());
+        }
     }
 
-    public static void drawUpgradeBox(Rectangle rect, String text) {
-        // Box background
-        DrawRectangleRec(rect, newColor(90, 90, 90, 200));
 
-        // Box outline
-        DrawRectangleLinesEx(rect, 3, RAYWHITE);
+    private static void drawUpgradeBox(Rectangle r, String name) {
+        Vector2 mouse = GetMousePosition();
+        boolean hover = CheckCollisionPointRec(mouse, r);
 
-        // Centered text
+        DrawRectangleRec(r, hover ? newColor(120, 120, 120, 220) : newColor(90, 90, 90, 200));
+
+        DrawRectangleLinesEx(r, 2, WHITE);
+
         int fontSize = 20;
-        int textW = MeasureText(text, fontSize);
+        int textW = MeasureText(name, fontSize);
 
-        DrawText(text, (int)(rect.x() + rect.width() / 2 - textW / 2f), (int)(rect.y() + rect.height() / 2 - fontSize / 2f), fontSize, RAYWHITE);
+        DrawText(name, (int) (r.x() + (r.width() - textW) / 2), (int) (r.y() + r.height() / 2 - fontSize / 2f), fontSize, WHITE);
     }
+
+
 
     public static void drawDeathScreen() {
         DrawRectangle(0, 0, GameState.screenW, GameState.screenH, newColor(0, 0, 0, 75));
