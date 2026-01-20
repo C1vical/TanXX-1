@@ -16,11 +16,11 @@ public class MenuScreen extends GameState {
     private final Texture creditsBtn;
     private final Texture exitBtn;
 
-    // Set the requested screen type as MENU
-    private ScreenType requestedScreen = ScreenType.MENU;
-
     // Constructor
     public MenuScreen() {
+        // Set the requested screen type as MENU
+        requestedScreen = ScreenType.MENU;
+
         // Load menu assets from the resources folder
         background = LoadTexture("resources/menu/menubackgroundblur.png");
         logo = LoadTexture("resources/menu/logo.png");

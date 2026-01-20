@@ -52,7 +52,7 @@ public class EntityManager {
 
     // Add a single shape at a random safe position
     public static void addShape() {
-        // Determine random type
+        // Determine random type (squares, triangles more common than the bigger shapes)
         double rand = Math.random();
         int type;
         if (rand < 0.3) type = 0;
@@ -73,15 +73,15 @@ public class EntityManager {
             orbitY = (float) (Math.random() * (worldH - 2 * orbitRadius)) + orbitRadius;
         } while (Math.hypot(orbitX - playerTank.getCenterX(), orbitY - playerTank.getCenterY()) < safeDistance);
 
-        // Add shape based on type
+        // Add shape based on type, each with their own radius, health, body damage, colour, and xp
         switch (type) {
-            case 0 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 2500));
-            case 1 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 1000));
-            case 2 -> shapes.add(new Shape(orbitX, orbitY, 25, orbitRadius, 0, 5, 150, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 8000));
+            case 0 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 3, 30, 8, newColor(214, 51, 30, 255), newColor(148, 30, 15, 255), 25));
+            case 1 -> shapes.add(new Shape(orbitX, orbitY, 20, orbitRadius, 0, 4, 10, 8, newColor(214, 208, 30, 255), newColor(158, 152, 24, 255), 10));
+            case 2 -> shapes.add(new Shape(orbitX, orbitY, 25, orbitRadius, 0, 5, 150, 12, newColor(82, 58, 222, 255), newColor(59, 36, 212, 255), 80));
             case 3 -> shapes.add(new Shape(orbitX, orbitY, 30, orbitRadius, 0, 6, 250, 18, newColor(75, 227, 217, 255), newColor(62, 184, 176, 255), 150));
-            case 4 -> shapes.add(new Shape(orbitX, orbitY, 40, orbitRadius, 0, 7, 500, 30, newColor(53, 219, 105, 255), newColor(39, 168, 79, 255), 400));
-            case 5 -> shapes.add(new Shape(orbitX, orbitY, 45, orbitRadius, 0, 8, 1000, 50, newColor(209, 144, 23, 255), newColor(181, 127, 27, 255), 1000));
-            default -> shapes.add(new Shape(orbitX, orbitY, 45, orbitRadius, 0, 10, 3000, 150, newColor(27, 27, 27, 255), newColor(17, 17, 17, 255), 5000));
+            case 4 -> shapes.add(new Shape(orbitX, orbitY, 45, orbitRadius, 0, 7, 500, 30, newColor(53, 219, 105, 255), newColor(39, 168, 79, 255), 400));
+            case 5 -> shapes.add(new Shape(orbitX, orbitY, 60, orbitRadius, 0, 8, 1000, 50, newColor(209, 144, 23, 255), newColor(181, 127, 27, 255), 1000));
+            default -> shapes.add(new Shape(orbitX, orbitY, 80, orbitRadius, 0, 10, 2500, 100, newColor(27, 27, 27, 255), newColor(17, 17, 17, 255), 5000));
         }
     }
 
@@ -112,10 +112,12 @@ public class EntityManager {
         playerTank.applyRecoil();
     }
 
-    // Respawn the player tank at a safe location
+    // Respawn the player tank at a random, safe location
     public static void respawnPlayer() {
+        // Set death screen to false
         deathScreen = false;
 
+        // Make sure player doesn't spawn on top of a shape
         float randX, randY;
         float safeDistance = 100;
         boolean safe;
@@ -135,6 +137,7 @@ public class EntityManager {
             }
         } while (!safe);
 
+        // Calculate level and score
         int newLevel = Math.max(playerTank.getLevel() / 2, 1);
         int newScore = playerTank.getTotalScore(newLevel);
 

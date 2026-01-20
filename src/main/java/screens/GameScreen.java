@@ -14,11 +14,11 @@ public class GameScreen extends GameState {
     // Textures
     public static Texture settings; // Settings icon texture (not used here yet)
 
-    // Requested screen type
-    ScreenType requestedScreen = ScreenType.GAME; // Default screen is the game
-
     // Constructor: initializes game screen
     public GameScreen() {
+        // Set the requested screen type as GAME
+        requestedScreen = ScreenType.GAME;
+
         // Load textures
         EntityManager.tank = LoadTexture("resources/game/tank.png");
         EntityManager.barrel = LoadTexture("resources/game/barrel.png");

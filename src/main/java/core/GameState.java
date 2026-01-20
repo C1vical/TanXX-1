@@ -10,6 +10,9 @@ public abstract class GameState {
     public static int screenW;
     public static int screenH;
 
+    // Screen type
+    public static ScreenType requestedScreen;
+
     // Abstract methods that every GameState subclass must implement
     public abstract void update();                      // Update game logic for the current screen
     public abstract void draw();                        // Draw visuals for the current screen
